@@ -7,7 +7,6 @@ pub struct Ramp {
     x_increment: f32,
     sample_rate: f32,
     tone_frequency: f32,
-
 }
 
 impl Oscillator for Ramp {
@@ -24,12 +23,11 @@ impl Oscillator for Ramp {
     }
 
     fn generate_tone_sample(&mut self, modulation: Option<f32>) -> f32 {
-        let y_coord: f32 = (2.0 / PI) * (1.0f32 / (self.tone_frequency * PI * (self.x_coord/self.sample_rate)).tan())
-            .atan();
-        
+        let y_coord: f32 = (2.0 / PI)
+            * (1.0f32 / (self.tone_frequency * PI * (self.x_coord / self.sample_rate)).tan())
+                .atan();
+
         self.x_coord += self.x_increment + modulation.unwrap_or(1.0);
         y_coord
     }
-    
-
 }

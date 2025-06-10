@@ -22,12 +22,11 @@ impl Oscillator for Sine {
     }
 
     fn generate_tone_sample(&mut self, modulation: Option<f32>) -> f32 {
-       
         let phase_modulation = match modulation {
             Some(modulation) => modulation,
             None => self.phase_increment,
         };
-        
+
         self.phase += phase_modulation;
         if self.phase >= RADS_PER_CYCLE {
             self.phase = 0.0;

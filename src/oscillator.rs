@@ -1,9 +1,9 @@
-pub mod saw;
+pub mod noise;
 pub mod ramp;
-pub mod triangle;
+pub mod saw;
 pub mod sine;
 pub mod square;
-pub mod noise;
+pub mod triangle;
 
 pub trait Oscillator {
     fn new(sample_rate: f32, tone_frequency: u32) -> Self;

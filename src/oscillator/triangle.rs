@@ -9,13 +9,11 @@ pub struct Triangle {
     tone_frequency: f32,
 }
 
-
 impl Oscillator for Triangle {
     fn new(sample_rate: f32, tone_frequency: u32) -> Self {
         let x_coord = 0.0;
         let x_increment = 1.0;
         let sample_rate = sample_rate;
-
 
         Self {
             x_coord,
@@ -26,14 +24,10 @@ impl Oscillator for Triangle {
     }
 
     fn generate_tone_sample(&mut self, modulation: Option<f32>) -> f32 {
-        let y_coord: f32 = 2.0 / PI * ((self.tone_frequency * (2.0 * PI) * (self.x_coord/self.sample_rate)).sin())
-            .asin();
-
-
+        let y_coord: f32 = 2.0 / PI
+            * ((self.tone_frequency * (2.0 * PI) * (self.x_coord / self.sample_rate)).sin()).asin();
 
         self.x_coord += self.x_increment + modulation.unwrap_or(1.0);
         y_coord
     }
-
-
 }

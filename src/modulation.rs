@@ -1,4 +1,6 @@
-use cpal::{default_host, SampleRate};
+use crate::OUTPUT_LEVEL;
+use cpal::{SampleRate, default_host};
+use std::f32::MIN;
 
 const DEFAULT_PWM_FACTOR: f32 = 0.0;
 const DEFAULT_PWM_INCREMENT: f32 = 0.0001;
@@ -6,7 +8,9 @@ const DEFAULT_PWM_LIMIT: f32 = 0.8;
 const DEFAULT_TREMOLO_INCREMENT: f32 = 0.1;
 const DEFAULT_ENV_ADJUSTMENT_LEVEL: f32 = 0.0;
 const MINIMUM_ENV_LEVEL: f32 = -70.0;
-const DEFAULT_ENV_INCREMENT: f32 = 0.001;
+const DEFAULT_ATTACK_MILLISECONDS: u32 = 100;
+const DEFAULT_DECAY_MILLISECONDS: u32 = 100;
+const DEFAULT_RELEASE_MILLISECONDS: u32 = 100;
 const DEFAULT_SUSTAIN_COUNT: u32 = 22050;
 const SUSTAIN_LEVEL_BELOW_MIN: f32 = 0.0;
 
@@ -23,17 +27,17 @@ pub enum State {
     Stopped,
 }
 
-pub struct ADSR {
-    pub max_level: f32,
-    pub current_level: f32,
-    pub attack_increment: f32,
-    pub decay_increment: f32,
-    pub release_increment: f32,
-    pub sustain_count: u32,
-    pub sustain_length: u32,
-    pub sustain_level: f32,
-    pub stage: ADSRStage,
-    pub state: State,
+struct ADSR {
+    max_level: f32,
+    current_level: f32,
+    attack_milliseconds: u32,
+    decay_milliseconds: u32,
+    release_milliseconds: u32,
+    sustain_count: u32,
+    sustain_length: u32,
+    sustain_level: f32,
+    stage: ADSRStage,
+    state: State,
 }
 
 pub struct Modulation {
@@ -44,8 +48,7 @@ pub struct Modulation {
     envelope: ADSR,
 }
 
-impl Modulation { 
-
+impl Modulation {
     pub fn new(sample_rate: u32, output_level: f32) -> Self {
         Self {
             sample_rate,
@@ -54,24 +57,21 @@ impl Modulation {
             pwm_limit: DEFAULT_PWM_LIMIT,
             envelope: ADSR {
                 current_level: MINIMUM_ENV_LEVEL,
-                attack_increment: DEFAULT_ENV_INCREMENT,
-                decay_increment: DEFAULT_ENV_INCREMENT,
-                release_increment: DEFAULT_ENV_INCREMENT,
+                attack_milliseconds: DEFAULT_ATTACK_MILLISECONDS,
+                decay_milliseconds: DEFAULT_DECAY_MILLISECONDS,
+                release_milliseconds: DEFAULT_RELEASE_MILLISECONDS,
                 sustain_count: 0,
                 sustain_length: DEFAULT_SUSTAIN_COUNT,
                 sustain_level: output_level,
                 max_level: output_level,
                 stage: ADSRStage::Attack,
                 state: State::Stopped,
-            }
+            },
         }
-        
-        
     }
-    
+
     // pwm_amount represents a scaling factor for the modulation or the width of the pwm or the max change in duty cycle.
     pub fn pwm(&mut self, pwm_amount: f32) -> f32 {
-
         if self.pwm_factor >= self.pwm_limit || self.pwm_factor <= (-1.0 * self.pwm_limit) {
             self.pwm_increment *= -1.0;
         }
@@ -80,47 +80,56 @@ impl Modulation {
         self.pwm_factor * pwm_amount
     }
 
-    
-    pub fn set_attack_increment(&mut self, increment: f32) {
-        self.envelope.attack_increment = increment;
+    pub fn set_attack_milliseconds(&mut self, milliseconds: u32) {
+        self.envelope.attack_milliseconds = milliseconds;
     }
 
-    pub fn set_decay_increment(&mut self, increment: f32) {
-        self.envelope.decay_increment = increment;
+    pub fn set_decay_milliseconds(&mut self, milliseconds: u32) {
+        self.envelope.decay_milliseconds = milliseconds;
     }
 
-    pub fn set_release_increment(&mut self, increment: f32) {
-        self.envelope.release_increment = increment;
+    pub fn set_release_milliseconds(&mut self, milliseconds: u32) {
+        self.envelope.release_milliseconds = milliseconds;
     }
 
-    pub fn set_sustain_length(&mut self, samples: u32) {
-        self.envelope.sustain_length = samples;
+    pub fn set_sustain_length_milliseconds(&mut self, millliseconds: u32) {
+        self.envelope.sustain_length = millliseconds;
     }
-    
+
     pub fn set_sustain_level(&mut self, level: f32) {
         self.envelope.sustain_level = level;
     }
-    
-    
+
+    pub fn set_sample_rate(&mut self, sample_rate: u32) {
+        self.sample_rate = sample_rate;
+    }
+
     pub fn envelope(&mut self, output_level: f32) -> State {
-        
         if self.envelope.state == State::Stopped {
             self.envelope.state = State::Playing(MINIMUM_ENV_LEVEL);
         }
-        
+
         match self.envelope.stage {
             ADSRStage::Attack => {
                 if self.envelope.current_level < output_level {
-                    self.envelope.current_level += self.envelope.attack_increment;
+                    self.envelope.current_level += self.get_increment_from_milliseconds(
+                        self.envelope.attack_milliseconds,
+                        MINIMUM_ENV_LEVEL,
+                        output_level,
+                    );
                 } else {
                     println!("Attack -> Decay");
                     self.envelope.current_level = output_level;
                     self.envelope.stage = ADSRStage::Decay;
                 }
-            },
+            }
             ADSRStage::Decay => {
                 if self.envelope.current_level > self.envelope.sustain_level {
-                    self.envelope.current_level -= self.envelope.decay_increment;
+                    self.envelope.current_level -= self.get_increment_from_milliseconds(
+                        self.envelope.decay_milliseconds,
+                        output_level,
+                        self.envelope.sustain_level,
+                    );
                 } else {
                     println!("Decay -> Sustain");
                     self.envelope.current_level = self.envelope.sustain_level;
@@ -128,17 +137,23 @@ impl Modulation {
                 }
             }
             ADSRStage::Sustain => {
-                if self.envelope.sustain_count < self.envelope.sustain_length {
+                if self.envelope.sustain_count
+                    < self.get_number_of_samples_from_milliseconds(self.envelope.sustain_length)
+                {
                     self.envelope.sustain_count += 1;
                 } else {
                     println!("Sustain -> Release");
                     self.envelope.stage = ADSRStage::Release;
                     self.envelope.sustain_count = 0;
                 }
-            },
+            }
             ADSRStage::Release => {
                 if self.envelope.current_level > MINIMUM_ENV_LEVEL {
-                    self.envelope.current_level -= self.envelope.release_increment;
+                    self.envelope.current_level -= self.get_increment_from_milliseconds(
+                        self.envelope.release_milliseconds,
+                        self.envelope.sustain_level,
+                        MINIMUM_ENV_LEVEL,
+                    );
                 } else {
                     println!("Release Ends");
                     self.envelope.current_level = MINIMUM_ENV_LEVEL;
@@ -150,16 +165,28 @@ impl Modulation {
         if self.envelope.state == State::Stopped {
             return State::Stopped;
         }
-        
-        State::Playing(get_output_level_adjustment_factor(self.envelope.current_level))
+
+        State::Playing(get_output_level_adjustment_factor(
+            self.envelope.current_level,
+        ))
     }
-    
+
+    fn get_number_of_samples_from_milliseconds(&self, milliseconds: u32) -> u32 {
+        self.sample_rate / 1000 * milliseconds
+    }
+
+    fn get_increment_from_milliseconds(
+        &self,
+        milliseconds: u32,
+        start_level: f32,
+        target_level: f32,
+    ) -> f32 {
+        let level_delta = start_level - target_level;
+        let number_of_samples = self.get_number_of_samples_from_milliseconds(milliseconds);
+        level_delta.abs() / (number_of_samples as f32)
+    }
 }
 
 fn get_output_level_adjustment_factor(output_level: f32) -> f32 {
     10.0_f32.powf(output_level / 20.0)
-}
-
-pub fn get_number_of_samples_from_milliseconds(sample_rate: u32, milliseconds: u32) -> u32 {
-    sample_rate/1000 * milliseconds
 }
