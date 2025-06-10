@@ -1,4 +1,4 @@
-# Dave's Oscillator Playground
+# Oscillator Playground
 
 This is not so much a real project as it is place for me to learn about DSP in general and in Rust specifically.
 
