@@ -47,20 +47,12 @@ fn main() {
      // let mut noise = Noise::new(default_sample_rate, TONE_FREQUENCY);
     
     // Initialize the modulation module if you want to use pwm modulation.
-     let mut modulation = Modulation::new(default_sample_rate, OUTPUT_LEVEL);
-
-    modulation.set_adsr(ADSR{
-        max_level: OUTPUT_LEVEL,
-        current_level: -70.0,
-        attack_increment: 0.001,
-        decay_increment: 0.0001,
-        release_increment: 0.001,
-        sustain_count: 0,
-        sustain_length: 84100,
-        sustain_level: OUTPUT_LEVEL - 5.0,
-        stage: ADSRStage::Attack,
-        state: State::Stopped,
-    });
+    let mut modulation = Modulation::new(default_sample_rate, OUTPUT_LEVEL);
+    modulation.set_attack_increment(0.001);
+    modulation.set_decay_increment(0.0001);
+    modulation.set_release_increment(0.001);
+    modulation.set_sustain_length(84100);
+    modulation.set_sustain_level(OUTPUT_LEVEL - 5.0);
 
     // Build the output stream that will be sent through CoreAudio to your selected device
     let stream = output_device.build_output_stream(

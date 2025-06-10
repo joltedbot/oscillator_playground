@@ -81,12 +81,27 @@ impl Modulation {
     }
 
     
-    // This is a hack to give full control in main for testing but it should be broking out into 
-    // individual functions to allow individually setting things that should be changeable
-    pub fn set_adsr(&mut self, adsr: ADSR) {
-        self.envelope = adsr;
+    pub fn set_attack_increment(&mut self, increment: f32) {
+        self.envelope.attack_increment = increment;
     }
 
+    pub fn set_decay_increment(&mut self, increment: f32) {
+        self.envelope.decay_increment = increment;
+    }
+
+    pub fn set_release_increment(&mut self, increment: f32) {
+        self.envelope.release_increment = increment;
+    }
+
+    pub fn set_sustain_length(&mut self, samples: u32) {
+        self.envelope.sustain_length = samples;
+    }
+    
+    pub fn set_sustain_level(&mut self, level: f32) {
+        self.envelope.sustain_level = level;
+    }
+    
+    
     pub fn envelope(&mut self, output_level: f32) -> State {
         
         if self.envelope.state == State::Stopped {
