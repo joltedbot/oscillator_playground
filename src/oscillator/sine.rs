@@ -9,10 +9,10 @@ pub struct Sine {
 }
 
 impl Oscillator for Sine {
-    fn new(sample_rate: f32, tone_frequency: u32) -> Self {
+    fn new(sample_rate: f32) -> Self {
         let phase: f32 = 0.0;
         let seconds_per_sample = 1.0 / sample_rate;
-        let phase_increment = RADS_PER_CYCLE * seconds_per_sample * (tone_frequency as f32);
+        let phase_increment = RADS_PER_CYCLE * seconds_per_sample;
 
         Self {
             phase,
@@ -21,10 +21,10 @@ impl Oscillator for Sine {
         }
     }
 
-    fn generate_tone_sample(&mut self, modulation: Option<f32>) -> f32 {
+    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let phase_modulation = match modulation {
             Some(modulation) => modulation,
-            None => self.phase_increment,
+            None => self.phase_increment * tone_frequency,
         };
 
         self.phase += phase_modulation;

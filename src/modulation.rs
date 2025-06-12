@@ -119,7 +119,6 @@ impl Modulation {
                         output_level,
                     );
                 } else {
-                    println!("Decay");
                     self.envelope.current_level = output_level;
                     self.envelope.stage = ADSRStage::Decay;
                 }
@@ -132,7 +131,6 @@ impl Modulation {
                         self.envelope.sustain_level,
                     );
                 } else {
-                    println!("Sustain");
                     self.envelope.current_level = self.envelope.sustain_level;
                     self.envelope.stage = ADSRStage::Sustain;
                 }
@@ -143,7 +141,6 @@ impl Modulation {
                 {
                     self.envelope.sustain_count += 1;
                 } else {
-                    println!("Release");
                     self.envelope.stage = ADSRStage::Release;
                     self.envelope.sustain_count = 0;
                 }
@@ -156,7 +153,6 @@ impl Modulation {
                         MINIMUM_ENV_LEVEL,
                     );
                 } else {
-                    println!("Stop");
                     self.envelope.current_level = MINIMUM_ENV_LEVEL;
                     self.envelope.stage = ADSRStage::Attack;
                     self.envelope.state = State::Stopped;

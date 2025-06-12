@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables, unused_imports, unused_mut)]
 mod modulation;
 mod oscillator;
+mod sequencer;
 
 use crate::oscillator::{
     Oscillator, noise::Noise, ramp::Ramp, saw::Saw, sine::Sine, square::Square, triangle::Triangle,
@@ -11,12 +12,13 @@ use crate::modulation::{Modulation, State};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{StreamConfig, default_host};
+use sequencer::Sequencer;
 
-const TONE_FREQUENCY: u32 = 100; // Sets the frequency of the tone. It is in Hertz. Change to whatever you want
-const UNISON_SPREAD: u32 = 1;
+
+const TONE_FREQUENCY: f32 = 110.0; // Sets the frequency of the tone. It is in Hertz. Change to whatever you want
+const UNISON_SPREAD: f32 = 1.0;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -18.  Change to any dbfs level you want
-
 
 fn main() {
     // This will grab the device that is currently selected to play audio in macOS.  Focusrite, Speakers, etc...
@@ -32,30 +34,35 @@ fn main() {
     let output_level = get_output_level_adjustment_factor(OUTPUT_LEVEL);
 
     // Initialize the oscillators you want to use.
-    let mut saw = Saw::new(default_sample_rate as f32, TONE_FREQUENCY);
-    let mut ramp = Ramp::new(default_sample_rate as f32, TONE_FREQUENCY);
-    let mut triangle = Triangle::new(default_sample_rate as f32, TONE_FREQUENCY);
-    let mut sine = Sine::new(default_sample_rate  as f32, TONE_FREQUENCY);
-    let mut noise = Noise::new(default_sample_rate as f32, TONE_FREQUENCY);
+    let mut saw = Saw::new(default_sample_rate as f32);
+    let mut ramp = Ramp::new(default_sample_rate as f32);
+    let mut triangle = Triangle::new(default_sample_rate as f32);
+    let mut sine = Sine::new(default_sample_rate  as f32);
+    let mut noise = Noise::new(default_sample_rate as f32);
     
-    let mut square = Square::new(default_sample_rate as f32, TONE_FREQUENCY);
-    let mut square2 = Square::new(default_sample_rate as f32, TONE_FREQUENCY + UNISON_SPREAD);
-    let mut square3 = Square::new(default_sample_rate as f32, TONE_FREQUENCY - UNISON_SPREAD);
+    let mut square = Square::new(default_sample_rate as f32);
+    let mut square2 = Square::new(default_sample_rate as f32 + UNISON_SPREAD);
+    let mut square3 = Square::new(default_sample_rate as f32 - UNISON_SPREAD);
     
 
     // Initialize the modulation module if you want to use pwm modulation.
     let mut modulation = Modulation::new(default_sample_rate, OUTPUT_LEVEL);
-    modulation.set_attack_milliseconds(200);
-    modulation.set_decay_milliseconds(200);
-    modulation.set_release_milliseconds(700);
-    modulation.set_sustain_length_milliseconds(3000);
+    modulation.set_attack_milliseconds(0);
+    modulation.set_decay_milliseconds(0);
+    modulation.set_release_milliseconds(0);
+    modulation.set_sustain_length_milliseconds(300);
     modulation.set_sustain_level(OUTPUT_LEVEL - 4.0);
 
     let buffer_delay_count = 4400;
     let mut count: u64 = 0;
     let mut sample_delay_buffer: Vec<f32> = Vec::with_capacity(buffer_delay_count);
     let mut buffered_sample: f32 = 0.0;
-
+    
+    // The sequence is midi note numbers so A0 = 21, A#/Bb0 = 22, B0 = 23, etc.
+    // For rests use note 20
+    let mut sequencer = Sequencer::new(vec![45, 47, 20, 50, 52, 53, 55, 57]);
+    let mut note_frequency = sequencer.next_note_frequency();
+    
     // Build the output stream that will be sent through CoreAudio to your selected device
     let stream = output_device
         .build_output_stream(
@@ -71,16 +78,17 @@ fn main() {
                     let pwm_amount_percentage = -0.7; // i.e., the % to change the duty cycle during modulation
                     let pwm = modulation.pwm(pwm_amount_percentage);
 
-                    // Gets the next sample for the selected wave form
-                    let sine_sample = sine.generate_tone_sample(None);
-                    let saw_sample = saw.generate_tone_sample(None);
-                    let ramp_sample = ramp.generate_tone_sample(Some(pwm));
-                    let triangle_sample = triangle.generate_tone_sample(Some(pwm));
-                    let noise_sample = noise.generate_tone_sample(None);
                     
-                    let square_sample = square.generate_tone_sample(None);
-                    let square_sample2 = square2.generate_tone_sample(None);
-                    let square_sample3 = square3.generate_tone_sample(None);
+                    
+                    // Gets the next sample for the selected wave form
+                    let saw_sample = saw.generate_tone_sample(note_frequency, None);
+                    let ramp_sample = ramp.generate_tone_sample(note_frequency, Some(pwm));
+                    let triangle_sample = triangle.generate_tone_sample(note_frequency, Some(pwm));
+                    let noise_sample = noise.generate_tone_sample(note_frequency, None);
+                    
+                    let square_sample = square.generate_tone_sample(note_frequency, None);
+                    let square_sample2 = square2.generate_tone_sample(note_frequency, None);
+                    let square_sample3 = square3.generate_tone_sample(note_frequency, None);
                     
                     // Multiple shape adding plus a sample delay
                     /*
@@ -116,7 +124,9 @@ fn main() {
                             frame[0] = left_sample * db_adjustment;
                             frame[1] = right_sample * db_adjustment;
                         }
-                        State::Stopped => exit(0),
+                        State::Stopped => {
+                            note_frequency = sequencer.next_note_frequency();
+                        },
                     }
                 }
             },
@@ -124,9 +134,7 @@ fn main() {
             None,
         )
         .unwrap();
-
-
-    println!("Attack");
+    
     stream.play().unwrap();
 
 

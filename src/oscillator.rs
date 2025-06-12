@@ -6,7 +6,7 @@ pub mod square;
 pub mod triangle;
 
 pub trait Oscillator {
-    fn new(sample_rate: f32, tone_frequency: u32) -> Self;
+    fn new(sample_rate: f32) -> Self;
 
-    fn generate_tone_sample(&mut self, modulation: Option<f32>) -> f32;
+    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
 }
