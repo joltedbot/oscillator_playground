@@ -21,12 +21,18 @@ impl Oscillator for Square {
         }
     }
 
-    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
+    fn generate_next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let mut y_coord: f32 =
             (tone_frequency * (2.0 * PI) * (self.x_coord / self.sample_rate)).sin();
 
-        let duty_cycle = modulation.unwrap_or_default();
-
+       
+        let duty_cycle =  if tone_frequency == 0.0 {
+            0.0
+        } else {
+            modulation.unwrap_or_default()
+        };
+        
+    
         if y_coord >= 0.0 - duty_cycle {
             y_coord = 1.0;
         } else {

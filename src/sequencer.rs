@@ -1,7 +1,26 @@
 
-const MIDI_NOTE_NUMBER_ARRAY_INDEX_OFFSET: usize = 20;
-const midi_note_frequencies: [(&str, f32); 108] = [
-    ("Rest", 0.0),
+const MIDI_NOTE_FREQUENCIES: [(&str, f32); 128] = [
+    ("Rest",0.0),
+    ("C#-1/Db-1",8.66),
+    ("D-1",9.18),
+    ("D#-1/Eb-1",9.72),
+    ("E-1",10.30),
+    ("F-1",10.91),
+    ("F#-1/Gb-1",11.56),
+    ("G-1",12.25),
+    ("G#-1/Ab-1",12.98),
+    ("A-1",13.75),
+    ("A#-1/Bb-1",14.57),
+    ("B-1",15.43),
+    ("C0", 16.35),
+    ("C#0/Db0", 17.32),
+    ("D0", 18.35),
+    ("D#0/Eb0", 19.45),
+    ("E0", 	20.60),
+    ("F0", 21.83),
+    ("F#0/Gb0",23.12),
+    ("G0",24.50),
+    ("G#0/Ab0",25.96),
     ("A0",27.5),
     ("A#0/Bb0",29.14),
     ("B0",30.87),
@@ -50,7 +69,7 @@ const midi_note_frequencies: [(&str, f32); 108] = [
     ("F#4/Gb4",369.99),
     ("G4",392.0),
     ("G#4/Ab4",415.3),
-    ("A4 concert pitch",440.0),
+    ("A4",440.0),
     ("A#4/Bb4",466.16),
     ("B4",493.88),
     ("C5",523.25),
@@ -136,9 +155,8 @@ impl Sequencer {
             self.sequence_index = 0;
         }
         
-        println!("Playing Note: {}", midi_note_frequencies[midi_note as usize - MIDI_NOTE_NUMBER_ARRAY_INDEX_OFFSET]
-            .0);
-        midi_note_frequencies[midi_note as usize - MIDI_NOTE_NUMBER_ARRAY_INDEX_OFFSET].1
+        //println!("Playing Note: {}", MIDI_NOTE_FREQUENCIES[midi_note as usize - MIDI_NOTE_NUMBER_ARRAY_INDEX_OFFSET].0);
+        MIDI_NOTE_FREQUENCIES[midi_note as usize].1
         
     }
     

@@ -20,7 +20,7 @@ impl Oscillator for Ramp {
         }
     }
 
-    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
+    fn generate_next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let y_coord: f32 = (2.0 / PI)
             * (1.0f32 / (tone_frequency * PI * (self.x_coord / self.sample_rate)).tan())
                 .atan();

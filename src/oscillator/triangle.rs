@@ -21,7 +21,7 @@ impl Oscillator for Triangle {
         }
     }
 
-    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
+    fn generate_next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let y_coord: f32 = 2.0 / PI
             * ((tone_frequency * (2.0 * PI) * (self.x_coord / self.sample_rate)).sin()).asin();
 

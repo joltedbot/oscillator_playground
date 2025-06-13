@@ -2,21 +2,21 @@
 mod modulation;
 mod oscillator;
 mod sequencer;
+pub mod lfo;
 
 use crate::oscillator::{
-    Oscillator, noise::Noise, ramp::Ramp, saw::Saw, sine::Sine, square::Square, triangle::Triangle,
+    noise::Noise, ramp::Ramp, saw::Saw, sine::Sine, square::Square, triangle::Triangle, Oscillator
 };
-use std::process::exit;
-use std::time::{Duration, Instant};
 use crate::modulation::{Modulation, State};
+use crate::lfo::LFO;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{StreamConfig, default_host};
+use cpal::{default_host, StreamConfig};
 use sequencer::Sequencer;
 
 
 const TONE_FREQUENCY: f32 = 110.0; // Sets the frequency of the tone. It is in Hertz. Change to whatever you want
-const UNISON_SPREAD: f32 = 1.0;
+const UNISON_SPREAD: f32 = 0.5;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -18.  Change to any dbfs level you want
 
@@ -41,26 +41,28 @@ fn main() {
     let mut noise = Noise::new(default_sample_rate as f32);
     
     let mut square = Square::new(default_sample_rate as f32);
-    let mut square2 = Square::new(default_sample_rate as f32 + UNISON_SPREAD);
-    let mut square3 = Square::new(default_sample_rate as f32 - UNISON_SPREAD);
-    
+    let mut square2 = Square::new(default_sample_rate as f32);
+    let mut square3 = Square::new(default_sample_rate as f32);
+
+    let mut lfo = LFO::new(default_sample_rate as f32);
+
 
     // Initialize the modulation module if you want to use pwm modulation.
     let mut modulation = Modulation::new(default_sample_rate, OUTPUT_LEVEL);
-    modulation.set_attack_milliseconds(0);
-    modulation.set_decay_milliseconds(0);
-    modulation.set_release_milliseconds(0);
-    modulation.set_sustain_length_milliseconds(300);
-    modulation.set_sustain_level(OUTPUT_LEVEL - 4.0);
+    modulation.set_attack_milliseconds(50);
+    modulation.set_decay_milliseconds(300);
+    modulation.set_release_milliseconds(200);
+    modulation.set_sustain_length_milliseconds(100);
+    modulation.set_sustain_level(OUTPUT_LEVEL - 6.0);
 
     let buffer_delay_count = 4400;
     let mut count: u64 = 0;
     let mut sample_delay_buffer: Vec<f32> = Vec::with_capacity(buffer_delay_count);
     let mut buffered_sample: f32 = 0.0;
     
-    // The sequence is midi note numbers so A0 = 21, A#/Bb0 = 22, B0 = 23, etc.
-    // For rests use note 20
-    let mut sequencer = Sequencer::new(vec![45, 47, 20, 50, 52, 53, 55, 57]);
+    // The sequence is midi note numbers
+    // For rests use note 0 - It leaves out c-1 but 8hz doesn't do you much good anyway. 
+    let mut sequencer = Sequencer::new(vec![55, 57, 58, 0, 62, 63, 65, 67]);
     let mut note_frequency = sequencer.next_note_frequency();
     
     // Build the output stream that will be sent through CoreAudio to your selected device
@@ -69,26 +71,25 @@ fn main() {
             &stream_config,
             move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
 
-
-
                 // This is the main action loop that takes in a buffer and breaks it into fames
                 // One frame is an array of 1 sample from each channel on the selected device
                 for frame in buffer.chunks_mut(number_of_channels as usize) {
-                    // Set up PWM modulation.  Pass "Some(duty_cycle) to the generate_tone_sample function
-                    let pwm_amount_percentage = -0.7; // i.e., the % to change the duty cycle during modulation
+                    // Set up PWM modulation.  Pass "Some(duty_cycle) to the generate_next_sample function
+                    let pwm_amount_percentage = 0.4; // i.e., the % to change the duty cycle during modulation
                     let pwm = modulation.pwm(pwm_amount_percentage);
 
-                    
-                    
+                    let lfo_value = lfo.generate_next_sample(50.0, 0.1, 0.5);
+
                     // Gets the next sample for the selected wave form
-                    let saw_sample = saw.generate_tone_sample(note_frequency, None);
-                    let ramp_sample = ramp.generate_tone_sample(note_frequency, Some(pwm));
-                    let triangle_sample = triangle.generate_tone_sample(note_frequency, Some(pwm));
-                    let noise_sample = noise.generate_tone_sample(note_frequency, None);
-                    
-                    let square_sample = square.generate_tone_sample(note_frequency, None);
-                    let square_sample2 = square2.generate_tone_sample(note_frequency, None);
-                    let square_sample3 = square3.generate_tone_sample(note_frequency, None);
+                    let sine_sample = sine.generate_next_sample(note_frequency, None);
+                     let saw_sample = saw.generate_next_sample(note_frequency, None);
+                    let ramp_sample = ramp.generate_next_sample(note_frequency, Some(pwm));
+                    let mut triangle_sample = triangle.generate_next_sample(note_frequency, None);
+                    let noise_sample = noise.generate_next_sample(note_frequency, None);
+
+                    let square_sample = square.generate_next_sample(note_frequency, None);
+                    let square_sample2 = square2.generate_next_sample(note_frequency + UNISON_SPREAD, Some(pwm));
+                    let square_sample3 = square3.generate_next_sample(note_frequency - UNISON_SPREAD, Some(lfo_value));
                     
                     // Multiple shape adding plus a sample delay
                     /*
@@ -104,18 +105,15 @@ fn main() {
                     */
                     
                     // Unison 
-                    /*
-                        let mut left_sample = square_sample + square_sample2 + square_sample3;
-                        let mut right_sample = square_sample + square_sample2 + square_sample3;
-                    */
+                   //  let mut left_sample = square_sample + square_sample2 + square_sample3;
+                    // let mut right_sample = square_sample + square_sample2 + square_sample3;
 
                     // Set the left and right out to one of the _sample variables above
                     // This is also where you can mess with the samples. * -1.0 to invert the phase, add, subtract,
                     // multiply wave forms etc...
-                    let mut left_sample = square_sample;
-                    let mut right_sample = square_sample;
+                       let mut left_sample = sine_sample;
+                       let mut right_sample = sine_sample;
 
-                    
                     // Send the sample to the left and right channels and multiply by the output level adjustment form above
                     // Left is set to Channel 1 (0 here) and right to Channel 2 (1 here). You can change just -1 from the
                     // normal channel number for the interface

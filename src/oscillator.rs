@@ -8,5 +8,5 @@ pub mod triangle;
 pub trait Oscillator {
     fn new(sample_rate: f32) -> Self;
 
-    fn generate_tone_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
+    fn generate_next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
 }
