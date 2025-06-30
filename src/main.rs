@@ -14,7 +14,7 @@ use crate::device::AudioDevice;
 use crate::lfo::LFO;
 use crate::sequencer::Sequencer;
 
-const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -18.  Change to any dbfs level you want
+const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
 const MAIN_LOOP_DURATION_SECONDS: u64 = 60;
 
 fn main() {
@@ -26,6 +26,19 @@ fn main() {
     // Initialize the LFO
     let mut lfo1 = LFO::new(sample_rate);
 
+    // Set up your initial oscillators and set their WaveShape
+    // Available WaveShapes: Noise, Ramp, Saw, Sine, Square, SuperSaw, Triangle
+    let mut oscillators = Oscillators::new(sample_rate);
+
+    oscillators.set_oscillator1_type(WaveShape::Square);
+    oscillators.set_oscillator2_type(WaveShape::Square);
+    oscillators.set_oscillator3_type(WaveShape::Square);
+    // oscillators.enable_unison(0.03);
+    
+    // The sequence is midi note numbers
+    // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway. 
+    let mut sequencer = Sequencer::new(vec![60, 62, 63, 65, 67, 68, 70, 72]);
+
     // Initialize the modulation module and define your ADSR Envelope
     let mut modulation = Envelope::new(sample_rate as u32, OUTPUT_LEVEL);
     modulation.set_adsr_attack_milliseconds(50);
@@ -35,24 +48,11 @@ fn main() {
     modulation.set_adsr_sustain_level(OUTPUT_LEVEL - 6.0);
     
     
-    // The sequence is midi note numbers
-    // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway. 
-    let mut sequencer = Sequencer::new(vec![60, 62, 63, 65, 67, 68, 70, 72]);
-
     // Build the output stream that will be sent through CoreAudio to your selected device
     let mut note_frequency = sequencer.next_note_frequency();
     let stream_config = audio_device.get_stream_config();
     let output_device = audio_device.get_output_device();
     let number_of_channels = audio_device.get_number_of_channels();
-
-    // Set up your initial oscillators and set their WaveShape
-    // Available WaveShapes: Noise, Ramp, Saw, Sine, Square, SuperSaw, Triangle
-    let mut oscillators = Oscillators::new(sample_rate);
-
-    oscillators.set_oscillator1_type(WaveShape::Square);
-    oscillators.set_oscillator2_type(WaveShape::Square);
-    oscillators.set_oscillator3_type(WaveShape::Square);
-    oscillators.enable_unison(0.03);
 
     let oscillators_arc = Arc::new(Mutex::new(oscillators));
 
@@ -66,7 +66,7 @@ fn main() {
                 });
 
                 for frame in buffer.chunks_mut(number_of_channels) {
-                    
+
                     let lfo1_value = lfo1.get_next_value(3.0, 0.7, 0.3);
 
                     let oscillator1_sample = oscillator.get_oscillator1_next_sample(note_frequency, 1.0, None);
