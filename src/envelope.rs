@@ -1,19 +1,8 @@
-use crate::OUTPUT_LEVEL;
-use cpal::{SampleRate, default_host};
-use std::f32::MIN;
-use std::time::{Duration, Instant};
-
-const DEFAULT_PWM_FACTOR: f32 = 0.0;
-const DEFAULT_PWM_INCREMENT: f32 = 0.0001;
-const DEFAULT_PWM_LIMIT: f32 = 0.8;
-const DEFAULT_TREMOLO_INCREMENT: f32 = 0.1;
-const DEFAULT_ENV_ADJUSTMENT_LEVEL: f32 = 0.0;
 const MINIMUM_ENV_LEVEL: f32 = -70.0;
 const DEFAULT_ATTACK_MILLISECONDS: u32 = 100;
 const DEFAULT_DECAY_MILLISECONDS: u32 = 100;
 const DEFAULT_RELEASE_MILLISECONDS: u32 = 100;
 const DEFAULT_SUSTAIN_COUNT: u32 = 22050;
-const SUSTAIN_LEVEL_BELOW_MIN: f32 = 0.0;
 
 pub enum ADSRStage {
     Attack,
@@ -29,7 +18,6 @@ pub enum State {
 }
 
 struct ADSR {
-    max_level: f32,
     current_level: f32,
     attack_milliseconds: u32,
     decay_milliseconds: u32,
@@ -41,21 +29,15 @@ struct ADSR {
     state: State,
 }
 
-pub struct Modulation {
+pub struct Envelope {
     sample_rate: u32,
-    pwm_factor: f32,
-    pwm_increment: f32,
-    pwm_limit: f32,
     envelope: ADSR,
 }
 
-impl Modulation {
-    pub fn new(sample_rate: u32, output_level: f32) -> Self {
+impl Envelope {
+    pub fn new(sample_rate: u32, sustain_level: f32) -> Self {
         Self {
             sample_rate,
-            pwm_factor: DEFAULT_PWM_FACTOR,
-            pwm_increment: DEFAULT_PWM_INCREMENT,
-            pwm_limit: DEFAULT_PWM_LIMIT,
             envelope: ADSR {
                 current_level: MINIMUM_ENV_LEVEL,
                 attack_milliseconds: DEFAULT_ATTACK_MILLISECONDS,
@@ -63,47 +45,37 @@ impl Modulation {
                 release_milliseconds: DEFAULT_RELEASE_MILLISECONDS,
                 sustain_count: 0,
                 sustain_length: DEFAULT_SUSTAIN_COUNT,
-                sustain_level: output_level,
-                max_level: output_level,
+                sustain_level,
                 stage: ADSRStage::Attack,
                 state: State::Stopped,
             },
         }
     }
 
-    // pwm_amount represents a scaling factor for the modulation or the width of the pwm or the max change in duty cycle.
-    pub fn pwm(&mut self, pwm_amount: f32) -> f32 {
-        if self.pwm_factor >= self.pwm_limit || self.pwm_factor <= (-1.0 * self.pwm_limit) {
-            self.pwm_increment *= -1.0;
-        }
-
-        self.pwm_factor += self.pwm_increment;
-        self.pwm_factor * pwm_amount
-    }
-
-    pub fn set_attack_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_adsr_attack_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.attack_milliseconds = milliseconds;
     }
 
-    pub fn set_decay_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_adsr_decay_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.decay_milliseconds = milliseconds;
     }
 
-    pub fn set_release_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_adsr_release_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.release_milliseconds = milliseconds;
     }
 
-    pub fn set_sustain_length_milliseconds(&mut self, millliseconds: u32) {
+    pub fn set_adsr_sustain_length_milliseconds(&mut self, millliseconds: u32) {
         self.envelope.sustain_length = millliseconds;
     }
 
-    pub fn set_sustain_level(&mut self, level: f32) {
+    pub fn set_adsr_sustain_level(&mut self, level: f32) {
         self.envelope.sustain_level = level;
     }
 
     pub fn set_sample_rate(&mut self, sample_rate: u32) {
         self.sample_rate = sample_rate;
     }
+
 
     pub fn envelope(&mut self, output_level: f32) -> State {
         if self.envelope.state == State::Stopped {

@@ -1,6 +1,5 @@
-use crate::oscillator::Oscillator;
-
 const RADS_PER_CYCLE: f32 = 2.0 * std::f32::consts::PI;
+
 
 pub struct LFO {
     pub phase: f32,
@@ -21,7 +20,7 @@ impl LFO {
         }
     }
 
-    pub fn generate_next_sample(&mut self, lfo_frequency: f32, center_value: f32, spread: f32) -> f32 {
+    pub fn get_next_value(&mut self, lfo_frequency: f32, center_value: f32, spread: f32) -> f32 {
         let phase_increment =  self.phase_increment * lfo_frequency;
         
         self.phase += phase_increment;
@@ -32,4 +31,5 @@ impl LFO {
         
         center_value + (wave_position * (spread/2.0)) 
     }
+    
 }

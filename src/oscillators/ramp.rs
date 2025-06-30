@@ -1,4 +1,4 @@
-use crate::oscillator::Oscillator;
+use crate::oscillators::GenerateSamples;
 
 const PI: f32 = std::f32::consts::PI;
 
@@ -8,8 +8,8 @@ pub struct Ramp {
     sample_rate: f32,
 }
 
-impl Oscillator for Ramp {
-    fn new(sample_rate: f32) -> Self {
+impl Ramp {
+    pub fn new(sample_rate: f32) -> Self {
         let x_coord = 0.0;
         let x_increment = 1.0;
 
@@ -19,13 +19,17 @@ impl Oscillator for Ramp {
             sample_rate,
         }
     }
+}
 
-    fn generate_next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
-        let y_coord: f32 = (2.0 / PI)
+impl GenerateSamples for Ramp {
+
+
+    fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
+        let y_coord: f32 = (2.0 / PI) * modulation.unwrap_or(1.0)
             * (1.0f32 / (tone_frequency * PI * (self.x_coord / self.sample_rate)).tan())
                 .atan();
 
-        self.x_coord += self.x_increment + modulation.unwrap_or(1.0);
+        self.x_coord += self.x_increment;
         y_coord
     }
 }
