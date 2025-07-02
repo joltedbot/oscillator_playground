@@ -1,0 +1,103 @@
+
+export global Theme {
+
+    // Main Window
+    out property <string> window-title: "Oscillator Playground";
+    out property <length> window-width: 1200px;
+    out property <length> window-height: 400px;
+    out property <length> window-border-width: 2px;
+    out property <color> window-background: #101010;
+    out property <color> border-colour: #333333;
+    out property <length> border-width: 2px;
+    out property <length> border-radius: 15px;
+    out property <color> header-background: #252525;
+
+
+
+    // Fonts
+    out property <color> text-color: #aaaaaa;
+    out property <color> greyed-out: #444444;
+    out property <int> text-weight-bold: 800;
+    out property <length> text-size: 14px;
+    out property <length> label-text-size: 16px;
+    out property <length> heading-text-size: 20px;
+
+
+
+    //
+    // Components
+    //
+
+    // Start Button
+    out property <string> start_button_running-text: "Stop";
+    out property <string> start_button_stopped-text: "Start";
+    out property <length> start_button_width: 150px;
+    out property <length> start_button_height: 35px;
+
+    // Detune Switch
+    out property <length> mode-switch-width: 250px;
+    out property <length> mode-switch-height: 30px;
+    out property <length> mode-switch-spacer: 15px;
+
+
+    // Output Level
+    out property <int> output-level-minimum: -30;
+    out property <int> output-level-maximum: 0;
+    out property <int> output-level-step-size: 1;
+
+    // Wave Selector
+    out property <length> wave-shape-switch-width: 150px;
+    out property <[string]> wave-shape-list: ["Sine", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
+    out property <string> wave-shape-default: "Sine";
+
+    // Level Slider
+    out property <int> level-slider-step: 1;
+    out property <int> level-slider-minimum: 0;
+    out property <int> level-slider-maximum: 100;
+    out property <int> wave-level-slider-default: 100;
+    out property <int> sub-level-slider-default: 0;
+    out property <int> detune-amount-slider-default: 0;
+
+    // Output Level Slider
+    out property <int> output-level-slider-step: 1;
+    out property <int> output-level-slider-minimum: 40;
+    out property <int> output-level-slider-maximum: 100;
+    out property <int> output-level-slider-default: 90;
+
+    // Activation Switch
+    out property <string> activation-switch-active-text: "Active";
+    out property <string> activation-switch-not-active-text: "Not Active";
+    out property <length> activation-switch-width: 150px;
+
+    // Envelope ADRS Defaults
+    out property <int> envelope-attack-default: 50;
+    out property <int> envelope-decay-default: 300;
+    out property <int> envelope-sustain-default: 200;
+    out property <int> envelope-sustain-level-default: 6;
+    out property <int> envelope-release-default: 300;
+
+
+    //
+    // Label Text
+    //
+
+    out property <string> output-level-heading-text: "Output Level";
+    out property <string> output-level-label-suffix: " dbfs";
+    out property <string> oscillator1-heading-text: "Oscillator 1";
+    out property <string> oscillator2-heading-text: "Oscillator 2";
+    out property <string> oscillator3-heading-text: "Oscillator 3";
+    out property <string> sub-oscillator-heading-text: "Sub";
+    out property <string> sub-oscillator-level-text: "Relative Level";
+    out property <string> oscillator-level-text: "Relative Level";
+    out property <string> detune-heading-text: "Detune";
+    out property <string> detune-amount-label-suffix: "%";
+    out property <string> envelope-header-text: "ADSR Envelope";
+    out property <string> envelope-attack-text: "Attack";
+    out property <string> envelope-decay-text: "Decay";
+    out property <string> envelope-sustain-text: "Sustain";
+    out property <string> envelope-sustain-level-text: "Level";
+    out property <string> envelope-release-text: "Release";
+    out property <string> envelope-time-suffix: " ms";
+    out property <string> envelope-sustain-level-prefix: "Output -";
+    out property <string> envelope-sustain-level-suffix: "dbfs";
+}

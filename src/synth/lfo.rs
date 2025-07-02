@@ -1,6 +1,5 @@
 const RADS_PER_CYCLE: f32 = 2.0 * std::f32::consts::PI;
 
-
 pub struct LFO {
     pub phase: f32,
     pub phase_increment: f32,
@@ -21,15 +20,14 @@ impl LFO {
     }
 
     pub fn get_next_value(&mut self, lfo_frequency: f32, center_value: f32, spread: f32) -> f32 {
-        let phase_increment =  self.phase_increment * lfo_frequency;
-        
+        let phase_increment = self.phase_increment * lfo_frequency;
+
         self.phase += phase_increment;
         if self.phase >= RADS_PER_CYCLE {
             self.phase = 0.0;
         }
         let wave_position = self.phase.sin();
-        
-        center_value + (wave_position * (spread/2.0)) 
+
+        center_value + (wave_position * (spread / 2.0))
     }
-    
 }

@@ -1,9 +1,11 @@
 const MINIMUM_ENV_LEVEL: f32 = -70.0;
-const DEFAULT_ATTACK_MILLISECONDS: u32 = 100;
-const DEFAULT_DECAY_MILLISECONDS: u32 = 100;
-const DEFAULT_RELEASE_MILLISECONDS: u32 = 100;
-const DEFAULT_SUSTAIN_COUNT: u32 = 22050;
+const DEFAULT_ATTACK_MILLISECONDS: u32 = 50;
+const DEFAULT_DECAY_MILLISECONDS: u32 = 300;
+const DEFAULT_RELEASE_MILLISECONDS: u32 = 200;
+const DEFAULT_SUSTAIN_MILLISECONDS: u32 = 300;
+const DEFAULT_SUSTAIN_LEVEL_BELOW_OUTPUT_LEVEL: f32 = 0.0;
 
+#[derive(Clone, PartialEq)]
 pub enum ADSRStage {
     Attack,
     Decay,
@@ -12,11 +14,12 @@ pub enum ADSRStage {
 }
 
 #[derive(Clone, PartialEq)]
-pub enum State {
+pub enum EnvelopeState {
     Playing(f32),
     Stopped,
 }
 
+#[derive(Clone, PartialEq)]
 struct ADSR {
     current_level: f32,
     attack_milliseconds: u32,
@@ -26,16 +29,17 @@ struct ADSR {
     sustain_length: u32,
     sustain_level: f32,
     stage: ADSRStage,
-    state: State,
+    state: EnvelopeState,
 }
 
+#[derive(Clone, PartialEq)]
 pub struct Envelope {
     sample_rate: u32,
     envelope: ADSR,
 }
 
 impl Envelope {
-    pub fn new(sample_rate: u32, sustain_level: f32) -> Self {
+    pub fn new(sample_rate: u32) -> Self {
         Self {
             sample_rate,
             envelope: ADSR {
@@ -44,31 +48,31 @@ impl Envelope {
                 decay_milliseconds: DEFAULT_DECAY_MILLISECONDS,
                 release_milliseconds: DEFAULT_RELEASE_MILLISECONDS,
                 sustain_count: 0,
-                sustain_length: DEFAULT_SUSTAIN_COUNT,
-                sustain_level,
+                sustain_length: DEFAULT_SUSTAIN_MILLISECONDS,
+                sustain_level: DEFAULT_SUSTAIN_LEVEL_BELOW_OUTPUT_LEVEL,
                 stage: ADSRStage::Attack,
-                state: State::Stopped,
+                state: EnvelopeState::Stopped,
             },
         }
     }
 
-    pub fn set_adsr_attack_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_attack_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.attack_milliseconds = milliseconds;
     }
 
-    pub fn set_adsr_decay_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_decay_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.decay_milliseconds = milliseconds;
     }
 
-    pub fn set_adsr_release_milliseconds(&mut self, milliseconds: u32) {
+    pub fn set_release_milliseconds(&mut self, milliseconds: u32) {
         self.envelope.release_milliseconds = milliseconds;
     }
 
-    pub fn set_adsr_sustain_length_milliseconds(&mut self, millliseconds: u32) {
+    pub fn set_sustain_length_milliseconds(&mut self, millliseconds: u32) {
         self.envelope.sustain_length = millliseconds;
     }
 
-    pub fn set_adsr_sustain_level(&mut self, level: f32) {
+    pub fn set_sustain_level_below_output_level_in_dbfs(&mut self, level: f32) {
         self.envelope.sustain_level = level;
     }
 
@@ -76,10 +80,9 @@ impl Envelope {
         self.sample_rate = sample_rate;
     }
 
-
-    pub fn envelope(&mut self, output_level: f32) -> State {
-        if self.envelope.state == State::Stopped {
-            self.envelope.state = State::Playing(MINIMUM_ENV_LEVEL);
+    pub fn adsr(&mut self, output_level: f32) -> EnvelopeState {
+        if self.envelope.state == EnvelopeState::Stopped {
+            self.envelope.state = EnvelopeState::Playing(MINIMUM_ENV_LEVEL);
         }
 
         match self.envelope.stage {
@@ -96,14 +99,14 @@ impl Envelope {
                 }
             }
             ADSRStage::Decay => {
-                if self.envelope.current_level > self.envelope.sustain_level {
+                if self.envelope.current_level > (output_level - self.envelope.sustain_level) {
                     self.envelope.current_level -= self.get_increment_from_milliseconds(
                         self.envelope.decay_milliseconds,
                         output_level,
-                        self.envelope.sustain_level,
+                        output_level - self.envelope.sustain_level,
                     );
                 } else {
-                    self.envelope.current_level = self.envelope.sustain_level;
+                    self.envelope.current_level = output_level - self.envelope.sustain_level;
                     self.envelope.stage = ADSRStage::Sustain;
                 }
             }
@@ -121,21 +124,21 @@ impl Envelope {
                 if self.envelope.current_level > MINIMUM_ENV_LEVEL {
                     self.envelope.current_level -= self.get_increment_from_milliseconds(
                         self.envelope.release_milliseconds,
-                        self.envelope.sustain_level,
+                        output_level - self.envelope.sustain_level,
                         MINIMUM_ENV_LEVEL,
                     );
                 } else {
                     self.envelope.current_level = MINIMUM_ENV_LEVEL;
                     self.envelope.stage = ADSRStage::Attack;
-                    self.envelope.state = State::Stopped;
+                    self.envelope.state = EnvelopeState::Stopped;
                 }
             }
         }
-        if self.envelope.state == State::Stopped {
-            return State::Stopped;
+        if self.envelope.state == EnvelopeState::Stopped {
+            return EnvelopeState::Stopped;
         }
 
-        State::Playing(get_output_level_adjustment_factor(
+        EnvelopeState::Playing(get_output_level_adjustment_factor(
             self.envelope.current_level,
         ))
     }

@@ -1,4 +1,4 @@
-use crate::oscillators::GenerateSamples;
+use crate::synth::oscillators::GenerateSamples;
 
 pub struct Noise {}
 

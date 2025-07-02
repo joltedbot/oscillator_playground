@@ -1,0 +1,97 @@
+import { Button, ComboBox, Slider, Switch } from "std-widgets.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component Heading inherits Text {
+    in-out property <string> heading;
+
+    text: heading;
+    font-weight: Theme.text-weight-bold;
+    font-size: Theme.heading-text-size;
+}
+
+export component Label inherits Text {
+    in-out property <string> label;
+
+    text: label;
+    font-size: Theme.label-text-size;
+}
+
+export component StartButton inherits Rectangle {
+    in-out property <bool> active;
+    callback tone_start_button_pressed(bool);
+
+    states [
+        running when active: {
+            start_button.text: Theme.start_button_running-text;
+            start_button.primary: true;
+        }
+        stopped when !active: {
+            start_button.text: Theme.start_button_stopped-text;
+            start_button.primary: false;
+        }
+    ]
+
+    HorizontalLayout {
+        alignment: space-around;
+        start_button := Button {
+            width: Theme.start-button-width;
+            height: Theme.start-button-height;
+            clicked => {
+                active = !active;
+                tone_start_button_pressed(active);
+            }
+        }
+    }
+}
+
+export component WaveSelector inherits ComboBox {
+    in-out property <string> shape: Theme.wave-shape-default;
+    callback wave_shape_selected(string);
+
+    width: Theme.wave-shape-switch-width;
+    model: Theme.wave-shape-list;
+    current-value: shape;
+    selected(shape) => {
+        wave_shape_selected(shape);
+    }
+}
+
+export component LevelSlider inherits Slider {
+    in-out property <int> level;
+    callback level_selected(float);
+
+    value: level;
+    step: Theme.level-slider-step;
+    minimum: Theme.level-slider-minimum;
+    maximum: Theme.level-slider-maximum;
+
+    changed value => {
+        level_selected(self.value / 100);
+    }
+}
+
+export component OutputLevelSlider inherits Slider {
+    in-out property <int> level;
+    callback level_selected(int);
+
+    value: level;
+    step: Theme.output-level-slider-step;
+    minimum: Theme.output-level-slider-minimum;
+    maximum: Theme.output-level-slider-maximum;
+
+    changed value => {
+        level_selected(round(self.value) - 100);
+    }
+}
+
+export component ActivationSwitch inherits Switch {
+    callback activation_toggled(bool);
+    in-out property <bool> activated: self.checked;
+
+    text: self.checked ? Theme.activation-switch-active-text : Theme.activation-switch-not-active-text;
+    width: Theme.activation-switch-width;
+
+    toggled() => {
+        activation_toggled(self.checked)
+    }
+}

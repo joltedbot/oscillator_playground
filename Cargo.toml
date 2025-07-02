@@ -2,7 +2,20 @@
 name = "oscillator_playground"
 version = "0.2.0"
 edition = "2024"
+authors = ["Dave White"]
+license = "Apache-2.0"
+build = "build.rs"
+
+[profile.release]
+strip = true
+lto = true
 
 [dependencies]
 cpal = "0.16.0"
+crossbeam-channel = "0.5.15"
 rand = "0.9.1"
+slint = "1.12.1"
+slint-build = "1.12.1"
+
+[build-dependencies]
+slint-build = "1.12.1"

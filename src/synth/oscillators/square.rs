@@ -1,4 +1,4 @@
-use crate::oscillators::GenerateSamples;
+use crate::synth::oscillators::GenerateSamples;
 
 const PI: f32 = std::f32::consts::PI;
 
@@ -19,23 +19,19 @@ impl Square {
             x_increment,
             sample_rate,
         }
-    }    
+    }
 }
 
 impl GenerateSamples for Square {
-
-
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let mut y_coord: f32 =
             (tone_frequency * (2.0 * PI) * (self.x_coord / self.sample_rate)).sin();
 
-       
-        let duty_cycle =  if tone_frequency == 0.0 {
+        let duty_cycle = if tone_frequency == 0.0 {
             0.0
         } else {
             modulation.unwrap_or_default()
         };
-        
 
         if y_coord >= 0.0 - duty_cycle {
             y_coord = 1.0;

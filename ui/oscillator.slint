@@ -1,0 +1,354 @@
+import { Button, Slider, Switch, SpinBox, HorizontalBox } from "std-widgets.slint";
+import { Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ActivationSwitch } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component AppWindow inherits Window {
+    title: Theme.window-title;
+    min-width: Theme.window-width;
+    min-height: Theme.window-height;
+    default-font-size: Theme.text-size;
+    background: transparent;
+
+    in-out property <bool> start_button_active: true;
+
+    callback start_button_pressed(bool);
+    callback wave_shape1_selected(string);
+    callback wave_shape2_selected(string);
+    callback wave_shape3_selected(string);
+    callback sub_shape_selected(string);
+    callback wave_level1_selected(float);
+    callback wave_level2_selected(float);
+    callback wave_level3_selected(float);
+    callback sub_level_selected(float);
+    callback wave_detune_value_changed(float);
+    callback wave_detune_stage_changed(bool, float);
+    callback output_level_value_changed(int);
+    callback envelope-attack-updated(int);
+    callback envelope-decay-updated(int);
+    callback envelope-release-updated(int);
+    callback envelope-sustain-updated(int);
+    callback envelope-sustain-level-updated(int);
+
+    Rectangle {
+        padding: 4px;
+        border-width: Theme.window-border-width;
+        background: Theme.window-background;
+        border-color: Theme.border-colour;
+        border-bottom-left-radius: Theme.border-radius;
+        border-bottom-right-radius: Theme.border-radius;
+
+        HorizontalLayout {
+            alignment: center;
+            spacing: 20px;
+
+            VerticalLayout {
+                vertical-stretch: 1;
+                alignment: center;
+                spacing: 30px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.oscillator1-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.oscillator-level-text;
+                        }
+
+                        osc1_level := LevelSlider {
+                            level: Theme.wave-level-slider-default;
+                            level_selected(level) => {
+                                root.wave_level1_selected(level);
+                            }
+                        }
+
+                        osc1_selector := WaveSelector {
+                            wave_shape_selected(shape) => {
+                                root.wave_shape1_selected(shape);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.oscillator2-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.oscillator-level-text;
+                        }
+
+                        osc2_level := LevelSlider {
+                            level: Theme.wave-level-slider-default;
+                            level_selected(level) => {
+                                root.wave_level2_selected(level);
+                            }
+                        }
+
+                        osc2_selector := WaveSelector {
+                            wave_shape_selected(shape) => {
+                                root.wave_shape2_selected(shape);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.oscillator3-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.oscillator-level-text;
+                        }
+
+                        osc3_level := LevelSlider {
+                            level: Theme.wave-level-slider-default;
+                            level_selected(level) => {
+                                root.wave_level3_selected(level);
+                            }
+                        }
+
+                        osc3_selector := WaveSelector {
+                            wave_shape_selected(shape) => {
+                                root.wave_shape3_selected(shape);
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.sub-oscillator-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.sub-oscillator-level-text;
+                        }
+
+                        sub_level := LevelSlider {
+                            level: Theme.sub-level-slider-default;
+                            level_selected(level) => {
+                                root.sub_level_selected(level);
+                            }
+                        }
+
+                        sub_selector := WaveSelector {
+                            wave_shape_selected(shape) => {
+                                root.sub_shape_selected(shape);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.detune-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: round(detune_amount.value) + Theme.detune-amount-label-suffix;
+                        }
+
+                        detune_amount := LevelSlider {
+                            level: Theme.detune-amount-slider-default;
+                            enabled: false;
+                            level_selected(level) => {
+                                wave_detune_value_changed(level);
+                            }
+                        }
+
+                        ActivationSwitch {
+                            activation_toggled => {
+                                detune_amount.enabled = self.activated;
+                                wave_detune_stage_changed(self.activated, round(detune_amount.level) / 100);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.output-level-heading-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: round(output_level.value) - 100 + Theme.output-level-label-suffix;
+                        }
+
+                        output_level := OutputLevelSlider {
+                            level: Theme.output-level-slider-default;
+                            enabled: false;
+                            level_selected(level) => {
+                                root.output_level_value_changed(level);
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 30px;
+                    start_button := StartButton {
+                        active: start_button_active;
+                        tone_start_button_pressed(active) => {
+                            root.start_button_pressed(active);
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+
+                vertical-stretch: 1;
+                alignment: center;
+                spacing: 30px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.envelope-header-text;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-attack-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: attack_time.level + Theme.envelope-time-suffix;
+                        }
+
+                        attack_time := LevelSlider {
+                            level: Theme.envelope-attack-default;
+                            level_selected(milliseconds) => {
+                                root.envelope-attack-updated(milliseconds);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-decay-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: decay_time.level + Theme.envelope-time-suffix;
+                        }
+
+                        decay_time := LevelSlider {
+                            level: Theme.envelope-decay-default;
+                            level_selected(milliseconds) => {
+                                root.envelope-decay-updated(milliseconds);
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-sustain-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: sustain_time.level + Theme.envelope-time-suffix;
+                        }
+
+                        sustain_time := LevelSlider {
+                            level: Theme.envelope-sustain-default;
+                            level_selected(milliseconds) => {
+                                root.envelope-sustain-updated(milliseconds);
+                            }
+                        }
+                    }
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-sustain-level-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-sustain-level-prefix + sustain_level.level + Theme.envelope-sustain-level-suffix;
+                        }
+
+                        sustain_level := LevelSlider {
+                            level: Theme.envelope-sustain-level-default;
+                            level_selected(dbfs) => {
+                                root.envelope-sustain-level-updated(dbfs);
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-release-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: release_time.level + Theme.envelope-time-suffix;
+                        }
+
+                        release_time := LevelSlider {
+                            level: Theme.envelope-release-default;
+                            level_selected(milliseconds) => {
+                                root.envelope-release-updated(milliseconds);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
