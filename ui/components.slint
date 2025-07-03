@@ -22,18 +22,18 @@ export component StartButton inherits Rectangle {
 
     states [
         running when active: {
-            start_button.text: Theme.start_button_running-text;
-            start_button.primary: true;
+            start-button.text: Theme.start-button-running-text;
+            start-button.primary: true;
         }
         stopped when !active: {
-            start_button.text: Theme.start_button_stopped-text;
-            start_button.primary: false;
+            start-button.text: Theme.start-button-stopped-text;
+            start-button.primary: false;
         }
     ]
 
     HorizontalLayout {
         alignment: space-around;
-        start_button := Button {
+        start-button := Button {
             width: Theme.start-button-width;
             height: Theme.start-button-height;
             clicked => {
@@ -58,15 +58,20 @@ export component WaveSelector inherits ComboBox {
 
 export component LevelSlider inherits Slider {
     in-out property <int> level;
+    in-out property <int> minimum-level;
+    in-out property <int> maximum-level;
+    in-out property <int> level-step;
+
     callback level_selected(float);
 
     value: level;
-    step: Theme.level-slider-step;
-    minimum: Theme.level-slider-minimum;
-    maximum: Theme.level-slider-maximum;
+    step: level-step;
+    minimum: minimum-level;
+    maximum: maximum-level;
 
     changed value => {
-        level_selected(self.value / 100);
+        level = self.value;
+        level_selected(round(self.value));
     }
 }
 
@@ -80,7 +85,22 @@ export component OutputLevelSlider inherits Slider {
     maximum: Theme.output-level-slider-maximum;
 
     changed value => {
-        level_selected(round(self.value) - 100);
+        level_selected(round(self.value));
+    }
+}
+
+export component ADSRSlider inherits Slider {
+    in-out property <int> milliseconds;
+    callback milliseconds_selected(float);
+
+    value: milliseconds;
+    step: Theme.milliseconds-slider-step;
+    minimum: Theme.milliseconds-slider-minimum;
+    maximum: Theme.milliseconds-slider-maximum;
+
+    changed value => {
+        milliseconds = self.value;
+        milliseconds_selected(self.value);
     }
 }
 

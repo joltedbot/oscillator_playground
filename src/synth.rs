@@ -10,6 +10,7 @@ use crossbeam_channel::Receiver;
 use device::AudioDevice;
 use oscillators::Oscillators;
 use sequencer::Sequencer;
+use filter::Filter;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 pub mod device;
@@ -18,6 +19,7 @@ pub mod envelope;
 pub mod lfo;
 pub mod oscillators;
 pub mod sequencer;
+pub mod filter;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
 
@@ -27,6 +29,7 @@ pub struct Synth {
     oscillators: Arc<Mutex<Oscillators>>,
     envelope: Arc<Mutex<Envelope>>,
     lfos: Arc<Mutex<Vec<LFO>>>,
+    filter: Arc<Mutex<Filter>>,
     output_level: Arc<Mutex<f32>>,
 }
 
@@ -47,6 +50,9 @@ impl Synth {
 
         let lfos_arc = Arc::new(Mutex::new(vec![lfo1, lfo2, lfo3]));
 
+        let filter = Filter::new(sample_rate);
+        let filter_arc = Arc::new(Mutex::new(filter));
+        
         Self {
             stream: None,
             audio_device,
@@ -54,6 +60,7 @@ impl Synth {
             output_level: Arc::new(Mutex::new(OUTPUT_LEVEL)),
             oscillators: oscillators_arc,
             lfos: lfos_arc,
+            filter: filter_arc,
         }
     }
 
@@ -117,6 +124,34 @@ impl Synth {
                         let mut output_level = self.get_output_level_mutex_lock();
                         *output_level = level as f32;
                     }
+                    EventType::UpdateEnvelopeAttack(milliseconds) => {
+                        let mut envelope = self.get_envelope_mutex_lock();
+                        envelope.set_attack_milliseconds(milliseconds.abs() as u32);
+                    }
+                    EventType::UpdateEnvelopeDecay(milliseconds) => {
+                        let mut envelope = self.get_envelope_mutex_lock();
+                        envelope.set_decay_milliseconds(milliseconds.abs() as u32);
+                    }
+                    EventType::UpdateEnvelopeRelease(milliseconds) => {
+                        let mut envelope = self.get_envelope_mutex_lock();
+                        envelope.set_release_milliseconds(milliseconds.abs() as u32);
+                    }
+                    EventType::UpdateEnvelopeSustain(milliseconds) => {
+                        let mut envelope = self.get_envelope_mutex_lock();
+                        envelope.set_sustain_milliseconds(milliseconds.abs() as u32);
+                    }
+                    EventType::UpdateEnvelopeSustainLevel(level) => {
+                        let mut envelope = self.get_envelope_mutex_lock();
+                        envelope.set_sustain_level_below_output_level_in_dbfs(level as f32);
+                    }
+                    EventType::UpdateFilterCutoffValue(cutoff) => {
+                        let mut filter = self.get_filter_mutex_lock();
+                        filter.set_cutoff_frequency(cutoff as f32);
+                    }
+                    EventType::UpdateFilterResonanceValue(level) => {
+                        let mut filter = self.get_filter_mutex_lock();
+                        filter.set_resonance(level as f32);
+                    }
                     EventType::Start => {
                         self.start();
                     }
@@ -133,6 +168,20 @@ impl Synth {
 
     fn get_oscillators_mutex_lock(&mut self) -> MutexGuard<Oscillators> {
         self.oscillators
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+
+    fn get_filter_mutex_lock(&mut self) -> MutexGuard<Filter> {
+        self.filter
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+
+    fn get_envelope_mutex_lock(&mut self) -> MutexGuard<Envelope> {
+        self.envelope
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
@@ -168,7 +217,9 @@ impl Synth {
         let output_level_arc = self.output_level.clone();
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
-
+        let filter_arc = self.filter.clone();
+        
+        
         let stream = output_device
             .build_output_stream(
                 &stream_config,
@@ -188,6 +239,11 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
+                    let mut filter = filter_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    
+                    
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let oscillator1_sample = oscillators.get_oscillator1_next_sample(
                             note_frequency,
@@ -220,8 +276,10 @@ impl Synth {
                             + sub_oscillator_level;
                         let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
 
-                        let left_sample = level_balanced_oscillator_sum;
-                        let right_sample = level_balanced_oscillator_sum;
+                        let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
+                        
+                        let left_sample = filtered_sample;
+                        let right_sample = filtered_sample;
 
                         match envelope.adsr(output_level) {
                             EnvelopeState::Playing(db_adjustment) => {

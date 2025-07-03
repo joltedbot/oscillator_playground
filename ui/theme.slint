@@ -23,16 +23,15 @@ export global Theme {
     out property <length> heading-text-size: 20px;
 
 
-
     //
     // Components
     //
 
     // Start Button
-    out property <string> start_button_running-text: "Stop";
-    out property <string> start_button_stopped-text: "Start";
-    out property <length> start_button_width: 150px;
-    out property <length> start_button_height: 35px;
+    out property <string> start-button-running-text: "Stop";
+    out property <string> start-button-stopped-text: "Start";
+    out property <length> start-button-width: 150px;
+    out property <length> start-button-height: 35px;
 
     // Detune Switch
     out property <length> mode-switch-width: 250px;
@@ -50,19 +49,44 @@ export global Theme {
     out property <[string]> wave-shape-list: ["Sine", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
     out property <string> wave-shape-default: "Sine";
 
-    // Level Slider
-    out property <int> level-slider-step: 1;
-    out property <int> level-slider-minimum: 0;
-    out property <int> level-slider-maximum: 100;
-    out property <int> wave-level-slider-default: 100;
+    // Oscillator Level Slider
+    out property <int> osc-level-slider-step: 1;
+    out property <int> osc-level-slider-minimum: 0;
+    out property <int> osc-level-slider-maximum: 100;
+    out property <int> osc-level-slider-default: 100;
     out property <int> sub-level-slider-default: 0;
     out property <int> detune-amount-slider-default: 0;
+
+
+    // Filter Cutoff Slider
+    out property <int> filter-cutoff-slider-step: 10;
+    out property <int> filter-cutoff-slider-minimum: 0;
+    out property <int> filter-cutoff-slider-maximum: 20000;
+    out property <int> filter-cutoff-slider-default: 20000;
+
+
+    // Filter Resonance Slider
+    out property <int> filter-resonance-slider-step: 1;
+    out property <int> filter-resonance-slider-minimum: 0;
+    out property <int> filter-resonance-slider-maximum: 100;
+    out property <float> filter-resonance-slider-default: 0;
+
 
     // Output Level Slider
     out property <int> output-level-slider-step: 1;
     out property <int> output-level-slider-minimum: 40;
     out property <int> output-level-slider-maximum: 100;
     out property <int> output-level-slider-default: 90;
+
+    // ADSR Slider 
+    out property <int> milliseconds-slider-step: 10;
+    out property <int> milliseconds-slider-minimum: 10;
+    out property <int> milliseconds-slider-maximum: 1000;
+
+    // Sustain Level Slider
+    out property <int> envelope-sustain-level-step: 1;
+    out property <int> envelope-sustain-level-minimum: 0;
+    out property <int> envelope-sustain-level-maximum: 40;
 
     // Activation Switch
     out property <string> activation-switch-active-text: "Active";
@@ -76,6 +100,8 @@ export global Theme {
     out property <int> envelope-sustain-level-default: 6;
     out property <int> envelope-release-default: 300;
 
+    // Envelope ADSR Box
+    out property <color> adrs-box-background: #202020;
 
     //
     // Label Text
@@ -100,4 +126,8 @@ export global Theme {
     out property <string> envelope-time-suffix: " ms";
     out property <string> envelope-sustain-level-prefix: "Output -";
     out property <string> envelope-sustain-level-suffix: "dbfs";
+    out property <string> filter-header-text: "Low Pass Filter";
+    out property <string> filter-cutoff-text: "Cutoff";
+    out property <string> filter-resonance-text: "Resonance";
+    out property <string> filter-cutoff-suffix: " Hz";
 }

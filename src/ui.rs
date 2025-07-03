@@ -56,8 +56,16 @@ impl UI {
         self.on_wave_detune_value_changed();
         self.on_wave_detune_stage_changed();
         self.on_output_level_value_changed();
-    }
+        self.on_envelope_attack_updated();
+        self.on_envelope_decay_updated();
+        self.on_envelope_release_updated();
+        self.on_envelope_sustain_updated();
+        self.on_envelope_sustain_level_updated();
+        self.on_filter_cutoff_value_changed();
+        self.on_filter_resonance_value_changed();
 
+    }
+    
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
         let ui_weak = self.ui.clone();
 
@@ -77,7 +85,7 @@ impl UI {
         ui.on_wave_shape1_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Shape(shape)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -88,7 +96,7 @@ impl UI {
         ui.on_wave_shape2_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Shape(shape)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -99,7 +107,7 @@ impl UI {
         ui.on_wave_shape3_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Shape(shape)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -110,7 +118,7 @@ impl UI {
         ui.on_sub_shape_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShape(shape)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -121,7 +129,7 @@ impl UI {
         ui.on_wave_level1_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Level(level)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
     fn on_wave_level2_selected_callback(&mut self) {
@@ -131,7 +139,7 @@ impl UI {
         ui.on_wave_level2_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Level(level)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
     fn on_wave_level3_selected_callback(&mut self) {
@@ -141,7 +149,7 @@ impl UI {
         ui.on_wave_level3_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Level(level)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -152,7 +160,7 @@ impl UI {
         ui.on_sub_level_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorLevel(level)) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -168,7 +176,7 @@ impl UI {
 
             if let Err(error) = synth_sender.send(event_type.clone()) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -181,7 +189,7 @@ impl UI {
                 synth_sender.send(EventType::UpdateOscillatorDetuneValue(detune_amount))
             {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -194,7 +202,7 @@ impl UI {
                 .send(EventType::UpdateOscillatorDetuneActive(is_active, detune_amount).clone())
             {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
 
@@ -205,7 +213,88 @@ impl UI {
         ui.on_output_level_value_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOutputLevel(level).clone()) {
                 eprintln!("Error sending event: {}", error);
-            };
+            }
         });
     }
+
+    fn on_envelope_attack_updated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_envelope_attack_updated(move |milliseconds| {
+            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeAttack(milliseconds).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_envelope_decay_updated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_envelope_decay_updated(move |milliseconds| {
+            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeDecay(milliseconds).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_envelope_release_updated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_envelope_release_updated(move |milliseconds| {
+            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeRelease(milliseconds).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_envelope_sustain_updated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_envelope_sustain_updated(move |milliseconds| {
+            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeSustain(milliseconds).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_envelope_sustain_level_updated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_envelope_sustain_level_updated(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    
+    fn on_filter_cutoff_value_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_cutoff_value_changed(move |cutoff| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterCutoffValue(cutoff).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+        
+    }
+
+    fn on_filter_resonance_value_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_resonance_value_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterResonanceValue(level).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+
+    }
+
+
 }

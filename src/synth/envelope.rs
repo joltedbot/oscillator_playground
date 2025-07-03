@@ -68,7 +68,7 @@ impl Envelope {
         self.envelope.release_milliseconds = milliseconds;
     }
 
-    pub fn set_sustain_length_milliseconds(&mut self, millliseconds: u32) {
+    pub fn set_sustain_milliseconds(&mut self, millliseconds: u32) {
         self.envelope.sustain_length = millliseconds;
     }
 
