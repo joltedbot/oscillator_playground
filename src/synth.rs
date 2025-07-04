@@ -281,12 +281,10 @@ impl Synth {
                         
                        let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
 
-                       
+                        let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
                         
-                   //     let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
-                        
-                        let left_sample = level_balanced_oscillator_sum;
-                        let right_sample = level_balanced_oscillator_sum;
+                        let left_sample = filtered_sample;
+                        let right_sample = filtered_sample;
 
                         match envelope.adsr(output_level) {
                             EnvelopeState::Playing(db_adjustment) => {

@@ -2,7 +2,8 @@ use std::f32::consts::PI;
 use cpal::BufferSize::Default;
 
 const RESONANCE_Q: f32 = 0.0; // Butterworth
-const DEFAULT_CUTOFF_FREQUENCY: f32 = 20000.0;
+const DEFAULT_CUTOFF_FREQUENCY: f32 = 20000.1;
+const FILTER_MAX_CUTOFF_BEFORE_BYPASSING: f32 = 19999.99;
 
 #[derive(Default)]
 pub struct Filter {
@@ -15,7 +16,7 @@ pub struct Filter {
 
 impl Filter {
     pub fn new(sample_rate: f32) -> Self {
-        
+
         Self{
             sample_rate,
             cutoff_frequency: DEFAULT_CUTOFF_FREQUENCY,
@@ -24,8 +25,12 @@ impl Filter {
             sample_buffer_2: 0.0,
         }
     }
-    
+
     pub fn filter_sample(&mut self, sample: f32) -> f32 {
+        if self.cutoff_frequency  > FILTER_MAX_CUTOFF_BEFORE_BYPASSING {
+            return sample 
+        }
+
         let normalized_frequency = get_normalized_frequency(self.cutoff_frequency, self.sample_rate);
         let feedback = get_feedback_amount(self.resonance_q, normalized_frequency);
         let high_pass = sample - self.sample_buffer_1;
@@ -47,7 +52,7 @@ impl Filter {
 }
 
 fn get_normalized_frequency(cutoff_frequency: f32, sample_rate: f32) -> f32 {
-    2.0*(PI*cutoff_frequency/sample_rate).sin()
+    cutoff_frequency/sample_rate
 }
 
 fn get_feedback_amount(resonance_q: f32, normalized_frequency: f32) -> f32 {
