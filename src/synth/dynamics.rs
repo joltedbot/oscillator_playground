@@ -32,6 +32,15 @@ impl Dynamics {
 
         get_f32_sample_from_dbfs(threshold)
     }
+
+    pub fn get_makeup_gain(&self, threshold: f32, output_level: f32 ) -> f32 {
+        if output_level <= threshold  {
+            return 1.0; 
+        }
+        get_f32_sample_from_dbfs(output_level - threshold)
+    }
+    
+    
 }
 
 fn get_dbfs_from_f32_sample(sample: f32) -> f32 {
@@ -47,3 +56,4 @@ fn get_dbfs_from_f32_sample(sample: f32) -> f32 {
 fn get_f32_sample_from_dbfs(dbfs: f32) -> f32 {
     10.0_f32.powf(dbfs / 20.0)
 }
+

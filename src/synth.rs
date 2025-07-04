@@ -12,6 +12,7 @@ use oscillators::Oscillators;
 use sequencer::Sequencer;
 use filter::Filter;
 use std::sync::{Arc, Mutex, MutexGuard};
+use crate::synth::dynamics::Dynamics;
 
 pub mod device;
 pub mod dynamics;
@@ -209,6 +210,8 @@ impl Synth {
         let output_device = self.audio_device.get_output_device();
         let number_of_channels = self.audio_device.get_number_of_channels();
 
+        let dynamics = Dynamics::new();
+        
         // The sequence is midi note numbers
         // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway.
         let mut sequencer = Sequencer::new(vec![60, 62, 63, 65, 67, 68, 70, 72]);
@@ -265,21 +268,25 @@ impl Synth {
                             sub_oscillator_level,
                             None,
                         );
-
+                        
                         let oscillator_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
                             + sub_oscillator_sample;
+                        
                         let oscillator_level_sum = oscillator1_level
                             + oscillator2_level
                             + oscillator3_level
                             + sub_oscillator_level;
-                        let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
-
-                        let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
                         
-                        let left_sample = filtered_sample;
-                        let right_sample = filtered_sample;
+                       let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
+
+                       
+                        
+                   //     let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
+                        
+                        let left_sample = level_balanced_oscillator_sum;
+                        let right_sample = level_balanced_oscillator_sum;
 
                         match envelope.adsr(output_level) {
                             EnvelopeState::Playing(db_adjustment) => {

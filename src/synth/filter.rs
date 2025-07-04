@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 use cpal::BufferSize::Default;
 
 const RESONANCE_Q: f32 = 0.0; // Butterworth
-const DEFAULT_CUTOFF_FREQUENCY: f32 = 440.0;
+const DEFAULT_CUTOFF_FREQUENCY: f32 = 20000.0;
 
 #[derive(Default)]
 pub struct Filter {

@@ -84,7 +84,7 @@ impl Envelope {
         if self.envelope.state == EnvelopeState::Stopped {
             self.envelope.state = EnvelopeState::Playing(MINIMUM_ENV_LEVEL);
         }
-
+        
         match self.envelope.stage {
             ADSRStage::Attack => {
                 if self.envelope.current_level < output_level {
@@ -137,8 +137,8 @@ impl Envelope {
         if self.envelope.state == EnvelopeState::Stopped {
             return EnvelopeState::Stopped;
         }
-
-        EnvelopeState::Playing(get_output_level_adjustment_factor(
+       
+        EnvelopeState::Playing(get_f32_sample_from_dbfs(
             self.envelope.current_level,
         ))
     }
@@ -159,6 +159,6 @@ impl Envelope {
     }
 }
 
-fn get_output_level_adjustment_factor(output_level: f32) -> f32 {
+fn get_f32_sample_from_dbfs(output_level: f32) -> f32 {
     10.0_f32.powf(output_level / 20.0)
 }

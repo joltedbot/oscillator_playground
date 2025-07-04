@@ -24,10 +24,13 @@ impl GenerateSamples for Sine {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         self.phase += self.phase_increment * (tone_frequency * modulation.unwrap_or(1.0));
 
+        
+
+        
         if self.phase >= RADS_PER_CYCLE {
             self.phase = 0.0;
         }
-
+        
         self.phase.sin()
     }
 }
