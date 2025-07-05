@@ -71,6 +71,9 @@ export component LevelSlider inherits Slider {
 
     changed value => {
         level = self.value;
+        if (self.value < level-step) {
+            self.value == 0;
+        }
         level_selected(round(self.value));
     }
 }
@@ -107,11 +110,30 @@ export component ADSRSlider inherits Slider {
 export component ActivationSwitch inherits Switch {
     callback activation_toggled(bool);
     in-out property <bool> activated: self.checked;
+    in-out property <string> activated-text;
+    in-out property <string> not-activated-text;
 
-    text: self.checked ? Theme.activation-switch-active-text : Theme.activation-switch-not-active-text;
+    text: self.checked ? activated-text : not-activated-text;
     width: Theme.activation-switch-width;
 
     toggled() => {
         activation_toggled(self.checked)
+    }
+}
+
+export component FilterSlider inherits Slider {
+    in-out property <int> number_of_poles: Theme.filter-poles-slider-default;
+    callback number_of_poles_selected(int);
+
+    width: Theme.filter-poles-slider-width;
+    value: number_of_poles;
+    step: Theme.filter-poles-slider-step;
+    minimum: Theme.filter-poles-slider-minimum;
+    maximum: Theme.filter-poles-slider-maximum;
+
+    released(value) => {
+        self.value = round(value);
+        number_of_poles = round(value);
+        number_of_poles_selected(round(value));
     }
 }

@@ -3,7 +3,7 @@ export global Theme {
 
     // Main Window
     out property <string> window-title: "Oscillator Playground";
-    out property <length> window-width: 1200px;
+    out property <length> window-width: 1040px;
     out property <length> window-height: 400px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
@@ -58,7 +58,7 @@ export global Theme {
 
 
     // Filter Cutoff Slider
-    out property <int> filter-cutoff-slider-step: 10;
+    out property <int> filter-cutoff-slider-step-factor: 0.05;
     out property <int> filter-cutoff-slider-minimum: 0;
     out property <int> filter-cutoff-slider-maximum: 20000.1;
     out property <int> filter-cutoff-slider-default: 20000.1;
@@ -102,6 +102,14 @@ export global Theme {
     // Envelope ADSR Box
     out property <color> adrs-box-background: #202020;
 
+    // Filter Poles Slider
+    out property <int> filter-poles-slider-step: 1;
+    out property <int> filter-poles-slider-minimum: 1;
+    out property <int> filter-poles-slider-maximum: 3;
+    out property <int> filter-poles-slider-default: 2;
+    out property <length> filter-poles-slider-width: 50px;
+
+
     //
     // Label Text
     //
@@ -129,4 +137,5 @@ export global Theme {
     out property <string> filter-cutoff-text: "Cutoff";
     out property <string> filter-resonance-text: "Resonance";
     out property <string> filter-cutoff-suffix: " Hz";
+    out property <string> filter-poles-label-text: "Filter Poles: ";
 }

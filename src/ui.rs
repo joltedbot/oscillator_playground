@@ -54,7 +54,7 @@ impl UI {
         self.on_wave_level3_selected_callback();
         self.on_sub_level_selected_callback();
         self.on_wave_detune_value_changed();
-        self.on_wave_detune_stage_changed();
+        self.on_wave_detune_state_changed();
         self.on_output_level_value_changed();
         self.on_envelope_attack_updated();
         self.on_envelope_decay_updated();
@@ -63,7 +63,7 @@ impl UI {
         self.on_envelope_sustain_level_updated();
         self.on_filter_cutoff_value_changed();
         self.on_filter_resonance_value_changed();
-
+        self.on_number_of_poles_selected();
     }
     
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
@@ -193,11 +193,11 @@ impl UI {
         });
     }
 
-    fn on_wave_detune_stage_changed(&mut self) {
+    fn on_wave_detune_state_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_detune_stage_changed(move |is_active, detune_amount| {
+        ui.on_wave_detune_state_changed(move |is_active, detune_amount| {
             if let Err(error) = synth_sender
                 .send(EventType::UpdateOscillatorDetuneActive(is_active, detune_amount).clone())
             {
@@ -294,6 +294,17 @@ impl UI {
             }
         });
 
+    }
+    
+    fn on_number_of_poles_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_number_of_poles_selected(move |number_of_poles| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterNumberOfPoles(number_of_poles).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
     }
 
 

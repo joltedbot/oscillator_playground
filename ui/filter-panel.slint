@@ -1,0 +1,104 @@
+import { Heading, Label, FilterSlider, LevelSlider  } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component FilterPanel inherits VerticalLayout {
+                alignment: center;
+
+                callback number_of_poles_selected(int);
+                callback filter_cutoff_value_changed(float);
+                callback filter_resonance_value_changed(float);
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                    height: Theme.window-height - 20px;
+                    border-width: Theme.window-border-width;
+                    border-color: Theme.border-colour;
+                    border-radius: Theme.border-radius;
+                    background: Theme.adrs-box-background;
+
+                    VerticalLayout {
+                        vertical-stretch: 1;
+                        alignment: center;
+                        spacing: 10px;
+                        padding: 20px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.filter-header-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.filter-poles-label-text + filter_poles.number_of_poles;
+                        }
+
+                        HorizontalLayout {
+                            alignment: center;
+                            filter_poles := FilterSlider {
+                                number_of_poles_selected(number_of_poles) => {
+                                    root.number_of_poles_selected(number_of_poles);
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 20px;
+
+                            VerticalLayout {
+                                spacing: 10px;
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.filter-cutoff-text;
+                                }
+
+                                Label {
+                                    width: 75px;
+                                    horizontal-alignment: center;
+                                    label: filter_cutoff.level + Theme.filter-cutoff-suffix;
+                                }
+
+                                filter_cutoff := LevelSlider {
+                                    height: 200px;
+                                    orientation: vertical;
+
+                                    level: Theme.filter-cutoff-slider-default;
+                                    level-step: self.level * Theme.filter-cutoff-slider-step-factor;
+                                    minimum-level: Theme.filter-cutoff-slider-minimum;
+                                    maximum-level: Theme.filter-cutoff-slider-maximum;
+                                    level_selected(level) => {
+                                        filter_cutoff_value_changed(level);
+                                    }
+                                }
+                            }
+
+                            VerticalLayout {
+                                spacing: 10px;
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.filter-resonance-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: 100 - filter_resonance.level;
+                                }
+
+                                filter_resonance := LevelSlider {
+                                    orientation: vertical;
+                                    height: 200px;
+
+                                    level: Theme.filter-resonance-slider-default;
+                                    level-step: Theme.filter-resonance-slider-step;
+                                    minimum-level: Theme.filter-resonance-slider-minimum;
+                                    maximum-level: Theme.filter-resonance-slider-maximum;
+                                    level_selected(level) => {
+                                        filter_resonance_value_changed((100 - level) / 100);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }

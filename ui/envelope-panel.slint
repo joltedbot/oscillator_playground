@@ -1,0 +1,150 @@
+import { Heading, Label, ADSRSlider, LevelSlider } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component EnvelopePanel inherits VerticalLayout {
+                alignment: center;
+
+                callback envelope_attack_updated(float);
+                callback envelope_decay_updated(float);
+                callback envelope_release_updated(float);
+                callback envelope_sustain_updated(float);
+                callback envelope_sustain_level_updated(float);
+
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                    height: Theme.window-height - 20px;
+                    border-width: Theme.window-border-width;
+                    border-color: Theme.border-colour;
+                    border-radius: Theme.border-radius;
+                    background: Theme.adrs-box-background;
+
+                    VerticalLayout {
+                        vertical-stretch: 1;
+                        alignment: center;
+                        spacing: 30px;
+                        padding: 20px;
+
+                        HorizontalLayout {
+                            alignment: center;
+                            spacing: 20px;
+
+                            Heading {
+                                horizontal-alignment: center;
+                                heading: Theme.envelope-header-text;
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 20px;
+
+                            VerticalLayout {
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-attack-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: attack_time.milliseconds + Theme.envelope-time-suffix;
+                                }
+
+                                attack_time := ADSRSlider {
+                                    milliseconds: Theme.envelope-attack-default;
+                                    milliseconds_selected(milliseconds) => {
+                                        root.envelope_attack_updated(milliseconds);
+                                    }
+                                }
+                            }
+
+                            VerticalLayout {
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-decay-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: decay_time.milliseconds + Theme.envelope-time-suffix;
+                                }
+
+                                decay_time := ADSRSlider {
+                                    milliseconds: Theme.envelope-decay-default;
+                                    milliseconds_selected(milliseconds) => {
+                                        root.envelope_decay_updated(milliseconds);
+                                    }
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 20px;
+
+                            VerticalLayout {
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-sustain-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: sustain_time.milliseconds + Theme.envelope-time-suffix;
+                                }
+
+                                sustain_time := ADSRSlider {
+                                    milliseconds: Theme.envelope-sustain-default;
+                                    milliseconds_selected(milliseconds) => {
+                                        root.envelope_sustain_updated(milliseconds);
+                                    }
+                                }
+                            }
+
+                            VerticalLayout {
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-sustain-level-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-sustain-level-prefix + sustain_level.level + Theme.envelope-sustain-level-suffix;
+                                }
+
+                                sustain_level := LevelSlider {
+                                    level: Theme.envelope-sustain-level-default;
+                                    step: Theme.envelope-sustain-level-step;
+                                    minimum: Theme.envelope-sustain-level-minimum;
+                                    maximum: Theme.envelope-sustain-level-maximum;
+
+                                    level_selected(dbfs) => {
+                                        root.envelope_sustain_level_updated(dbfs);
+                                    }
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 20px;
+
+                            VerticalLayout {
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: Theme.envelope-release-text;
+                                }
+
+                                Label {
+                                    horizontal-alignment: center;
+                                    label: release_time.milliseconds + Theme.envelope-time-suffix;
+                                }
+
+                                release_time := ADSRSlider {
+                                    milliseconds: Theme.envelope-release-default;
+                                    milliseconds_selected(milliseconds) => {
+                                        root.envelope_release_updated(milliseconds);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }

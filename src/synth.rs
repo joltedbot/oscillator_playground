@@ -2,7 +2,7 @@
 use crate::synth::envelope::{Envelope, EnvelopeState};
 use crate::synth::lfo::LFO;
 use std::error::Error;
-
+use std::ops::Deref;
 use crate::events::EventType;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
@@ -53,7 +53,7 @@ impl Synth {
 
         let filter = Filter::new(sample_rate);
         let filter_arc = Arc::new(Mutex::new(filter));
-        
+
         Self {
             stream: None,
             audio_device,
@@ -153,6 +153,10 @@ impl Synth {
                         let mut filter = self.get_filter_mutex_lock();
                         filter.set_resonance(level as f32);
                     }
+                    EventType::UpdateFilterNumberOfPoles(number_of_poles) => {
+                        let mut filter = self.get_filter_mutex_lock();
+                        filter.set_number_of_poles(number_of_poles);  
+                    }
                     EventType::Start => {
                         self.start();
                     }
@@ -221,8 +225,7 @@ impl Synth {
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
         let filter_arc = self.filter.clone();
-        
-        
+                
         let stream = output_device
             .build_output_stream(
                 &stream_config,
@@ -245,6 +248,7 @@ impl Synth {
                     let mut filter = filter_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
+
                     
                     
                     for frame in buffer.chunks_mut(number_of_channels) {
@@ -279,9 +283,9 @@ impl Synth {
                             + oscillator3_level
                             + sub_oscillator_level;
                         
-                       let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
-
+                        let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
                         let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
+                        
                         
                         let left_sample = filtered_sample;
                         let right_sample = filtered_sample;

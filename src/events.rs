@@ -21,6 +21,7 @@ pub enum EventType {
     UpdateEnvelopeSustainLevel(i32),
     UpdateFilterCutoffValue(i32),
     UpdateFilterResonanceValue(f32),
+    UpdateFilterNumberOfPoles(i32),
     Start,
     Stop,
     Exit,
