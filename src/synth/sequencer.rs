@@ -1,3 +1,5 @@
+use rand::prelude::*;
+
 const MIDI_NOTE_FREQUENCIES: [(&str, f32); 128] = [
     ("Rest", 0.0), // 0
     ("C#-1/Db-1", 8.66),
@@ -143,15 +145,15 @@ impl Sequencer {
     }
 
     pub fn next_note_frequency(&mut self) -> f32 {
-        let midi_note = self.sequence[self.sequence_index];
+        let index = rand::rng().random_range(0..self.sequence.len());
+        let midi_note = self.sequence[index];
 
         if self.sequence_index < self.sequence.len() - 1 {
             self.sequence_index += 1;
         } else {
             self.sequence_index = 0;
         }
-
-        //println!("Playing Note: {}", MIDI_NOTE_FREQUENCIES[midi_note as usize - MIDI_NOTE_NUMBER_ARRAY_INDEX_OFFSET].0);
+        
         MIDI_NOTE_FREQUENCIES[midi_note as usize].1
     }
 }
