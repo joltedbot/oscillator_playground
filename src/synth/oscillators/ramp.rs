@@ -1,20 +1,22 @@
 use crate::synth::oscillators::GenerateSamples;
 
 const PI: f32 = std::f32::consts::PI;
+const DEFAULT_X_COORDINATE: f32 = 0.0;
+const DEFAULT_X_INCREMENT: f32 = 1.0;
 
 pub struct Ramp {
-    x_coord: f32,
+    x_coordinate: f32,
     x_increment: f32,
     sample_rate: f32,
 }
 
 impl Ramp {
     pub fn new(sample_rate: f32) -> Self {
-        let x_coord = 0.0;
-        let x_increment = 1.0;
+        let x_coordinate = DEFAULT_X_COORDINATE;
+        let x_increment = DEFAULT_X_INCREMENT;
 
         Self {
-            x_coord,
+            x_coordinate,
             x_increment,
             sample_rate,
         }
@@ -23,11 +25,17 @@ impl Ramp {
 
 impl GenerateSamples for Ramp {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
-        let y_coord: f32 = (2.0 / PI)
+        let y_coordinate: f32 = (2.0 / PI)
             * modulation.unwrap_or(1.0)
-            * (1.0f32 / (tone_frequency * PI * (self.x_coord / self.sample_rate)).tan()).atan();
+            * (1.0f32 / (tone_frequency * PI * (self.x_coordinate / self.sample_rate)).tan())
+                .atan();
 
-        self.x_coord += self.x_increment;
-        y_coord
+        self.x_coordinate += self.x_increment;
+        y_coordinate
+    }
+
+    fn reset(&mut self) {
+        self.x_coordinate = DEFAULT_X_COORDINATE;
+        self.x_increment = DEFAULT_X_INCREMENT;
     }
 }

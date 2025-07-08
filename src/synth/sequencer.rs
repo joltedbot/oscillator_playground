@@ -153,7 +153,7 @@ impl Sequencer {
         } else {
             self.sequence_index = 0;
         }
-        
+
         MIDI_NOTE_FREQUENCIES[midi_note as usize].1
     }
 }

@@ -1,242 +1,255 @@
-import { Heading, Label, LevelSlider, WaveSelector, ActivationSwitch, StartButton } from "../ui/components.slint";
+import { Heading, Label, LevelSlider, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component OscillatorPanel inherits VerticalLayout {
 
-                in-out property <bool> start_button_active: true;
+    in-out property <bool> start_button_active: true;
 
-                callback wave_level1_selected(int);
-                callback wave_shape1_selected(string);
-                callback wave_level2_selected(int);
-                callback wave_shape2_selected(string);
-                callback wave_level3_selected(int);
-                callback wave_shape3_selected(string);
-                callback sub_level_selected(int);
-                callback sub_shape_selected(string);
-                callback wave_detune_value_changed(float);
-                callback wave_detune_state_changed(bool, float);
-                callback output_level_value_changed(int);
-                callback start_button_pressed(bool);
+    callback wave_level1_selected(float);
+    callback wave_shape1_selected(string);
+    callback wave_level2_selected(float);
+    callback wave_shape2_selected(string);
+    callback wave_level3_selected(float);
+    callback wave_shape3_selected(string);
+    callback sub_level_selected(int);
+    callback sub_shape_selected(string);
+    callback wave_detune_value_changed(float);
+    callback wave_detune_state_changed(bool, float);
+    callback output_level_value_changed(int);
+    callback start_button_pressed(bool);
+    callback resync_oscillators();
 
+    alignment: center;
+
+    Rectangle {
+        horizontal-stretch: 1;
+        height: Theme.window-height - 20px;
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            vertical-stretch: 1;
+            alignment: center;
+            spacing: 10px;
+            padding: 20px;
+
+            HorizontalLayout {
                 alignment: center;
+                spacing: 20px;
 
-                Rectangle {
-                    horizontal-stretch: 1;
-                    height: Theme.window-height - 20px;
-                    border-width: Theme.window-border-width;
-                    border-color: Theme.border-colour;
-                    border-radius: Theme.border-radius;
-                    background: Theme.adrs-box-background;
+                VerticalLayout {
+                    spacing: 10px;
 
-                    VerticalLayout {
-                        vertical-stretch: 1;
-                        alignment: center;
-                        spacing: 10px;
-                        padding: 20px;
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.oscillator1-heading-text;
+                    }
 
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-level-text;
+                    }
 
-                        HorizontalLayout {
-                            alignment: center;
-                            spacing: 20px;
+                    osc1_level := LevelSlider {
+                        level: Theme.osc-level-slider-default;
+                        level-step: Theme.osc-level-slider-step;
+                        minimum-level: Theme.osc-level-slider-minimum;
+                        maximum-level: Theme.osc-level-slider-maximum;
 
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.oscillator1-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.oscillator-level-text;
-                                }
-
-                                osc1_level := LevelSlider {
-                                    level: Theme.osc-level-slider-default;
-                                    level-step: Theme.osc-level-slider-step;
-                                    minimum-level: Theme.osc-level-slider-minimum;
-                                    maximum-level: Theme.osc-level-slider-maximum;
-
-                                    level_selected(level) => {
-                                        root.wave_level1_selected(level / 100);
-                                    }
-                                }
-
-                                osc1_selector := WaveSelector {
-                                    wave_shape_selected(shape) => {
-                                        root.wave_shape1_selected(shape);
-                                    }
-                                }
-                            }
-
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.oscillator2-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.oscillator-level-text;
-                                }
-
-                                osc2_level := LevelSlider {
-                                    level: Theme.osc-level-slider-default;
-                                    level-step: Theme.osc-level-slider-step;
-                                    minimum-level: Theme.osc-level-slider-minimum;
-                                    maximum-level: Theme.osc-level-slider-maximum;
-
-                                    level_selected(level) => {
-                                        root.wave_level2_selected(level / 100);
-                                    }
-                                }
-
-                                osc2_selector := WaveSelector {
-                                    wave_shape_selected(shape) => {
-                                        root.wave_shape2_selected(shape);
-                                    }
-                                }
-                            }
-
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.oscillator3-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.oscillator-level-text;
-                                }
-
-                                osc3_level := LevelSlider {
-                                    level: Theme.osc-level-slider-default;
-                                    level-step: Theme.osc-level-slider-step;
-                                    minimum-level: Theme.osc-level-slider-minimum;
-                                    maximum-level: Theme.osc-level-slider-maximum;
-
-                                    level_selected(level) => {
-                                        root.wave_level3_selected(level / 100);
-                                    }
-                                }
-
-                                osc3_selector := WaveSelector {
-                                    wave_shape_selected(shape) => {
-                                        root.wave_shape3_selected(shape);
-                                    }
-                                }
-                            }
+                        level_selected(level) => {
+                            root.wave_level1_selected(level / 100);
                         }
+                    }
 
-                        HorizontalLayout {
-                            alignment: center;
-                            spacing: 20px;
-
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.sub-oscillator-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.sub-oscillator-level-text;
-                                }
-
-                                sub_level := LevelSlider {
-                                    level: Theme.sub-level-slider-default;
-                                    level-step: Theme.osc-level-slider-step;
-                                    minimum-level: Theme.osc-level-slider-minimum;
-                                    maximum-level: Theme.osc-level-slider-maximum;
-
-                                    level_selected(level) => {
-                                        root.sub_level_selected(level / 100);
-                                    }
-                                }
-
-                                sub_selector := WaveSelector {
-                                    wave_shape_selected(shape) => {
-                                        root.sub_shape_selected(shape);
-                                    }
-                                }
-                            }
-
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.detune-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: round(detune_amount.value) + Theme.detune-amount-label-suffix;
-                                }
-
-                                detune_amount := LevelSlider {
-                                    level: Theme.detune-amount-slider-default;
-                                    level-step: Theme.osc-level-slider-step;
-                                    minimum-level: Theme.osc-level-slider-minimum;
-                                    maximum-level: Theme.osc-level-slider-maximum;
-                                    enabled: false;
-                                    level_selected(level) => {
-                                        wave_detune_value_changed(level / 100);
-                                    }
-                                }
-
-                                ActivationSwitch {
-                                    activated-text: Theme.activation-switch-active-text;
-                                    not-activated-text: Theme.activation-switch-not-active-text;
-
-                                    activation_toggled => {
-                                        detune_amount.enabled = self.activated;
-                                        wave_detune_state_changed(self.activated, round(detune_amount.level) / 100);
-                                    }
-                                }
-                            }
-
-                            VerticalLayout {
-                                spacing: 10px;
-
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.output-level-heading-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: round(output_level.value) - 100 + Theme.output-level-label-suffix;
-                                }
-
-                                output_level := LevelSlider {
-                                    level: Theme.output-level-slider-default;
-                                    level-step: Theme.output-level-slider-step;
-                                    minimum-level: Theme.output-level-slider-minimum;
-                                    maximum-level: Theme.output-level-slider-maximum;
-                                    level_selected(level) => {
-                                        root.output_level_value_changed(level - 100);
-                                    }
-                                }
-                            }
+                    osc1_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape1_selected(shape);
                         }
+                    }
+                }
 
-                        HorizontalLayout {
-                            spacing: 30px;
-                            start_button := StartButton {
-                                active: start_button_active;
-                                tone_start_button_pressed(active) => {
-                                    root.start_button_pressed(active);
-                                }
-                            }
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.oscillator2-heading-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-level-text;
+                    }
+
+                    osc2_level := LevelSlider {
+                        level: Theme.osc-level-slider-default;
+                        level-step: Theme.osc-level-slider-step;
+                        minimum-level: Theme.osc-level-slider-minimum;
+                        maximum-level: Theme.osc-level-slider-maximum;
+
+                        level_selected(level) => {
+                            root.wave_level2_selected(level / 100);
+                        }
+                    }
+
+                    osc2_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape2_selected(shape);
+                        }
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.oscillator3-heading-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-level-text;
+                    }
+
+                    osc3_level := LevelSlider {
+                        level: Theme.osc-level-slider-default;
+                        level-step: Theme.osc-level-slider-step;
+                        minimum-level: Theme.osc-level-slider-minimum;
+                        maximum-level: Theme.osc-level-slider-maximum;
+
+                        level_selected(level) => {
+                            root.wave_level3_selected(level / 100);
+                        }
+                    }
+
+                    osc3_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape3_selected(shape);
                         }
                     }
                 }
             }
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.sub-oscillator-heading-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.sub-oscillator-level-text;
+                    }
+
+                    sub_level := LevelSlider {
+                        level: Theme.sub-level-slider-default;
+                        level-step: Theme.osc-level-slider-step;
+                        minimum-level: Theme.osc-level-slider-minimum;
+                        maximum-level: Theme.osc-level-slider-maximum;
+
+                        level_selected(level) => {
+                            root.sub_level_selected(level / 100);
+                        }
+                    }
+
+                    sub_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.sub_shape_selected(shape);
+                        }
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.detune-heading-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: round(detune_amount.value) + Theme.detune-amount-label-suffix;
+                    }
+
+                    detune_amount := LevelSlider {
+                        level: Theme.detune-amount-slider-default;
+                        level-step: Theme.osc-level-slider-step;
+                        minimum-level: Theme.osc-level-slider-minimum;
+                        maximum-level: Theme.osc-level-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            wave_detune_value_changed(level / 100);
+                        }
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+
+                        activation_toggled => {
+                            detune_amount.enabled = self.activated;
+                            wave_detune_state_changed(self.activated, round(detune_amount.level) / 100);
+                        }
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.output-level-heading-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: round(output_level.value) - 100 + Theme.output-level-label-suffix;
+                    }
+
+                    output_level := LevelSlider {
+                        level: Theme.output-level-slider-default;
+                        level-step: Theme.output-level-slider-step;
+                        minimum-level: Theme.output-level-slider-minimum;
+                        maximum-level: Theme.output-level-slider-maximum;
+                        level_selected(level) => {
+                            root.output_level_value_changed(level - 100);
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 30px;
+                padding: 20px;
+                alignment: center;
+
+                start_button := StartButton {
+                    active: start_button_active;
+                    tone_start_button_pressed(active) => {
+                        root.start_button_pressed(active);
+                    }
+                }
+
+                reset_button := ActionButton {
+                    text: Theme.resync-button-text;
+                    width: Theme.resync-button-width;
+                    height: Theme.resync-button-height;
+
+                    take_action() => {
+                        root.resync_oscillators();
+                    }
+                }
+            }
+        }
+    }
+}

@@ -4,7 +4,7 @@ export global Theme {
     // Main Window
     out property <string> window-title: "Oscillator Playground";
     out property <length> window-width: 1040px;
-    out property <length> window-height: 400px;
+    out property <length> window-height: 550px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
     out property <color> border-colour: #333333;
@@ -18,8 +18,8 @@ export global Theme {
     out property <color> text-color: #aaaaaa;
     out property <color> greyed-out: #444444;
     out property <int> text-weight-bold: 800;
-    out property <length> text-size: 14px;
-    out property <length> label-text-size: 16px;
+    out property <length> text-size: 12px;
+    out property <length> label-text-size: 14px;
     out property <length> heading-text-size: 20px;
 
 
@@ -32,6 +32,11 @@ export global Theme {
     out property <string> start-button-stopped-text: "Start";
     out property <length> start-button-width: 150px;
     out property <length> start-button-height: 35px;
+
+    // Resync Button
+    out property <string> resync-button-text: "Resync";
+    out property <length> resync-button-width: 150px;
+    out property <length> resync-button-height: 35px;
 
     // Detune Switch
     out property <length> mode-switch-width: 250px;
@@ -60,16 +65,22 @@ export global Theme {
     // Filter Cutoff Slider
     out property <int> filter-cutoff-slider-step-factor: 0.05;
     out property <int> filter-cutoff-slider-minimum: 0;
-    out property <int> filter-cutoff-slider-maximum: 20000.1;
-    out property <int> filter-cutoff-slider-default: 20000.1;
-
+    out property <int> filter-cutoff-slider-maximum: 18500;
+    out property <int> filter-cutoff-slider-default: 18500;
+    out property <int> filter-cutoff-display-adjustment-factor: 185;
 
     // Filter Resonance Slider
     out property <int> filter-resonance-slider-step: 1;
-    out property <int> filter-resonance-slider-minimum: 0;
+    out property <int> filter-resonance-slider-minimum: 40;
     out property <int> filter-resonance-slider-maximum: 100;
     out property <float> filter-resonance-slider-default: 100;
 
+    // Filter Poles Slider
+    out property <int> filter-poles-slider-step: 1;
+    out property <int> filter-poles-slider-minimum: 1;
+    out property <int> filter-poles-slider-maximum: 4;
+    out property <int> filter-poles-slider-default: 2;
+    out property <length> filter-poles-slider-width: 100px;
 
     // Output Level Slider
     out property <int> output-level-slider-step: 1;
@@ -102,13 +113,20 @@ export global Theme {
     // Envelope ADSR Box
     out property <color> adrs-box-background: #202020;
 
-    // Filter Poles Slider
-    out property <int> filter-poles-slider-step: 1;
-    out property <int> filter-poles-slider-minimum: 1;
-    out property <int> filter-poles-slider-maximum: 3;
-    out property <int> filter-poles-slider-default: 2;
-    out property <length> filter-poles-slider-width: 50px;
 
+    // Gate Duty Cycle Slider
+    out property <int> envelope-gate-duty-cycle-step: 1;
+    out property <int> envelope-gate-duty-cycle-minimum: 5;
+    out property <int> envelope-gate-duty-cycle-maximum: 90;
+    out property <int> envelope-gate-duty-cycle-default: 50;
+    out property <length> envelope-gate-duty-cycle-width: 100px;
+
+    // Gate Note Length Slider
+    out property <int> envelope-gate-note-length-step: 10;
+    out property <int> envelope-gate-note-length-minimum: 10;
+    out property <int> envelope-gate-note-length-maximum: 1000;
+    out property <int> envelope-gate-note-length-default: 300;
+    out property <length> envelope-gate-note-length-width: 100px;
 
     //
     // Label Text
@@ -133,9 +151,16 @@ export global Theme {
     out property <string> envelope-time-suffix: " ms";
     out property <string> envelope-sustain-level-prefix: "Output -";
     out property <string> envelope-sustain-level-suffix: "dbfs";
+    out property <string> envelope-gate-text: "Gate";
+    out property <string> envelope-amp-mode-gate-text: "ADSR";
+    out property <string> envelope-amp-mode-envelope-text: "Gate";
+    out property <string> envelope-gate-note-length-text: "Note Length";
+    out property <string> envelope-gate-duty-cycle-text: "Duty Cycle";
+    out property <string> envelope-mode-text: "Mode: ";
+    out property <string> envelope-gate-duty-cycle-suffix: "%";
     out property <string> filter-header-text: "Low Pass Filter";
     out property <string> filter-cutoff-text: "Cutoff";
     out property <string> filter-resonance-text: "Resonance";
-    out property <string> filter-cutoff-suffix: " Hz";
+    out property <string> filter-cutoff-suffix: "%";
     out property <string> filter-poles-label-text: "Filter Poles: ";
 }

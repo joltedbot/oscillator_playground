@@ -64,8 +64,12 @@ impl UI {
         self.on_filter_cutoff_value_changed();
         self.on_filter_resonance_value_changed();
         self.on_number_of_poles_selected();
+        self.on_resync_oscillators();
+        self.on_gate_note_length_changed();
+        self.on_gate_duty_cycle_changed();
+        self.on_enable_amp_envelope();
     }
-    
+
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
         let ui_weak = self.ui.clone();
 
@@ -222,7 +226,9 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_envelope_attack_updated(move |milliseconds| {
-            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeAttack(milliseconds).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateEnvelopeAttack(milliseconds).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
@@ -233,7 +239,9 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_envelope_decay_updated(move |milliseconds| {
-            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeDecay(milliseconds).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateEnvelopeDecay(milliseconds).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
@@ -244,7 +252,9 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_envelope_release_updated(move |milliseconds| {
-            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeRelease(milliseconds).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateEnvelopeRelease(milliseconds).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
@@ -255,7 +265,9 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_envelope_sustain_updated(move |milliseconds| {
-            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeSustain(milliseconds).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateEnvelopeSustain(milliseconds).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
@@ -266,22 +278,25 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_envelope_sustain_level_updated(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
     }
-    
+
     fn on_filter_cutoff_value_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
         ui.on_filter_cutoff_value_changed(move |cutoff| {
-            if let Err(error) = synth_sender.send(EventType::UpdateFilterCutoffValue(cutoff).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateFilterCutoffValue(cutoff).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
-        
     }
 
     fn on_filter_resonance_value_changed(&mut self) {
@@ -289,23 +304,73 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_filter_resonance_value_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateFilterResonanceValue(level).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateFilterResonanceValue(level).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
-
     }
-    
+
     fn on_number_of_poles_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
         ui.on_number_of_poles_selected(move |number_of_poles| {
-            if let Err(error) = synth_sender.send(EventType::UpdateFilterNumberOfPoles(number_of_poles).clone()) {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateFilterNumberOfPoles(number_of_poles).clone())
+            {
                 eprintln!("Error sending event: {}", error);
             }
         });
     }
 
+    fn on_resync_oscillators(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
 
+        ui.on_resync_oscillators(move || {
+            if let Err(error) = synth_sender.send(EventType::ResyncOscillators.clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    fn on_enable_amp_envelope(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_enable_amp_envelope(move |is_enabled| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateAmpModeEnvelopeEnabled(is_enabled).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_gate_duty_cycle_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_gate_duty_cycle_changed(move |duty_cycle| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateGateDutyCycle(duty_cycle).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_gate_note_length_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_gate_note_length_changed(move |milliseconds| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateGateNoteLength(milliseconds).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
 }

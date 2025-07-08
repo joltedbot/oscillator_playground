@@ -16,31 +16,43 @@ export component Label inherits Text {
     font-size: Theme.label-text-size;
 }
 
-export component StartButton inherits Rectangle {
+export component StartButton inherits Button {
     in-out property <bool> active;
     callback tone_start_button_pressed(bool);
 
     states [
         running when active: {
-            start-button.text: Theme.start-button-running-text;
-            start-button.primary: true;
+            text: Theme.start-button-running-text;
+            primary: true;
         }
         stopped when !active: {
-            start-button.text: Theme.start-button-stopped-text;
-            start-button.primary: false;
+            text: Theme.start-button-stopped-text;
+            primary: false;
         }
     ]
 
-    HorizontalLayout {
-        alignment: space-around;
-        start-button := Button {
-            width: Theme.start-button-width;
-            height: Theme.start-button-height;
-            clicked => {
-                active = !active;
-                tone_start_button_pressed(active);
-            }
+    width: Theme.start-button-width;
+    height: Theme.start-button-height;
+    clicked => {
+        active = !active;
+        tone_start_button_pressed(active);
+    }
+}
+
+export component ActionButton inherits Button {
+    callback take_action();
+
+    states [
+        on when self.pressed: {
+            primary: true;
         }
+        off when !self.pressed: {
+            primary: false;
+        }
+    ]
+
+    clicked => {
+        take_action();
     }
 }
 

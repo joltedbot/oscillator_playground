@@ -19,6 +19,7 @@ use triangle::Triangle;
 
 pub trait GenerateSamples {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
+    fn reset(&mut self);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -118,6 +119,13 @@ impl Oscillators {
 
     pub fn get_sub_oscillator_level(&mut self) -> f32 {
         self.sub_oscillator_level
+    }
+
+    pub fn reset(&mut self) {
+        self.oscillator1.reset();
+        self.oscillator2.reset();
+        self.oscillator3.reset();
+        self.sub_oscillator.reset();
     }
 
     pub fn get_oscillator1_next_sample(

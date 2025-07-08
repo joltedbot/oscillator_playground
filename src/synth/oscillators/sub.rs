@@ -19,4 +19,8 @@ impl GenerateSamples for Sub {
         }
         self.oscillator.next_sample(tone_frequency, modulation)
     }
+
+    fn reset(&mut self) {
+        self.oscillator.reset();
+    }
 }

@@ -15,4 +15,6 @@ impl GenerateSamples for Noise {
         }
         rand::random_range(-1.0..=1.0) * modulation.unwrap_or(1.0)
     }
+
+    fn reset(&mut self) {}
 }

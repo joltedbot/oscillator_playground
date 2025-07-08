@@ -34,6 +34,10 @@ export component AppWindow inherits Window {
     callback filter_cutoff_value_changed(int);
     callback filter_resonance_value_changed(float);
     callback number_of_poles_selected(int);
+    callback resync_oscillators();
+    callback enable_amp_envelope(bool);
+    callback gate_note_length_changed(int);
+    callback gate_duty_cycle_changed(float);
 
     Rectangle {
         padding: 4px;
@@ -53,7 +57,6 @@ export component AppWindow inherits Window {
                 wave_level1_selected(level) => {
                     root.wave_level1_selected(level);
                 }
-                
                 wave_shape1_selected(shape) => {
                     root.wave_shape1_selected(shape);
                 }
@@ -86,7 +89,7 @@ export component AppWindow inherits Window {
                 }
 
                 wave_detune_state_changed(active, amount) => {
-                     root.wave_detune_state_changed(active, amount)
+                    root.wave_detune_state_changed(active, amount)
                 }
 
                 output_level_value_changed(level) => {
@@ -97,6 +100,9 @@ export component AppWindow inherits Window {
                     root.start_button_pressed(active);
                 }
 
+                resync_oscillators() => {
+                    root.resync_oscillators();
+                }
             }
 
             FilterPanel {
@@ -111,7 +117,6 @@ export component AppWindow inherits Window {
                 filter_resonance_value_changed(resonance) => {
                     root.filter_resonance_value_changed(resonance);
                 }
-
             }
 
             EnvelopePanel {
@@ -135,8 +140,19 @@ export component AppWindow inherits Window {
                     root.envelope_sustain_level_updated(level);
                 }
 
-            }
+                enable_amp_envelope(is_enabled) => {
+                    root.enable_amp_envelope(is_enabled);
+                }
 
+                gate_note_length_changed(note_length) => {
+                    root.gate_note_length_changed(note_length);
+                }
+
+                gate_duty_cycle_changed(duty_cycle) => {
+                    root.gate_duty_cycle_changed(duty_cycle);
+                }
+
+            }
         }
     }
 }

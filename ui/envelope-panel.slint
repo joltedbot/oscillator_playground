@@ -1,150 +1,219 @@
-import { Heading, Label, ADSRSlider, LevelSlider } from "../ui/components.slint";
+import { Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component EnvelopePanel inherits VerticalLayout {
+    alignment: center;
+
+    callback envelope_attack_updated(float);
+    callback envelope_decay_updated(float);
+    callback envelope_release_updated(float);
+    callback envelope_sustain_updated(float);
+    callback envelope_sustain_level_updated(float);
+    callback enable_amp_envelope(bool);
+    callback gate_note_length_changed(int);
+    callback gate_duty_cycle_changed(float);
+
+
+    Rectangle {
+        horizontal-stretch: 1;
+        height: Theme.window-height - 20px;
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            vertical-stretch: 1;
+            alignment: center;
+            spacing: 30px;
+            padding: 20px;
+
+            HorizontalLayout {
                 alignment: center;
+                spacing: 10px;
 
-                callback envelope_attack_updated(float);
-                callback envelope_decay_updated(float);
-                callback envelope_release_updated(float);
-                callback envelope_sustain_updated(float);
-                callback envelope_sustain_level_updated(float);
+                Heading {
+                    horizontal-alignment: center;
+                    heading: Theme.envelope-header-text;
+                }
+            }
 
+            HorizontalLayout {
+                    spacing: 10px;
 
-                Rectangle {
-                    horizontal-stretch: 1;
-                    height: Theme.window-height - 20px;
-                    border-width: Theme.window-border-width;
-                    border-color: Theme.border-colour;
-                    border-radius: Theme.border-radius;
-                    background: Theme.adrs-box-background;
+                    Label {
+                        label: Theme.envelope-mode-text;
+                    }
+                    
+                    adsr_enabled := ActivationSwitch {
+                        activated-text: Theme.envelope-amp-mode-gate-text;
+                        not-activated-text: Theme.envelope-amp-mode-envelope-text;
+                        checked: true;
 
-                    VerticalLayout {
-                        vertical-stretch: 1;
-                        alignment: center;
-                        spacing: 30px;
-                        padding: 20px;
-
-                        HorizontalLayout {
-                            alignment: center;
-                            spacing: 20px;
-
-                            Heading {
-                                horizontal-alignment: center;
-                                heading: Theme.envelope-header-text;
-                            }
+                        activation_toggled => {
+                             root.enable_amp_envelope(adsr_enabled.checked);
+                             note_length.enabled = !adsr_enabled.checked;
+                             duty_cycle.enabled = !adsr_enabled.checked;
                         }
+                    }
 
-                        HorizontalLayout {
-                            spacing: 20px;
+            }
 
-                            VerticalLayout {
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-attack-text;
-                                }
+            HorizontalLayout {
+                spacing: 10px;
 
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: attack_time.milliseconds + Theme.envelope-time-suffix;
-                                }
+                VerticalLayout {
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-attack-text;
+                    }
 
-                                attack_time := ADSRSlider {
-                                    milliseconds: Theme.envelope-attack-default;
-                                    milliseconds_selected(milliseconds) => {
-                                        root.envelope_attack_updated(milliseconds);
-                                    }
-                                }
-                            }
+                    Label {
+                        horizontal-alignment: center;
+                        label: attack_time.milliseconds + Theme.envelope-time-suffix;
+                    }
 
-                            VerticalLayout {
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-decay-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: decay_time.milliseconds + Theme.envelope-time-suffix;
-                                }
-
-                                decay_time := ADSRSlider {
-                                    milliseconds: Theme.envelope-decay-default;
-                                    milliseconds_selected(milliseconds) => {
-                                        root.envelope_decay_updated(milliseconds);
-                                    }
-                                }
-                            }
+                    attack_time := ADSRSlider {
+                        milliseconds: Theme.envelope-attack-default;
+                        milliseconds_selected(milliseconds) => {
+                            root.envelope_attack_updated(milliseconds);
                         }
+                    }
+                }
 
-                        HorizontalLayout {
-                            spacing: 20px;
+                VerticalLayout {
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-decay-text;
+                    }
 
-                            VerticalLayout {
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-sustain-text;
-                                }
+                    Label {
+                        horizontal-alignment: center;
+                        label: decay_time.milliseconds + Theme.envelope-time-suffix;
+                    }
 
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: sustain_time.milliseconds + Theme.envelope-time-suffix;
-                                }
-
-                                sustain_time := ADSRSlider {
-                                    milliseconds: Theme.envelope-sustain-default;
-                                    milliseconds_selected(milliseconds) => {
-                                        root.envelope_sustain_updated(milliseconds);
-                                    }
-                                }
-                            }
-
-                            VerticalLayout {
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-sustain-level-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-sustain-level-prefix + sustain_level.level + Theme.envelope-sustain-level-suffix;
-                                }
-
-                                sustain_level := LevelSlider {
-                                    level: Theme.envelope-sustain-level-default;
-                                    step: Theme.envelope-sustain-level-step;
-                                    minimum: Theme.envelope-sustain-level-minimum;
-                                    maximum: Theme.envelope-sustain-level-maximum;
-
-                                    level_selected(dbfs) => {
-                                        root.envelope_sustain_level_updated(dbfs);
-                                    }
-                                }
-                            }
-                        }
-
-                        HorizontalLayout {
-                            spacing: 20px;
-
-                            VerticalLayout {
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: Theme.envelope-release-text;
-                                }
-
-                                Label {
-                                    horizontal-alignment: center;
-                                    label: release_time.milliseconds + Theme.envelope-time-suffix;
-                                }
-
-                                release_time := ADSRSlider {
-                                    milliseconds: Theme.envelope-release-default;
-                                    milliseconds_selected(milliseconds) => {
-                                        root.envelope_release_updated(milliseconds);
-                                    }
-                                }
-                            }
+                    decay_time := ADSRSlider {
+                        milliseconds: Theme.envelope-decay-default;
+                        milliseconds_selected(milliseconds) => {
+                            root.envelope_decay_updated(milliseconds);
                         }
                     }
                 }
             }
+
+            HorizontalLayout {
+                spacing: 10px;
+
+                VerticalLayout {
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-sustain-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: sustain_time.milliseconds + Theme.envelope-time-suffix;
+                    }
+
+                    sustain_time := ADSRSlider {
+                        milliseconds: Theme.envelope-sustain-default;
+                        milliseconds_selected(milliseconds) => {
+                            root.envelope_sustain_updated(milliseconds);
+                        }
+                    }
+                }
+
+                VerticalLayout {
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-sustain-level-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-sustain-level-prefix + sustain_level.level + Theme.envelope-sustain-level-suffix;
+                    }
+
+                    sustain_level := LevelSlider {
+                        level: Theme.envelope-sustain-level-default;
+                        step: Theme.envelope-sustain-level-step;
+                        minimum: Theme.envelope-sustain-level-minimum;
+                        maximum: Theme.envelope-sustain-level-maximum;
+
+                        level_selected(dbfs) => {
+                            root.envelope_sustain_level_updated(dbfs);
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 10px;
+
+                VerticalLayout {
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-release-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: release_time.milliseconds + Theme.envelope-time-suffix;
+                    }
+
+                    release_time := ADSRSlider {
+                        milliseconds: Theme.envelope-release-default;
+                        milliseconds_selected(milliseconds) => {
+                            root.envelope_release_updated(milliseconds);
+                        }
+                    }
+                }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+
+                VerticalLayout {
+                spacing: 10px;
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-gate-text;
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-gate-note-length-text;
+                    }
+
+                    note_length := LevelSlider {
+                        level: Theme.envelope-gate-note-length-default;
+                        level-step: Theme.envelope-gate-note-length-step;
+                        minimum-level: Theme.envelope-gate-note-length-minimum;
+                        maximum-level: Theme.envelope-gate-note-length-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            root.gate_note_length_changed(level);
+                        }
+                    }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-gate-duty-cycle-text;
+                    }
+
+                    duty_cycle := LevelSlider {
+                        level: Theme.envelope-gate-duty-cycle-default;
+                        level-step: Theme.envelope-gate-duty-cycle-step;
+                        minimum-level: Theme.envelope-gate-duty-cycle-minimum;
+                        maximum-level: Theme.envelope-gate-duty-cycle-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            root.gate_duty_cycle_changed(level/100);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
