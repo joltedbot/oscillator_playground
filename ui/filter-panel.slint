@@ -55,7 +55,7 @@ export component FilterPanel inherits VerticalLayout {
                     Label {
                         width: 75px;
                         horizontal-alignment: center;
-                        label: round(filter_cutoff.level/Theme.filter-cutoff-display-adjustment-factor) + Theme.filter-cutoff-suffix;
+                        label: round(filter_cutoff.level);
                     }
 
                     filter_cutoff := LevelSlider {

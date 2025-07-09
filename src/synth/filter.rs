@@ -39,13 +39,20 @@ impl Filter {
         }
     }
 
-    pub fn filter_sample(&mut self, sample: f32) -> f32 {
+    pub fn filter_sample(&mut self, sample: f32, modulation: Option<f32>) -> f32 {
         if self.cutoff_frequency > FILTER_MAX_CUTOFF_BEFORE_BYPASSING {
             return sample;
         }
 
+
+        let mut cutoff_frequency = self.cutoff_frequency.min(self.cutoff_frequency * modulation.unwrap_or(1.0));
+
+        if cutoff_frequency.is_sign_negative() {
+            cutoff_frequency = 0.0;
+        }
+
         let normalized_frequency =
-            get_normalized_frequency(self.cutoff_frequency, self.sample_rate);
+            get_normalized_frequency(cutoff_frequency, self.sample_rate);
         let feedback = get_feedback_amount(self.resonance_q, normalized_frequency);
         self.filter_sample_pole1(sample, normalized_frequency, feedback);
 

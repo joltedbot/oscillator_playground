@@ -174,7 +174,7 @@ impl Synth {
                     }
                     EventType::UpdateFilterResonanceValue(level) => {
                         let mut filter = self.get_filter_mutex_lock();
-                        filter.set_resonance(level as f32);
+                        filter.set_resonance(level);
                     }
                     EventType::UpdateFilterNumberOfPoles(number_of_poles) => {
                         let mut filter = self.get_filter_mutex_lock();
@@ -245,8 +245,6 @@ impl Synth {
         let output_device = self.audio_device.get_output_device();
         let number_of_channels = self.audio_device.get_number_of_channels();
 
-        let dynamics = Dynamics::new();
-
         // The sequence is midi note numbers
         // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway.
         let mut sequencer = Sequencer::new(vec![0, 65, 68, 70, 77, 80, 82, 84, 87, 0]);
@@ -257,6 +255,7 @@ impl Synth {
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
         let filter_arc = self.filter.clone();
+        let lfo_arc = self.lfos.clone();
 
         let stream = output_device
             .build_output_stream(
@@ -269,6 +268,9 @@ impl Synth {
                     let oscillator2_level = oscillators.get_oscillator2_level();
                     let oscillator3_level = oscillators.get_oscillator3_level();
                     let sub_oscillator_level = oscillators.get_sub_oscillator_level();
+
+
+                    let mut lfos = lfo_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
 
                     let mut envelope = envelope_arc
                         .lock()
@@ -319,7 +321,7 @@ impl Synth {
                             + sub_oscillator_level;
 
                         let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
-                        let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum);
+                        let filtered_sample = filter.filter_sample(level_balanced_oscillator_sum, None);
 
                         let left_sample = filtered_sample;
                         let right_sample = filtered_sample;
