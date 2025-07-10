@@ -24,6 +24,14 @@ export component AppWindow inherits Window {
     callback wave_level2_selected(float);
     callback wave_level3_selected(float);
     callback sub_level_selected(float);
+    callback wave_mod1_speed_changed(float);
+    callback wave_mod2_speed_changed(float);
+    callback wave_mod3_speed_changed(float);
+    callback sub_mod_speed_changed(float);
+    callback wave_mod1_amount_changed(float);
+    callback wave_mod2_amount_changed(float);
+    callback wave_mod3_amount_changed(float);
+    callback sub_mod_amount_changed(float);
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
@@ -36,6 +44,7 @@ export component AppWindow inherits Window {
     callback filter_resonance_value_changed(float);
     callback number_of_poles_selected(int);
     callback resync_oscillators();
+    callback resync_oscillator_lfos();
     callback enable_amp_envelope(bool);
     callback gate_note_length_changed(int);
     callback gate_duty_cycle_changed(float);
@@ -98,6 +107,39 @@ export component AppWindow inherits Window {
                     sub_shape_selected(shape) => {
                         root.sub_shape_selected(shape);
                     }
+
+                    wave_mod1_speed_changed(speed_hz) => {
+                         root.wave_mod1_speed_changed(speed_hz);
+                    }
+
+                    wave_mod2_speed_changed(speed_hz) => {
+                         root.wave_mod2_speed_changed(speed_hz);
+                    }
+
+                    wave_mod3_speed_changed(speed_hz) => {
+                         root.wave_mod3_speed_changed(speed_hz);
+                    }
+
+                    sub_mod_speed_changed(speed_hz) => {
+                         root.sub_mod_speed_changed(speed_hz);
+                    }
+
+                    wave_mod1_amount_changed(amount) => {
+                         root.wave_mod1_amount_changed(amount);
+                    }
+
+                    wave_mod2_amount_changed(amount) => {
+                         root.wave_mod2_amount_changed(amount);
+                    }
+
+                    wave_mod3_amount_changed(amount) => {
+                         root.wave_mod3_amount_changed(amount);
+                    }
+
+                    sub_mod_amount_changed(amount) => {
+                         root.sub_mod_amount_changed(amount);
+                    }
+
 
                     wave_detune_value_changed(int) => {
                         root.wave_detune_value_changed(int);

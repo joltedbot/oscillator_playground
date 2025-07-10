@@ -6,6 +6,7 @@ use std::error::Error;
 use std::process::exit;
 use std::sync::{Arc, Mutex};
 
+
 pub struct UI {
     pub ui: Weak<AppWindow>,
     synth_sender: Sender<EventType>,
@@ -53,6 +54,14 @@ impl UI {
         self.on_wave_level2_selected_callback();
         self.on_wave_level3_selected_callback();
         self.on_sub_level_selected_callback();
+        self.on_wave_mod1_speed_changed();
+        self.on_wave_mod2_speed_changed();
+        self.on_wave_mod3_speed_changed();
+        self.on_wave_mod1_amount_changed();
+        self.on_wave_mod2_amount_changed();
+        self.on_wave_mod3_amount_changed();
+        self.on_sub_mod_speed_changed();
+        self.on_sub_mod_amount_changed();
         self.on_wave_detune_value_changed();
         self.on_wave_detune_state_changed();
         self.on_output_level_value_changed();
@@ -65,6 +74,7 @@ impl UI {
         self.on_filter_resonance_value_changed();
         self.on_number_of_poles_selected();
         self.on_resync_oscillators();
+        self.on_resync_oscillator_lfos();
         self.on_gate_note_length_changed();
         self.on_gate_duty_cycle_changed();
         self.on_enable_amp_envelope();
@@ -176,7 +186,92 @@ impl UI {
             }
         });
     }
+    
+    fn on_wave_mod1_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
 
+        ui.on_wave_mod1_speed_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModFreq(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    fn on_wave_mod2_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave_mod2_speed_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModFreq(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    fn on_wave_mod3_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave_mod3_speed_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModFreq(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_sub_mod_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_sub_mod_speed_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModFreq(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_wave_mod1_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave_mod1_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModAmount(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    fn on_wave_mod2_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave_mod2_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModAmount(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    fn on_wave_mod3_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave_mod3_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModAmount(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_sub_mod_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_sub_mod_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModAmount(level)) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    
+    
     fn on_start_button_pressed_callback(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -344,6 +439,18 @@ impl UI {
             }
         });
     }
+
+    fn on_resync_oscillator_lfos(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_resync_oscillator_lfos(move || {
+            if let Err(error) = synth_sender.send(EventType::ResyncOscillatorLFOs.clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
     fn on_enable_amp_envelope(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();

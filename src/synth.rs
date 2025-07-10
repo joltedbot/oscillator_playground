@@ -24,6 +24,11 @@ const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbf
 const LFO_INDEX_FOR_AUTO_PAN: usize = 0;
 const LFO_INDEX_FOR_TREMOLO: usize = 1;
 const LFO_INDEX_FOR_FILTER_MOD: usize = 2;
+const LFO_INDEX_FOR_OSCILLATOR1_MOD: usize = 3;
+const LFO_INDEX_FOR_OSCILLATOR2_MOD: usize = 4;
+const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 5;
+const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
+
 const DEFAULT_CENTER_FREQUENCY: f32 = 0.5;
 const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
 
@@ -46,6 +51,7 @@ pub struct Synth {
     audio_device: AudioDevice,
     amp_mode: Arc<Mutex<AmpMode>>,
     oscillators: Arc<Mutex<Oscillators>>,
+    oscillator_mod_lfos: Arc<Mutex<Vec<LFOInstance>>>,
     envelope: Arc<Mutex<Envelope>>,
     lfos: Arc<Mutex<Vec<LFO>>>,
     filter: Arc<Mutex<Filter>>,
@@ -69,8 +75,12 @@ impl Synth {
         let lfo1 = LFO::new(sample_rate);
         let lfo2 = LFO::new(sample_rate);
         let lfo3 = LFO::new(sample_rate);
+        let lfo4 = LFO::new(sample_rate);
+        let lfo5 = LFO::new(sample_rate);
+        let lfo6 = LFO::new(sample_rate);
+        let lfo7 = LFO::new(sample_rate);
 
-        let lfos_arc = Arc::new(Mutex::new(vec![lfo1, lfo2, lfo3]));
+        let lfos_arc = Arc::new(Mutex::new(vec![lfo1, lfo2, lfo3, lfo4, lfo5, lfo6, lfo7]));
 
         let filter = Filter::new(sample_rate);
         let filter_arc = Arc::new(Mutex::new(filter));
@@ -93,6 +103,32 @@ impl Synth {
             ..Default::default()
         }));
 
+        let sub_osc_mod = LFOInstance {
+            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let osc1_mod = LFOInstance {
+            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let osc2_mod = LFOInstance {
+            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let osc3_mod = LFOInstance {
+            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let oscillator_mod_lfos = Arc::new(Mutex::new(vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod]));
+
         Self {
             stream: None,
             amp_mode: Arc::new(Mutex::new(AmpMode::Envelope)),
@@ -105,6 +141,7 @@ impl Synth {
             auto_pan,
             tremolo,
             filter_mod,
+            oscillator_mod_lfos,
         }
     }
 
@@ -151,6 +188,40 @@ impl Synth {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         oscillators.set_sub_oscillator_level(level);
                     }
+                    EventType::UpdateSubOscillatorModFreq(speed) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[0].frequency = speed;
+                    }
+                    EventType::UpdateOscillator1ModFreq(speed) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[1].frequency = speed;
+                    }
+                    EventType::UpdateOscillator2ModFreq(speed) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[2].frequency = speed;
+                    }
+                    EventType::UpdateOscillator3ModFreq(speed) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[3].frequency = speed;
+                    }
+
+                    EventType::UpdateSubOscillatorModAmount(amount) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[0].width = amount;
+                    }
+                    EventType::UpdateOscillator1ModAmount(amount) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[1].width = amount;
+                    }
+                    EventType::UpdateOscillator2ModAmount(amount) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[2].width = amount;
+                    }
+                    EventType::UpdateOscillator3ModAmount(amount) => {
+                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
+                        osc_lfos[3].width = amount;
+                    }
+
                     EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
 
@@ -220,6 +291,15 @@ impl Synth {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         oscillators.reset();
                     }
+                    EventType::ResyncOscillatorLFOs => {
+                        let mut lfos = self.get_lfo_mutex_lock();
+
+                        lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].reset();
+                        lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
+                        lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].reset();
+                        lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
+
+                    }
                     EventType::UpdateAutoPanEnabled(is_enabled) => {
                         let mut auto_pan = self.get_auto_pan_mutex_lock();
                         auto_pan.is_enabled = is_enabled;
@@ -274,6 +354,19 @@ impl Synth {
 
     fn get_oscillators_mutex_lock(&mut self) -> MutexGuard<Oscillators> {
         self.oscillators
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+    fn get_oscilator_mod_lfos_mutex_lock(&mut self) -> MutexGuard<Vec<LFOInstance>> {
+        self.oscillator_mod_lfos
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+
+    fn get_lfo_mutex_lock(&mut self) -> MutexGuard<Vec<LFO>> {
+        self.lfos
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
@@ -339,7 +432,7 @@ impl Synth {
 
         // The sequence is midi note numbers
         // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway.
-        let mut sequencer = Sequencer::new(vec![0, 55, 58, 50, 57, 60, 62, 64, 67, 0]);
+        let mut sequencer = Sequencer::new(vec![0, 60, 63, 55, 62, 65, 67, 69, 72, 0]);
         let mut note_frequency = sequencer.next_note_frequency();
 
         let output_level_arc = self.output_level.clone();
@@ -351,6 +444,7 @@ impl Synth {
         let auto_pan_arc = self.auto_pan.clone();
         let tremolo_arc = self.tremolo.clone();
         let filter_mod_arc = self.filter_mod.clone();
+        let oscillator_mod_lfos_arc = self.oscillator_mod_lfos.clone();
 
         let stream = output_device
             .build_output_stream(
@@ -396,26 +490,71 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
+                    let oscillator_mod_lfos = oscillator_mod_lfos_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
                     for frame in buffer.chunks_mut(number_of_channels) {
-                        let oscillator1_sample = oscillators.get_oscillator1_next_sample(
+
+
+
+                        let sub_oscillator_mod = if oscillator_mod_lfos[0].width > 0.0 {
+                            Some(lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].get_next_value(
+                                oscillator_mod_lfos[0].frequency,
+                                oscillator_mod_lfos[0].center_frequency,
+                                oscillator_mod_lfos[0].width))
+                        } else {
+                            None
+                        };
+
+                        let oscillator1_mod = if oscillator_mod_lfos[1].width > 0.0 {
+                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].get_next_value(
+                            oscillator_mod_lfos[1].frequency,
+                            oscillator_mod_lfos[1].center_frequency,
+                            oscillator_mod_lfos[1].width))
+                        } else {
+                            None
+                        };
+
+                        let oscillator2_mod = if oscillator_mod_lfos[2].width > 0.0 {
+                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].get_next_value(
+                            oscillator_mod_lfos[2].frequency,
+                            oscillator_mod_lfos[2].center_frequency,
+                            oscillator_mod_lfos[2].width))
+                        } else {
+                            None
+                        };
+
+                        let oscillator3_mod = if oscillator_mod_lfos[3].width > 0.0 {
+                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].get_next_value(
+                            oscillator_mod_lfos[3].frequency,
+                            oscillator_mod_lfos[3].center_frequency,
+                            oscillator_mod_lfos[3].width))
+                    } else {
+                        None
+                    };
+
+                    let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
+                        note_frequency,
+                        sub_oscillator_level,
+                        sub_oscillator_mod,
+                    );
+
+                    let oscillator1_sample = oscillators.get_oscillator1_next_sample(
                             note_frequency,
                             oscillator1_level,
-                            None,
+                            oscillator1_mod,
                         );
+
                         let oscillator2_sample = oscillators.get_oscillator2_next_sample(
                             note_frequency,
                             oscillator2_level,
-                            None,
+                            oscillator2_mod,
                         );
                         let oscillator3_sample = oscillators.get_oscillator3_next_sample(
                             note_frequency,
                             oscillator3_level,
-                            None,
-                        );
-                        let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
-                            note_frequency,
-                            sub_oscillator_level,
-                            None,
+                            oscillator3_mod,
                         );
 
                         let oscillator_sum = oscillator1_sample

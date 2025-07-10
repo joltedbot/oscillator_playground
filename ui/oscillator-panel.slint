@@ -1,4 +1,4 @@
-import { Heading, Label, LevelSlider, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
+import { Heading, Label, LevelSlider, LFOSlider, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component OscillatorPanel inherits VerticalLayout {
@@ -13,11 +13,20 @@ export component OscillatorPanel inherits VerticalLayout {
     callback wave_shape3_selected(string);
     callback sub_level_selected(int);
     callback sub_shape_selected(string);
+    callback wave_mod1_speed_changed(float);
+    callback wave_mod2_speed_changed(float);
+    callback wave_mod3_speed_changed(float);
+    callback sub_mod_speed_changed(float);
+    callback wave_mod1_amount_changed(float);
+    callback wave_mod2_amount_changed(float);
+    callback wave_mod3_amount_changed(float);
+    callback sub_mod_amount_changed(float);
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
     callback start_button_pressed(bool);
     callback resync_oscillators();
+    callback resync_oscillator_lfos();
 
     alignment: center;
 
@@ -35,7 +44,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
             HorizontalLayout {
                 alignment: center;
-                spacing: 20px;
+                spacing: 10px;
 
                 VerticalLayout {
                     spacing: 10px;
@@ -43,6 +52,12 @@ export component OscillatorPanel inherits VerticalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.oscillator1-heading-text;
+                    }
+
+                    osc1_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape1_selected(shape);
+                        }
                     }
 
                     Label {
@@ -61,11 +76,38 @@ export component OscillatorPanel inherits VerticalLayout {
                         }
                     }
 
-                    osc1_selector := WaveSelector {
-                        wave_shape_selected(shape) => {
-                            root.wave_shape1_selected(shape);
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-amount-text;
+                    }
+
+                    osc1_mod_amount := LFOSlider {
+                        slider_value: Theme.osc-mod-amount-slider-default;
+                        step: Theme.osc-mod-amount-slider-step;
+                        minimum: Theme.osc-mod-amount-slider-minimum;
+                        maximum: Theme.osc-mod-amount-slider-maximum;
+
+                        level_selected(amount) => {
+                            root.wave_mod1_amount_changed(amount);
                         }
                     }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-speed-text;
+                    }
+
+                    osc1_mod_speed := LFOSlider {
+                        slider_value: Theme.osc-mod-speed-slider-default;
+                        step: Theme.osc-mod-speed-slider-step;
+                        minimum: Theme.osc-mod-speed-slider-minimum;
+                        maximum: Theme.osc-mod-speed-slider-maximum;
+
+                        level_selected(amount) => {
+                            root.wave_mod1_speed_changed(amount);
+                        }
+                    }
+
                 }
 
                 VerticalLayout {
@@ -74,6 +116,12 @@ export component OscillatorPanel inherits VerticalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.oscillator2-heading-text;
+                    }
+
+                    osc2_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape2_selected(shape);
+                        }
                     }
 
                     Label {
@@ -92,11 +140,38 @@ export component OscillatorPanel inherits VerticalLayout {
                         }
                     }
 
-                    osc2_selector := WaveSelector {
-                        wave_shape_selected(shape) => {
-                            root.wave_shape2_selected(shape);
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-amount-text;
+                    }
+
+                    osc2_mod_amount := LFOSlider {
+                        slider_value: Theme.osc-mod-amount-slider-default;
+                        step: Theme.osc-mod-amount-slider-step;
+                        minimum: Theme.osc-mod-amount-slider-minimum;
+                        maximum: Theme.osc-mod-amount-slider-maximum;
+
+                        level_selected(speed_hz) => {
+                            root.wave_mod2_amount_changed(speed_hz);
                         }
                     }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-speed-text;
+                    }
+
+                    osc2_mod_speed := LFOSlider {
+                        slider_value: Theme.osc-mod-speed-slider-default;
+                        step: Theme.osc-mod-speed-slider-step;
+                        minimum: Theme.osc-mod-speed-slider-minimum;
+                        maximum: Theme.osc-mod-speed-slider-maximum;
+
+                        level_selected(amount) => {
+                            root.wave_mod2_speed_changed(amount);
+                        }
+                    }
+
                 }
 
                 VerticalLayout {
@@ -105,6 +180,12 @@ export component OscillatorPanel inherits VerticalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.oscillator3-heading-text;
+                    }
+
+                    osc3_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.wave_shape3_selected(shape);
+                        }
                     }
 
                     Label {
@@ -123,17 +204,39 @@ export component OscillatorPanel inherits VerticalLayout {
                         }
                     }
 
-                    osc3_selector := WaveSelector {
-                        wave_shape_selected(shape) => {
-                            root.wave_shape3_selected(shape);
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-amount-text;
+                    }
+
+                    osc3_mod_amount := LFOSlider {
+                        slider_value: Theme.osc-mod-amount-slider-default;
+                        step: Theme.osc-mod-amount-slider-step;
+                        minimum: Theme.osc-mod-amount-slider-minimum;
+                        maximum: Theme.osc-mod-amount-slider-maximum;
+
+                        level_selected(speed_hz) => {
+                            root.wave_mod3_amount_changed(speed_hz);
                         }
                     }
-                }
-            }
 
-            HorizontalLayout {
-                alignment: center;
-                spacing: 20px;
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-speed-text;
+                    }
+
+                    osc3_mod_speed := LFOSlider {
+                        slider_value: Theme.osc-mod-speed-slider-default;
+                        step: Theme.osc-mod-speed-slider-step;
+                        minimum: Theme.osc-mod-speed-slider-minimum;
+                        maximum: Theme.osc-mod-speed-slider-maximum;
+
+                        level_selected(amount) => {
+                            root.wave_mod3_speed_changed(amount);
+                        }
+                    }
+
+                }
 
                 VerticalLayout {
                     spacing: 10px;
@@ -141,6 +244,12 @@ export component OscillatorPanel inherits VerticalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.sub-oscillator-heading-text;
+                    }
+
+                    sub_selector := WaveSelector {
+                        wave_shape_selected(shape) => {
+                            root.sub_shape_selected(shape);
+                        }
                     }
 
                     Label {
@@ -159,12 +268,46 @@ export component OscillatorPanel inherits VerticalLayout {
                         }
                     }
 
-                    sub_selector := WaveSelector {
-                        wave_shape_selected(shape) => {
-                            root.sub_shape_selected(shape);
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-amount-text;
+                    }
+
+                    sub_mod_amount := LFOSlider {
+                        slider_value: Theme.osc-mod-amount-slider-default;
+                        step: Theme.osc-mod-amount-slider-step;
+                        minimum: Theme.osc-mod-amount-slider-minimum;
+                        maximum: Theme.osc-mod-amount-slider-maximum;
+
+                        level_selected(speed_hz) => {
+                            root.sub_mod_amount_changed(speed_hz);
                         }
                     }
+
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.oscillator-mod-speed-text;
+                    }
+
+                    sub_mod_speed := LFOSlider {
+                        slider_value: Theme.osc-mod-speed-slider-default;
+                        step: Theme.osc-mod-speed-slider-step;
+                        minimum: Theme.osc-mod-speed-slider-minimum;
+                        maximum: Theme.osc-mod-speed-slider-maximum;
+
+                        level_selected(amount) => {
+                            root.sub_mod_speed_changed(amount);
+                        }
+                    }
+
                 }
+
+            }
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: 10px;
+
 
                 VerticalLayout {
                     spacing: 10px;
@@ -245,6 +388,16 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     take_action() => {
                         root.resync_oscillators();
+                    }
+                }
+
+                lfo_reset_button := ActionButton {
+                    text: Theme.resync-lfo-button-text;
+                    width: Theme.resync-button-width;
+                    height: Theme.resync-button-height;
+
+                    take_action() => {
+                        root.resync_oscillator_lfos();
                     }
                 }
             }
