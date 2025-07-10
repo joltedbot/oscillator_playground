@@ -1,0 +1,221 @@
+import { Heading, Label, LFOSlider, ActivationSwitch } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component LFOPanel inherits HorizontalLayout {
+
+    callback auto_pan_activated(bool);
+    callback tremolo_activated(bool);
+    callback filter_mod_activated(bool);
+
+    callback auto_pan_speed_changed(float);
+    callback tremolo_speed_changed(float);
+    callback filter_mod_speed_changed(float);
+
+    callback auto_pan_width_changed(float);
+    callback tremolo_depth_changed(float);
+    callback filter_mod_amount_changed(float);
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            HorizontalLayout {
+                alignment: start;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.auto-pan-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+
+                        activation_toggled => {
+                            auto_pan_speed.enabled = self.activated;
+                            auto_pan_width.enabled = self.activated;
+                            root.auto_pan_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.auto-pan-speed-text + (round(auto_pan_speed.value * 100) / 100) + Theme.auto-pan-speed-suffix;
+                    }
+
+                    auto_pan_speed := LFOSlider {
+                        slider_value: Theme.auto-pan-speed-slider-default;
+                        step: Theme.auto-pan-speed-slider-step;
+                        minimum: Theme.auto-pan-speed-slider-minimum;
+                        maximum: Theme.auto-pan-speed-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            auto_pan_speed_changed(level);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.auto-pan-width-text + round(auto_pan_width.value * 100) + Theme.auto-pan-width-suffix;
+                    }
+
+                    auto_pan_width := LFOSlider {
+                        slider_value: Theme.auto-pan-width-slider-default;
+                        step: Theme.auto-pan-width-slider-step;
+                        minimum: Theme.auto-pan-width-slider-minimum;
+                        maximum: Theme.auto-pan-width-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            auto_pan_width_changed(level);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.tremolo-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+
+                        activation_toggled => {
+                            tremolo_speed.enabled = self.activated;
+                            tremolo_depth.enabled = self.activated;
+                            tremolo_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.tremolo-speed-text + (round(tremolo_speed.value * 100) / 100) + Theme.tremolo-speed-suffix;
+                    }
+
+                    tremolo_speed := LFOSlider {
+                        slider_value: Theme.tremolo-speed-slider-default;
+                        step: Theme.tremolo-speed-slider-step;
+                        minimum: Theme.tremolo-speed-slider-minimum;
+                        maximum: Theme.tremolo-speed-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            tremolo_speed_changed(level);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.tremolo-depth-text + round(tremolo_depth.value * 100) + Theme.tremolo-depth-suffix;
+                    }
+
+                    tremolo_depth := LFOSlider {
+                        slider_value: Theme.tremolo-depth-slider-default;
+                        step: Theme.tremolo-depth-slider-step;
+                        minimum: Theme.tremolo-depth-slider-minimum;
+                        maximum: Theme.tremolo-depth-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            tremolo_depth_changed(level);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            HorizontalLayout {
+                alignment: start;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.filter-modulation-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+                        
+                        activation_toggled => {
+                            filter_mod_speed.enabled = self.activated;
+                            filter_mod_amount.enabled = self.activated;
+                            filter_mod_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.filter-mod-speed-text + (round(filter_mod_speed.value * 100) / 100) + Theme.filter-mod-speed-suffix;
+                    }
+
+                    filter_mod_speed := LFOSlider {
+                        slider_value: Theme.filter-mod-speed-slider-default;
+                        step: Theme.filter-mod-speed-slider-step;
+                        minimum: Theme.filter-mod-speed-slider-minimum;
+                        maximum: Theme.filter-mod-speed-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            filter_mod_speed_changed(level);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.filter-mod-amount-text + round(filter_mod_amount.value * 100) + Theme.filter-mod-amount-suffix;
+                    }
+
+                    filter_mod_amount := LFOSlider {
+                        slider_value: Theme.filter-mod-amount-slider-default;
+                        step: Theme.filter-mod-amount-slider-step;
+                        minimum: Theme.filter-mod-amount-slider-minimum;
+                        maximum: Theme.filter-mod-amount-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            filter_mod_amount_changed(level);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

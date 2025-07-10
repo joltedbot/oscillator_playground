@@ -119,6 +119,18 @@ export component ADSRSlider inherits Slider {
     }
 }
 
+export component LFOSlider inherits Slider {
+    in-out property <float> slider_value;
+    callback level_selected(float);
+
+    value: slider_value;
+
+    changed value => {
+        slider_value = self.value;
+        level_selected(self.value);
+    }
+}
+
 export component ActivationSwitch inherits Switch {
     callback activation_toggled(bool);
     in-out property <bool> activated: self.checked;

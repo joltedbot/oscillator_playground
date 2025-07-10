@@ -20,7 +20,7 @@ export global Theme {
     out property <int> text-weight-bold: 800;
     out property <length> text-size: 12px;
     out property <length> label-text-size: 14px;
-    out property <length> heading-text-size: 20px;
+    out property <length> heading-text-size: 16px;
 
 
     //
@@ -91,7 +91,7 @@ export global Theme {
     // ADSR Slider 
     out property <int> milliseconds-slider-step: 10;
     out property <int> milliseconds-slider-minimum: 10;
-    out property <int> milliseconds-slider-maximum: 1000;
+    out property <int> milliseconds-slider-maximum: 2000;
 
     // Sustain Level Slider
     out property <int> envelope-sustain-level-step: 1;
@@ -111,7 +111,40 @@ export global Theme {
     out property <int> envelope-release-default: 300;
 
     // Envelope ADSR Box
-    out property <color> adrs-box-background: #202020;
+    out property <color> adrs-box-background:#202020;
+
+
+    // Auto Pan Sliders
+    out property <float> auto-pan-speed-slider-step: 0.01;
+    out property <float> auto-pan-speed-slider-minimum: 0.01;
+    out property <float> auto-pan-speed-slider-maximum: 10;
+    out property <float> auto-pan-speed-slider-default: 1.0;
+    out property <float> auto-pan-width-slider-step: 0.01;
+    out property <float> auto-pan-width-slider-minimum: 0.0;
+    out property <float> auto-pan-width-slider-maximum: 1.0;
+    out property <float> auto-pan-width-slider-default: 0.0;
+
+
+    // Tremolo Sliders
+    out property <float> tremolo-speed-slider-step: 0.01;
+    out property <float> tremolo-speed-slider-minimum: 0.01;
+    out property <float> tremolo-speed-slider-maximum: 50;
+    out property <float> tremolo-speed-slider-default: 1.0;
+    out property <float> tremolo-depth-slider-step: 0.01;
+    out property <float> tremolo-depth-slider-minimum: 0.0;
+    out property <float> tremolo-depth-slider-maximum: 1.0;
+    out property <float> tremolo-depth-slider-default: 0.0;
+
+
+    // Filter Mod Sliders
+    out property <float> filter-mod-speed-slider-step: 0.01;
+    out property <float> filter-mod-speed-slider-minimum: 0.01;
+    out property <float> filter-mod-speed-slider-maximum: 50;
+    out property <float> filter-mod-speed-slider-default: 1.0;
+    out property <float> filter-mod-amount-slider-step: 0.01;
+    out property <float> filter-mod-amount-slider-minimum: 0.0;
+    out property <float> filter-mod-amount-slider-maximum: 1.0;
+    out property <float> filter-mod-amount-slider-default: 0.0;
 
 
     // Gate Duty Cycle Slider
@@ -124,7 +157,7 @@ export global Theme {
     // Gate Note Length Slider
     out property <int> envelope-gate-note-length-step: 10;
     out property <int> envelope-gate-note-length-minimum: 10;
-    out property <int> envelope-gate-note-length-maximum: 1000;
+    out property <int> envelope-gate-note-length-maximum: 2000;
     out property <int> envelope-gate-note-length-default: 300;
     out property <length> envelope-gate-note-length-width: 100px;
 
@@ -163,4 +196,22 @@ export global Theme {
     out property <string> filter-resonance-text: "Resonance";
     out property <string> filter-cutoff-suffix: "%";
     out property <string> filter-poles-label-text: "Filter Poles: ";
+    out property <string> auto-pan-heading-text: "Auto Pan";
+    out property <string> auto-pan-speed-text: "Speed: ";
+    out property <string> auto-pan-speed-suffix: " Hz";
+    out property <string> auto-pan-width-text: "Width: ";
+    out property <string> auto-pan-width-suffix: "%";
+
+    out property <string> tremolo-speed-text: "Speed: ";
+    out property <string> tremolo-speed-suffix: " Hz";
+    out property <string> tremolo-depth-text: "Depth: ";
+    out property <string> tremolo-depth-suffix: "%";
+
+    out property <string> filter-mod-speed-text: "Speed: ";
+    out property <string> filter-mod-speed-suffix: " Hz";
+    out property <string> filter-mod-amount-text: "Amount: ";
+    out property <string> filter-mod-amount-suffix: "%";
+
+    out property <string> tremolo-heading-text: "Tremolo";
+    out property <string> filter-modulation-heading-text: "Filter Mod";
 }

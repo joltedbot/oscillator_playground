@@ -13,10 +13,8 @@ export component EnvelopePanel inherits VerticalLayout {
     callback gate_note_length_changed(int);
     callback gate_duty_cycle_changed(float);
 
-
     Rectangle {
         horizontal-stretch: 1;
-        height: Theme.window-height - 20px;
         border-width: Theme.window-border-width;
         border-color: Theme.border-colour;
         border-radius: Theme.border-radius;
@@ -25,12 +23,12 @@ export component EnvelopePanel inherits VerticalLayout {
         VerticalLayout {
             vertical-stretch: 1;
             alignment: center;
-            spacing: 30px;
-            padding: 20px;
+            spacing: 20px;
+            padding: 10px;
 
             HorizontalLayout {
                 alignment: center;
-                spacing: 10px;
+                spacing: 5px;
 
                 Heading {
                     horizontal-alignment: center;
@@ -39,28 +37,32 @@ export component EnvelopePanel inherits VerticalLayout {
             }
 
             HorizontalLayout {
-                    spacing: 10px;
+                spacing: 5px;
 
-                    Label {
-                        label: Theme.envelope-mode-text;
+                Label {
+                    label: Theme.envelope-mode-text;
+                }
+
+                adsr_enabled := ActivationSwitch {
+                    activated-text: Theme.envelope-amp-mode-gate-text;
+                    not-activated-text: Theme.envelope-amp-mode-envelope-text;
+                    checked: true;
+
+                    activation_toggled => {
+                        root.enable_amp_envelope(adsr_enabled.checked);
+                        note_length.enabled = !adsr_enabled.checked;
+                        duty_cycle.enabled = !adsr_enabled.checked;
                     }
-                    
-                    adsr_enabled := ActivationSwitch {
-                        activated-text: Theme.envelope-amp-mode-gate-text;
-                        not-activated-text: Theme.envelope-amp-mode-envelope-text;
-                        checked: true;
+                }
+            }
 
-                        activation_toggled => {
-                             root.enable_amp_envelope(adsr_enabled.checked);
-                             note_length.enabled = !adsr_enabled.checked;
-                             duty_cycle.enabled = !adsr_enabled.checked;
-                        }
-                    }
-
+            Label {
+                horizontal-alignment: center;
+                label: Theme.envelope-mode-text;
             }
 
             HorizontalLayout {
-                spacing: 10px;
+                spacing: 5px;
 
                 VerticalLayout {
                     Label {
@@ -102,7 +104,7 @@ export component EnvelopePanel inherits VerticalLayout {
             }
 
             HorizontalLayout {
-                spacing: 10px;
+                spacing: 5px;
 
                 VerticalLayout {
                     Label {
@@ -148,7 +150,7 @@ export component EnvelopePanel inherits VerticalLayout {
             }
 
             HorizontalLayout {
-                spacing: 10px;
+                spacing: 5px;
 
                 VerticalLayout {
                     Label {
@@ -169,11 +171,12 @@ export component EnvelopePanel inherits VerticalLayout {
                     }
                 }
             }
+
             HorizontalLayout {
-                spacing: 10px;
+                spacing: 5px;
 
                 VerticalLayout {
-                spacing: 10px;
+                    spacing: 5px;
 
                     Label {
                         horizontal-alignment: center;
@@ -208,10 +211,9 @@ export component EnvelopePanel inherits VerticalLayout {
                         maximum-level: Theme.envelope-gate-duty-cycle-maximum;
                         enabled: false;
                         level_selected(level) => {
-                            root.gate_duty_cycle_changed(level/100);
+                            root.gate_duty_cycle_changed(level / 100);
                         }
                     }
-
                 }
             }
         }

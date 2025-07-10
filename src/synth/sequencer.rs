@@ -1,6 +1,5 @@
 use rand::prelude::*;
 
-
 const MIDI_NOTE_FREQUENCIES: [(&str, f32); 128] = [
     //("C-1", 8.1758),
     ("Rest", 0.0), // 0

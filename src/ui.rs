@@ -68,6 +68,15 @@ impl UI {
         self.on_gate_note_length_changed();
         self.on_gate_duty_cycle_changed();
         self.on_enable_amp_envelope();
+        self.on_auto_pan_activated();
+        self.on_auto_pan_speed_changed();
+        self.on_auto_pan_width_changed();
+        self.on_tremolo_activated();
+        self.on_tremolo_speed_changed();
+        self.on_tremolo_depth_changed();
+        self.on_filter_mod_activated();
+        self.on_filter_mod_speed_changed();
+        self.on_filter_mod_depth_changed();
     }
 
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
@@ -368,6 +377,113 @@ impl UI {
         ui.on_gate_note_length_changed(move |milliseconds| {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateGateNoteLength(milliseconds).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_auto_pan_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_auto_pan_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateAutoPanEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_auto_pan_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_auto_pan_speed_changed(move |speed_hz| {
+            if let Err(error) = synth_sender.send(EventType::UpdateAutoPanSpeed(speed_hz).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_auto_pan_width_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_auto_pan_width_changed(move |width| {
+            if let Err(error) = synth_sender.send(EventType::UpdateAutoPanWidth(width).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_tremolo_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_tremolo_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateTremoloEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_tremolo_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_tremolo_speed_changed(move |speed_hz| {
+            if let Err(error) = synth_sender.send(EventType::UpdateTremoloSpeed(speed_hz).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_tremolo_depth_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_tremolo_depth_changed(move |depth| {
+            if let Err(error) = synth_sender.send(EventType::UpdateTremoloDepth(depth).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_filter_mod_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_mod_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateFilterModEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_filter_mod_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_mod_speed_changed(move |speed_hz| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterModSpeed(speed_hz).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_filter_mod_depth_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_mod_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterModAmount(amount).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }

@@ -1,4 +1,3 @@
-use crate::synth::AmpMode;
 use crossbeam_channel::{Receiver, Sender, unbounded};
 use slint::SharedString;
 
@@ -26,6 +25,15 @@ pub enum EventType {
     UpdateFilterCutoffValue(i32),
     UpdateFilterResonanceValue(f32),
     UpdateFilterNumberOfPoles(i32),
+    UpdateAutoPanEnabled(bool),
+    UpdateAutoPanSpeed(f32),
+    UpdateAutoPanWidth(f32),
+    UpdateTremoloEnabled(bool),
+    UpdateTremoloSpeed(f32),
+    UpdateTremoloDepth(f32),
+    UpdateFilterModEnabled(bool),
+    UpdateFilterModSpeed(f32),
+    UpdateFilterModAmount(f32),
     ResyncOscillators,
     Start,
     Stop,

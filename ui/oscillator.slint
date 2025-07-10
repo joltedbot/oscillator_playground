@@ -4,6 +4,7 @@ import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
 import { FilterPanel } from "../ui/filter-panel.slint";
 import { EnvelopePanel } from "../ui/envelope-panel.slint";
+import { LFOPanel } from "../ui/lfo-panel.slint";
 
 export component AppWindow inherits Window {
     title: Theme.window-title;
@@ -38,6 +39,15 @@ export component AppWindow inherits Window {
     callback enable_amp_envelope(bool);
     callback gate_note_length_changed(int);
     callback gate_duty_cycle_changed(float);
+    callback auto_pan_activated(bool);
+    callback auto_pan_speed_changed(float);
+    callback auto_pan_width_changed(float);
+    callback tremolo_activated(bool);
+    callback tremolo_speed_changed(float);
+    callback tremolo_depth_changed(float);
+    callback filter_mod_activated(bool);
+    callback filter_mod_speed_changed(float);
+    callback filter_mod_amount_changed(float);
 
     Rectangle {
         padding: 4px;
@@ -49,109 +59,163 @@ export component AppWindow inherits Window {
 
         HorizontalLayout {
             alignment: center;
-            spacing: 20px;
+            spacing: 10px;
+            padding: 10px;
 
-            OscillatorPanel {
-                start_button_active: start_button_active;
+            VerticalLayout {
+                spacing: 5px;
+                alignment: start;
 
-                wave_level1_selected(level) => {
-                    root.wave_level1_selected(level);
-                }
-                wave_shape1_selected(shape) => {
-                    root.wave_shape1_selected(shape);
+                OscillatorPanel {
+                    start_button_active: start_button_active;
+
+                    wave_level1_selected(level) => {
+                        root.wave_level1_selected(level);
+                    }
+                    wave_shape1_selected(shape) => {
+                        root.wave_shape1_selected(shape);
+                    }
+
+                    wave_level2_selected(level) => {
+                        root.wave_level2_selected(level);
+                    }
+
+                    wave_shape2_selected(shape) => {
+                        root.wave_shape2_selected(shape);
+                    }
+
+                    wave_level3_selected(level) => {
+                        root.wave_level3_selected(level);
+                    }
+
+                    wave_shape3_selected(shape) => {
+                        root.wave_shape3_selected(shape);
+                    }
+                    sub_level_selected(level) => {
+                        root.sub_level_selected(level);
+                    }
+
+                    sub_shape_selected(shape) => {
+                        root.sub_shape_selected(shape);
+                    }
+
+                    wave_detune_value_changed(int) => {
+                        root.wave_detune_value_changed(int);
+                    }
+
+                    wave_detune_state_changed(active, amount) => {
+                        root.wave_detune_state_changed(active, amount)
+                    }
+
+                    output_level_value_changed(level) => {
+                        root.output_level_value_changed(level);
+                    }
+
+                    start_button_pressed(active) => {
+                        root.start_button_pressed(active);
+                    }
+
+                    resync_oscillators() => {
+                        root.resync_oscillators();
+                    }
                 }
 
-                wave_level2_selected(level) => {
-                    root.wave_level2_selected(level);
-                }
+                LFOPanel {
 
-                wave_shape2_selected(shape) => {
-                    root.wave_shape2_selected(shape);
-                }
+                  auto_pan_activated(is_activated) => {
+                        root.auto_pan_activated(is_activated);
+                    }
 
-                wave_level3_selected(level) => {
-                    root.wave_level3_selected(level);
-                }
+                    auto_pan_speed_changed(speed_hz) => {
+                        root.auto_pan_speed_changed(speed_hz);
+                    }
 
-                wave_shape3_selected(shape) => {
-                    root.wave_shape3_selected(shape);
-                }
-                sub_level_selected(level) => {
-                    root.sub_level_selected(level);
-                }
+                    auto_pan_width_changed(depth) => {
+                        auto_pan_width_changed(depth);
+                    }
 
-                sub_shape_selected(shape) => {
-                    root.sub_shape_selected(shape);
-                }
+                    tremolo_activated(is_activated) => {
+                        root.tremolo_activated(is_activated);
+                    }
 
-                wave_detune_value_changed(int) => {
-                    root.wave_detune_value_changed(int);
-                }
+                    tremolo_speed_changed(speed_hz) => {
+                        root.tremolo_speed_changed(speed_hz);
+                    }
 
-                wave_detune_state_changed(active, amount) => {
-                    root.wave_detune_state_changed(active, amount)
-                }
+                    tremolo_depth_changed(depth) => {
+                        tremolo_depth_changed(depth);
+                    }
 
-                output_level_value_changed(level) => {
-                    root.output_level_value_changed(level);
-                }
+                    filter_mod_activated(is_activated) => {
+                        filter_mod_activated(is_activated);
+                    }
 
-                start_button_pressed(active) => {
-                    root.start_button_pressed(active);
-                }
+                    filter_mod_speed_changed(speed_hz) => {
+                        filter_mod_speed_changed(speed_hz);
+                    }
 
-                resync_oscillators() => {
-                    root.resync_oscillators();
+                    filter_mod_amount_changed(amount) => {
+                        filter_mod_amount_changed(amount);
+                    }
                 }
             }
 
-            FilterPanel {
-                number_of_poles_selected(number_of_poles) => {
-                    root.number_of_poles_selected(number_of_poles);
-                }
+            VerticalLayout {
+                spacing: 5px;
+                alignment: start;
 
-                filter_cutoff_value_changed(cutoff) => {
-                    root.filter_cutoff_value_changed(cutoff);
-                }
+                FilterPanel {
+                    number_of_poles_selected(number_of_poles) => {
+                        root.number_of_poles_selected(number_of_poles);
+                    }
 
-                filter_resonance_value_changed(resonance) => {
-                    root.filter_resonance_value_changed(resonance);
+                    filter_cutoff_value_changed(cutoff) => {
+                        root.filter_cutoff_value_changed(cutoff);
+                    }
+
+                    filter_resonance_value_changed(resonance) => {
+                        root.filter_resonance_value_changed(resonance);
+                    }
                 }
             }
 
-            EnvelopePanel {
-                envelope_attack_updated(milliseconds) => {
-                    root.envelope_attack_updated(milliseconds);
-                }
+            VerticalLayout {
+                spacing: 5px;
+                alignment: start;
 
-                envelope_decay_updated(milliseconds) => {
-                    root.envelope_decay_updated(milliseconds);
-                }
+                EnvelopePanel {
+                    envelope_attack_updated(milliseconds) => {
+                        root.envelope_attack_updated(milliseconds);
+                    }
 
-                envelope_release_updated(milliseconds) => {
-                    root.envelope_release_updated(milliseconds);
-                }
+                    envelope_decay_updated(milliseconds) => {
+                        root.envelope_decay_updated(milliseconds);
+                    }
 
-                envelope_sustain_updated(milliseconds) => {
-                    root.envelope_sustain_updated(milliseconds);
-                }
+                    envelope_release_updated(milliseconds) => {
+                        root.envelope_release_updated(milliseconds);
+                    }
 
-                envelope_sustain_level_updated(level) => {
-                    root.envelope_sustain_level_updated(level);
-                }
+                    envelope_sustain_updated(milliseconds) => {
+                        root.envelope_sustain_updated(milliseconds);
+                    }
 
-                enable_amp_envelope(is_enabled) => {
-                    root.enable_amp_envelope(is_enabled);
-                }
+                    envelope_sustain_level_updated(level) => {
+                        root.envelope_sustain_level_updated(level);
+                    }
 
-                gate_note_length_changed(note_length) => {
-                    root.gate_note_length_changed(note_length);
-                }
+                    enable_amp_envelope(is_enabled) => {
+                        root.enable_amp_envelope(is_enabled);
+                    }
 
-                gate_duty_cycle_changed(duty_cycle) => {
-                    root.gate_duty_cycle_changed(duty_cycle);
-                }
+                    gate_note_length_changed(note_length) => {
+                        root.gate_note_length_changed(note_length);
+                    }
 
+                    gate_duty_cycle_changed(duty_cycle) => {
+                        root.gate_duty_cycle_changed(duty_cycle);
+                    }
+                }
             }
         }
     }

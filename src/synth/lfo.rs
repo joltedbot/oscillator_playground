@@ -3,7 +3,6 @@ const RADS_PER_CYCLE: f32 = 2.0 * std::f32::consts::PI;
 pub struct LFO {
     pub phase: f32,
     pub phase_increment: f32,
-    pub sample_rate: f32,
 }
 
 impl LFO {
@@ -14,7 +13,6 @@ impl LFO {
 
         Self {
             phase,
-            sample_rate,
             phase_increment,
         }
     }

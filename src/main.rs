@@ -5,7 +5,6 @@ mod ui;
 use crate::synth::Synth;
 use crate::synth::device::AudioDevice;
 use crate::ui::UI;
-use cpal::traits::{DeviceTrait, StreamTrait};
 use slint::ComponentHandle;
 use std::sync::{Arc, Mutex};
 use std::thread;

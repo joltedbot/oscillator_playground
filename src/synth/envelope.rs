@@ -1,5 +1,3 @@
-use std::process::exit;
-
 const MINIMUM_ENV_LEVEL: f32 = -50.0;
 const DEFAULT_ATTACK_MILLISECONDS: u32 = 50;
 const DEFAULT_DECAY_MILLISECONDS: u32 = 300;
@@ -117,19 +115,6 @@ impl Envelope {
 
     pub fn set_sustain_level_below_output_level_in_dbfs(&mut self, level: f32) {
         self.envelope.sustain_level = level;
-    }
-
-    pub fn set_adsr_mode(&mut self) {
-        self.reset_gate();
-        self.envelope.current_level = MINIMUM_ENV_LEVEL;
-        self.envelope.state =
-            ADSRState::Playing(get_f32_sample_from_dbfs(self.envelope.current_level));
-    }
-
-    pub fn reset_gate(&mut self) {
-        self.gate.state = GateState::On(GATE_OFF_SAMPLE_VALUE);
-        self.gate.on_sample_count = DEFAULT_STATE_COUNT_VALUE;
-        self.gate.off_sample_count = DEFAULT_STATE_COUNT_VALUE;
     }
 
     pub fn set_gate_duty_cycle(&mut self, duty_cycle: f32) {
@@ -276,4 +261,3 @@ fn get_number_of_samples_from_milliseconds(sample_rate: u32, milliseconds: u32) 
 fn get_f32_sample_from_dbfs(output_level: f32) -> f32 {
     10.0_f32.powf(output_level / 20.0)
 }
-
