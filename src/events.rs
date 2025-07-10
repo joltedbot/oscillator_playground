@@ -22,6 +22,7 @@ pub enum EventType {
     UpdateOscillatorDetuneActive(bool, f32),
     UpdateOscillatorDetuneValue(f32),
     UpdateOutputLevel(i32),
+    UpdateOutputLevelConstant(bool),
     UpdateEnvelopeAttack(i32),
     UpdateEnvelopeDecay(i32),
     UpdateEnvelopeRelease(i32),

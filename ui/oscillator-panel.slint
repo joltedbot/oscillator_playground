@@ -24,6 +24,7 @@ export component OscillatorPanel inherits VerticalLayout {
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
+    callback output_level_constant_activated(bool);
     callback start_button_pressed(bool);
     callback resync_oscillators();
     callback resync_oscillator_lfos();
@@ -78,7 +79,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text;
+                        label: Theme.oscillator-mod-amount-text  + (round(osc1_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc1_mod_amount := LFOSlider {
@@ -94,7 +95,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text;
+                        label: Theme.oscillator-mod-speed-text + (round(osc1_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc1_mod_speed := LFOSlider {
@@ -142,7 +143,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text;
+                        label: Theme.oscillator-mod-amount-text  + (round(osc2_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc2_mod_amount := LFOSlider {
@@ -158,7 +159,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text;
+                        label: Theme.oscillator-mod-speed-text + (round(osc2_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc2_mod_speed := LFOSlider {
@@ -206,7 +207,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text;
+                        label: Theme.oscillator-mod-amount-text  + (round(osc3_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc3_mod_amount := LFOSlider {
@@ -222,7 +223,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text;
+                        label: Theme.oscillator-mod-speed-text + (round(osc3_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc3_mod_speed := LFOSlider {
@@ -270,7 +271,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text;
+                        label: Theme.oscillator-mod-amount-text   + (round(sub_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     sub_mod_amount := LFOSlider {
@@ -286,7 +287,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text;
+                        label: Theme.oscillator-mod-speed-text + (round(sub_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     sub_mod_speed := LFOSlider {
@@ -366,6 +367,17 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.output_level_value_changed(level - 100);
                         }
                     }
+
+                    output_level_constant := ActivationSwitch {
+                        activated-text: Theme.output-level-constant-active-text;
+                        not-activated-text: Theme.output-level-constant-not-active-text;
+                        checked: true;
+
+                        activation_toggled => {
+                            root.output_level_constant_activated(self.checked);
+                        }
+                    }
+
                 }
             }
 

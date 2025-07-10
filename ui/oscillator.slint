@@ -35,6 +35,7 @@ export component AppWindow inherits Window {
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
+    callback output_level_constant_activated(bool);
     callback envelope_attack_updated(int);
     callback envelope_decay_updated(int);
     callback envelope_release_updated(int);
@@ -151,6 +152,10 @@ export component AppWindow inherits Window {
 
                     output_level_value_changed(level) => {
                         root.output_level_value_changed(level);
+                    }
+
+                    output_level_constant_activated(is_active) => {
+                        root.output_level_constant_activated(is_active);
                     }
 
                     start_button_pressed(active) => {

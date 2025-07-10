@@ -1,2 +1,3 @@
 /target
 .dccache
+.sonar_lock

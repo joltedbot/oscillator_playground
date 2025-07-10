@@ -21,6 +21,7 @@ pub mod oscillators;
 pub mod sequencer;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
+const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 const LFO_INDEX_FOR_AUTO_PAN: usize = 0;
 const LFO_INDEX_FOR_TREMOLO: usize = 1;
 const LFO_INDEX_FOR_FILTER_MOD: usize = 2;
@@ -32,9 +33,10 @@ const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
 const DEFAULT_CENTER_FREQUENCY: f32 = 0.5;
 const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
     Gate,
+    #[default]
     Envelope,
 }
 
@@ -46,19 +48,25 @@ pub struct LFOInstance {
     width: f32,
 }
 
+#[derive(Default, Clone, Debug, PartialEq)]
+pub struct SynthParameters {
+    amp_mode: AmpMode,
+    output_level: f32,
+    output_level_constant: bool,
+    auto_pan: LFOInstance,
+    tremolo: LFOInstance,
+    filter_mod: LFOInstance,
+    oscillator_mod_lfos: Vec<LFOInstance>,
+}
+
 pub struct Synth {
     stream: Option<Stream>,
     audio_device: AudioDevice,
-    amp_mode: Arc<Mutex<AmpMode>>,
     oscillators: Arc<Mutex<Oscillators>>,
-    oscillator_mod_lfos: Arc<Mutex<Vec<LFOInstance>>>,
     envelope: Arc<Mutex<Envelope>>,
     lfos: Arc<Mutex<Vec<LFO>>>,
     filter: Arc<Mutex<Filter>>,
-    output_level: Arc<Mutex<f32>>,
-    auto_pan: Arc<Mutex<LFOInstance>>,
-    tremolo: Arc<Mutex<LFOInstance>>,
-    filter_mod: Arc<Mutex<LFOInstance>>,
+    parameters: Arc<Mutex<SynthParameters>>,
 }
 
 impl Synth {
@@ -85,23 +93,23 @@ impl Synth {
         let filter = Filter::new(sample_rate);
         let filter_arc = Arc::new(Mutex::new(filter));
 
-        let auto_pan = Arc::new(Mutex::new(LFOInstance {
+        let auto_pan = LFOInstance {
             center_frequency: DEFAULT_CENTER_FREQUENCY,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
-        }));
+        };
 
-        let tremolo = Arc::new(Mutex::new(LFOInstance {
+        let tremolo = LFOInstance {
             center_frequency: DEFAULT_CENTER_FREQUENCY,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
-        }));
+        };
 
-        let filter_mod = Arc::new(Mutex::new(LFOInstance {
+        let filter_mod = LFOInstance {
             center_frequency: DEFAULT_CENTER_FREQUENCY,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
-        }));
+        };
 
         let sub_osc_mod = LFOInstance {
             center_frequency: DEFAULT_CENTER_FREQUENCY,
@@ -127,21 +135,27 @@ impl Synth {
             ..Default::default()
         };
 
-        let oscillator_mod_lfos = Arc::new(Mutex::new(vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod]));
+        let oscillator_mod_lfos = vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod];
 
-        Self {
-            stream: None,
-            amp_mode: Arc::new(Mutex::new(AmpMode::Envelope)),
-            audio_device,
-            envelope,
-            output_level: Arc::new(Mutex::new(OUTPUT_LEVEL)),
-            oscillators: oscillators_arc,
-            lfos: lfos_arc,
-            filter: filter_arc,
+        let parameters = SynthParameters {
+            amp_mode: AmpMode::Envelope,
+            output_level: OUTPUT_LEVEL,
             auto_pan,
             tremolo,
             filter_mod,
             oscillator_mod_lfos,
+            output_level_constant: false,
+        };
+
+
+        Self {
+            stream: None,
+            audio_device,
+            envelope,
+            oscillators: oscillators_arc,
+            lfos: lfos_arc,
+            filter: filter_arc,
+            parameters: Arc::new(Mutex::new(parameters)),
         }
     }
 
@@ -189,37 +203,36 @@ impl Synth {
                         oscillators.set_sub_oscillator_level(level);
                     }
                     EventType::UpdateSubOscillatorModFreq(speed) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[0].frequency = speed;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[0].frequency = speed;
                     }
                     EventType::UpdateOscillator1ModFreq(speed) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[1].frequency = speed;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[1].frequency = speed;
                     }
                     EventType::UpdateOscillator2ModFreq(speed) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[2].frequency = speed;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[2].frequency = speed;
                     }
                     EventType::UpdateOscillator3ModFreq(speed) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[3].frequency = speed;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[3].frequency = speed;
                     }
-
                     EventType::UpdateSubOscillatorModAmount(amount) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[0].width = amount;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[0].width = amount;
                     }
                     EventType::UpdateOscillator1ModAmount(amount) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[1].width = amount;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[1].width = amount;
                     }
                     EventType::UpdateOscillator2ModAmount(amount) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[2].width = amount;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[2].width = amount;
                     }
                     EventType::UpdateOscillator3ModAmount(amount) => {
-                        let mut osc_lfos = self.get_oscilator_mod_lfos_mutex_lock();
-                        osc_lfos[3].width = amount;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.oscillator_mod_lfos[3].width = amount;
                     }
 
                     EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
@@ -236,8 +249,12 @@ impl Synth {
                         oscillators.enable_unison(detune_amount);
                     }
                     EventType::UpdateOutputLevel(level) => {
-                        let mut output_level = self.get_output_level_mutex_lock();
-                        *output_level = level as f32;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.output_level = level as f32;
+                    }
+                    EventType::UpdateOutputLevelConstant(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.output_level_constant = is_active;
                     }
                     EventType::UpdateEnvelopeAttack(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
@@ -260,11 +277,11 @@ impl Synth {
                         envelope.set_sustain_level_below_output_level_in_dbfs(level as f32);
                     }
                     EventType::UpdateAmpModeEnvelopeEnabled(is_enabled) => {
-                        let mut amp_mode = self.get_amp_mode_mutex_lock();
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
                         if is_enabled {
-                            *amp_mode = AmpMode::Envelope;
+                            parameters.amp_mode = AmpMode::Envelope;
                         } else {
-                            *amp_mode = AmpMode::Gate;
+                            parameters.amp_mode = AmpMode::Gate;
                         }
                     }
                     EventType::UpdateGateDutyCycle(duty_cycle) => {
@@ -301,42 +318,42 @@ impl Synth {
 
                     }
                     EventType::UpdateAutoPanEnabled(is_enabled) => {
-                        let mut auto_pan = self.get_auto_pan_mutex_lock();
-                        auto_pan.is_enabled = is_enabled;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.auto_pan.is_enabled = is_enabled;
                     }
                     EventType::UpdateAutoPanSpeed(speed_hz) => {
-                        let mut auto_pan = self.get_auto_pan_mutex_lock();
-                        auto_pan.frequency = speed_hz;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.auto_pan.frequency = speed_hz;
                     }
                     EventType::UpdateAutoPanWidth(width) => {
-                        let mut auto_pan = self.get_auto_pan_mutex_lock();
-                        auto_pan.width = width;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.auto_pan.width = width;
                     }
                     EventType::UpdateTremoloEnabled(is_enabled) => {
-                        let mut tremolo = self.get_tremolo_mutex_lock();
-                        tremolo.is_enabled = is_enabled;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.tremolo.is_enabled = is_enabled;
                     }
                     EventType::UpdateTremoloSpeed(speed_hz) => {
-                        let mut tremolo = self.get_tremolo_mutex_lock();
-                        tremolo.frequency = speed_hz;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.tremolo.frequency = speed_hz;
                     }
                     EventType::UpdateTremoloDepth(depth) => {
-                        let mut tremolo = self.get_tremolo_mutex_lock();
-                        tremolo.width = depth;
-                        tremolo.center_frequency = 1.0 - (depth / 2.0);
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.tremolo.width = depth;
+                        parameters.tremolo.center_frequency = 1.0 - (depth / 2.0);
                     }
                     EventType::UpdateFilterModEnabled(is_enabled) => {
-                        let mut filter_mod = self.get_filter_mod_mutex_lock();
-                        filter_mod.is_enabled = is_enabled;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.filter_mod.is_enabled = is_enabled;
                     }
                     EventType::UpdateFilterModSpeed(speed_hz) => {
-                        let mut filter_mod = self.get_filter_mod_mutex_lock();
-                        filter_mod.frequency = speed_hz;
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.filter_mod.frequency = speed_hz;
                     }
                     EventType::UpdateFilterModAmount(amount) => {
-                        let mut filter_mod = self.get_filter_mod_mutex_lock();
-                        filter_mod.width = amount;
-                        filter_mod.center_frequency = 1.0 - (amount / 2.0);
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.filter_mod.width = amount;
+                        parameters.filter_mod.center_frequency = 1.0 - (amount / 2.0);
                     }
                     EventType::Start => {
                         self.start();
@@ -358,39 +375,8 @@ impl Synth {
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
-    fn get_oscilator_mod_lfos_mutex_lock(&mut self) -> MutexGuard<Vec<LFOInstance>> {
-        self.oscillator_mod_lfos
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-
-    fn get_lfo_mutex_lock(&mut self) -> MutexGuard<Vec<LFO>> {
-        self.lfos
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn get_filter_mutex_lock(&mut self) -> MutexGuard<Filter> {
-        self.filter
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn get_auto_pan_mutex_lock(&mut self) -> MutexGuard<LFOInstance> {
-        self.auto_pan
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn get_tremolo_mutex_lock(&mut self) -> MutexGuard<LFOInstance> {
-        self.tremolo
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn get_filter_mod_mutex_lock(&mut self) -> MutexGuard<LFOInstance> {
-        self.filter_mod
+    fn get_synth_parameters_mutex_lock(&mut self) -> MutexGuard<SynthParameters> {
+        self.parameters
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
@@ -401,14 +387,14 @@ impl Synth {
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
-    fn get_output_level_mutex_lock(&mut self) -> MutexGuard<f32> {
-        self.output_level
+    fn get_lfo_mutex_lock(&mut self) -> MutexGuard<Vec<LFO>> {
+        self.lfos
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
-    fn get_amp_mode_mutex_lock(&mut self) -> MutexGuard<AmpMode> {
-        self.amp_mode
+    fn get_filter_mutex_lock(&mut self) -> MutexGuard<Filter> {
+        self.filter
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
@@ -435,16 +421,13 @@ impl Synth {
         let mut sequencer = Sequencer::new(vec![0, 60, 63, 55, 62, 65, 67, 69, 72, 0]);
         let mut note_frequency = sequencer.next_note_frequency();
 
-        let output_level_arc = self.output_level.clone();
-        let amp_mode_arc = self.amp_mode.clone();
+
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
         let filter_arc = self.filter.clone();
         let lfo_arc = self.lfos.clone();
-        let auto_pan_arc = self.auto_pan.clone();
-        let tremolo_arc = self.tremolo.clone();
-        let filter_mod_arc = self.filter_mod.clone();
-        let oscillator_mod_lfos_arc = self.oscillator_mod_lfos.clone();
+        let parameters_arc = self.parameters.clone();
+
 
         let stream = output_device
             .build_output_stream(
@@ -466,11 +449,7 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                    let output_level = *output_level_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-
-                    let amp_mode = *amp_mode_arc
+                    let parameters = parameters_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
@@ -478,58 +457,42 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                    let auto_pan = auto_pan_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-
-                    let tremolo = tremolo_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-
-                    let filter_mod = filter_mod_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-
-                    let oscillator_mod_lfos = oscillator_mod_lfos_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-
                     for frame in buffer.chunks_mut(number_of_channels) {
 
 
 
-                        let sub_oscillator_mod = if oscillator_mod_lfos[0].width > 0.0 {
+                        let sub_oscillator_mod = if parameters.oscillator_mod_lfos[0].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].get_next_value(
-                                oscillator_mod_lfos[0].frequency,
-                                oscillator_mod_lfos[0].center_frequency,
-                                oscillator_mod_lfos[0].width))
+                                parameters.oscillator_mod_lfos[0].frequency,
+                                parameters.oscillator_mod_lfos[0].center_frequency,
+                                parameters.oscillator_mod_lfos[0].width))
                         } else {
                             None
                         };
 
-                        let oscillator1_mod = if oscillator_mod_lfos[1].width > 0.0 {
+                        let oscillator1_mod = if parameters.oscillator_mod_lfos[1].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].get_next_value(
-                            oscillator_mod_lfos[1].frequency,
-                            oscillator_mod_lfos[1].center_frequency,
-                            oscillator_mod_lfos[1].width))
+                                parameters.oscillator_mod_lfos[1].frequency,
+                                parameters.oscillator_mod_lfos[1].center_frequency,
+                                parameters.oscillator_mod_lfos[1].width))
                         } else {
                             None
                         };
 
-                        let oscillator2_mod = if oscillator_mod_lfos[2].width > 0.0 {
+                        let oscillator2_mod = if parameters.oscillator_mod_lfos[2].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].get_next_value(
-                            oscillator_mod_lfos[2].frequency,
-                            oscillator_mod_lfos[2].center_frequency,
-                            oscillator_mod_lfos[2].width))
+                                parameters.oscillator_mod_lfos[2].frequency,
+                                parameters.oscillator_mod_lfos[2].center_frequency,
+                                parameters.oscillator_mod_lfos[2].width))
                         } else {
                             None
                         };
 
-                        let oscillator3_mod = if oscillator_mod_lfos[3].width > 0.0 {
+                        let oscillator3_mod = if parameters.oscillator_mod_lfos[3].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].get_next_value(
-                            oscillator_mod_lfos[3].frequency,
-                            oscillator_mod_lfos[3].center_frequency,
-                            oscillator_mod_lfos[3].width))
+                                parameters.oscillator_mod_lfos[3].frequency,
+                                parameters.oscillator_mod_lfos[3].center_frequency,
+                                parameters.oscillator_mod_lfos[3].width))
                     } else {
                         None
                     };
@@ -557,36 +520,43 @@ impl Synth {
                             oscillator3_mod,
                         );
 
+
                         let oscillator_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
                             + sub_oscillator_sample;
 
-                        let oscillator_level_sum = oscillator1_level
-                            + oscillator2_level
-                            + oscillator3_level
-                            + sub_oscillator_level;
+                        let balanced_oscillator_level_sum = match parameters.output_level_constant {
+                            true => {
+                                let oscillator_level_sum = oscillator1_level
+                                    + oscillator2_level
+                                    + oscillator3_level
+                                    + sub_oscillator_level;
 
-                        let level_balanced_oscillator_sum = oscillator_sum / oscillator_level_sum;
+                                oscillator_sum / oscillator_level_sum
+                            },
+                            false => oscillator_sum/UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
+                        };
 
-                        let filter_mod_value = match filter_mod.is_enabled {
+
+                        let filter_mod_value = match parameters.filter_mod.is_enabled {
                             true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
-                                filter_mod.frequency,
-                                filter_mod.center_frequency,
-                                filter_mod.width,
+                                parameters.filter_mod.frequency,
+                                parameters.filter_mod.center_frequency,
+                                parameters.filter_mod.width,
                             )),
                             false => None,
                         };
 
                         let filtered_sample =
-                            filter.filter_sample(level_balanced_oscillator_sum, filter_mod_value);
+                            filter.filter_sample(balanced_oscillator_level_sum, filter_mod_value);
 
-                        let (left_panned_sample, right_panned_sample) = match auto_pan.is_enabled {
+                        let (left_panned_sample, right_panned_sample) = match parameters.auto_pan.is_enabled {
                             true => {
                                 let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
-                                    auto_pan.frequency,
-                                    auto_pan.center_frequency,
-                                    auto_pan.width,
+                                    parameters.auto_pan.frequency,
+                                    parameters.auto_pan.center_frequency,
+                                    parameters.auto_pan.width,
                                 );
                                 (
                                     filtered_sample * pan_value,
@@ -596,12 +566,12 @@ impl Synth {
                             false => (filtered_sample, filtered_sample),
                         };
 
-                        let (left_tremolo_sample, right_tremolo_sample) = match tremolo.is_enabled {
+                        let (left_tremolo_sample, right_tremolo_sample) = match parameters.tremolo.is_enabled {
                             true => {
                                 let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
-                                    tremolo.frequency,
-                                    tremolo.center_frequency,
-                                    tremolo.width,
+                                    parameters.tremolo.frequency,
+                                    parameters.tremolo.center_frequency,
+                                    parameters.tremolo.width,
                                 );
                                 (
                                     left_panned_sample * tremolo_value,
@@ -614,8 +584,8 @@ impl Synth {
                         let left_sample = left_tremolo_sample;
                         let right_sample = right_tremolo_sample;
 
-                        if amp_mode == AmpMode::Gate {
-                            match envelope.gate(output_level) {
+                        if parameters.amp_mode == AmpMode::Gate {
+                            match envelope.gate(parameters.output_level) {
                                 GateState::On(db_adjustment) => {
                                     frame[0] = left_sample * db_adjustment;
                                     frame[1] = right_sample * db_adjustment;
@@ -631,7 +601,7 @@ impl Synth {
                                 }
                             }
                         } else {
-                            match envelope.adsr(output_level) {
+                            match envelope.adsr(parameters.output_level) {
                                 ADSRState::Playing(db_adjustment) => {
                                     frame[0] = left_sample * db_adjustment;
                                     frame[1] = right_sample * db_adjustment;

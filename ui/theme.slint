@@ -101,6 +101,11 @@ export global Theme {
     out property <int> output-level-slider-maximum: 100;
     out property <int> output-level-slider-default: 90;
 
+    // Output Level Balanced Switch
+    out property <string> output-level-constant-active-text: "Constant Level";
+    out property <string> output-level-constant-not-active-text: "Valiable Level";
+
+
     // ADSR Slider 
     out property <int> milliseconds-slider-step: 10;
     out property <int> milliseconds-slider-minimum: 10;
@@ -186,8 +191,10 @@ export global Theme {
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> sub-oscillator-level-text: "Relative Level";
     out property <string> oscillator-level-text: "Relative Level";
-    out property <string> oscillator-mod-speed-text: "Modulation Speed";
-    out property <string> oscillator-mod-amount-text: "Modulation Amount";
+    out property <string> oscillator-mod-speed-text: "Mod Speed: ";
+    out property <string> oscillator-mod-speed-suffix: " Hz";
+    out property <string> oscillator-mod-amount-text: "Mod Amount: ";
+    out property <string> oscillator-mod-amount-suffix: "%";
     out property <string> detune-heading-text: "Detune";
     out property <string> detune-amount-label-suffix: "%";
     out property <string> envelope-header-text: "ADSR Envelope";
