@@ -1,7 +1,6 @@
 use crate::events::EventType;
-use crate::synth::envelope::GateState;
-#[allow(dead_code)]
-use crate::synth::envelope::{ADSRState, Envelope};
+use crate::synth::dynamics::Dynamics;
+use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
@@ -32,6 +31,8 @@ const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
 
 const DEFAULT_CENTER_FREQUENCY: f32 = 0.5;
 const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
+const DEFAULT_COMPRESSOR_RATIO: f32 = 0.5;
+const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
@@ -49,6 +50,17 @@ pub struct LFOInstance {
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
+pub struct DynamicsParameters {
+    compressor_enabled: bool,
+    compressor_threshold: f32,
+    compressor_ratio: f32,
+    limiter_enabled: bool,
+    limiter_threshold: f32,
+    clipper_enabled: bool,
+    clipper_threshold: f32,
+}
+
+#[derive(Default, Clone, Debug, PartialEq)]
 pub struct SynthParameters {
     amp_mode: AmpMode,
     output_level: f32,
@@ -57,6 +69,7 @@ pub struct SynthParameters {
     tremolo: LFOInstance,
     filter_mod: LFOInstance,
     oscillator_mod_lfos: Vec<LFOInstance>,
+    dynamics: DynamicsParameters,
 }
 
 pub struct Synth {
@@ -66,6 +79,7 @@ pub struct Synth {
     envelope: Arc<Mutex<Envelope>>,
     lfos: Arc<Mutex<Vec<LFO>>>,
     filter: Arc<Mutex<Filter>>,
+    dynamics: Arc<Mutex<Dynamics>>,
     parameters: Arc<Mutex<SynthParameters>>,
 }
 
@@ -92,6 +106,9 @@ impl Synth {
 
         let filter = Filter::new(sample_rate);
         let filter_arc = Arc::new(Mutex::new(filter));
+
+        let dynamic = Dynamics::new();
+        let dynamic_arc = Arc::new(Mutex::new(dynamic));
 
         let auto_pan = LFOInstance {
             center_frequency: DEFAULT_CENTER_FREQUENCY,
@@ -137,6 +154,12 @@ impl Synth {
 
         let oscillator_mod_lfos = vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod];
 
+        let dynamics = DynamicsParameters {
+            compressor_ratio: DEFAULT_COMPRESSOR_RATIO,
+            compressor_threshold: DEFAULT_COMPRESSOR_THRESHOLD,
+            ..Default::default()
+        };
+
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
             output_level: OUTPUT_LEVEL,
@@ -145,8 +168,8 @@ impl Synth {
             filter_mod,
             oscillator_mod_lfos,
             output_level_constant: false,
+            dynamics: dynamics,
         };
-
 
         Self {
             stream: None,
@@ -155,6 +178,7 @@ impl Synth {
             oscillators: oscillators_arc,
             lfos: lfos_arc,
             filter: filter_arc,
+            dynamics: dynamic_arc,
             parameters: Arc::new(Mutex::new(parameters)),
         }
     }
@@ -315,7 +339,6 @@ impl Synth {
                         lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
                         lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].reset();
                         lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
-
                     }
                     EventType::UpdateAutoPanEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -355,6 +378,34 @@ impl Synth {
                         parameters.filter_mod.width = amount;
                         parameters.filter_mod.center_frequency = 1.0 - (amount / 2.0);
                     }
+                    EventType::UpdateCompressorActive(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.compressor_enabled = is_active;
+                    }
+                    EventType::UpdateCompressorThreshold(threshold) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.compressor_threshold = threshold;
+                    }
+                    EventType::UpdateCompressorRatio(ratio) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.compressor_ratio = ratio;
+                    }
+                    EventType::UpdateLimiterActive(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.limiter_enabled = is_active;
+                    }
+                    EventType::UpdateLimiterThreshold(threshold) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.limiter_threshold = threshold;
+                    }
+                    EventType::UpdateClipperActive(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.clipper_enabled = is_active;
+                    }
+                    EventType::UpdateClipperThreshold(threshold) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.clipper_threshold = threshold;
+                    }                    
                     EventType::Start => {
                         self.start();
                     }
@@ -421,13 +472,12 @@ impl Synth {
         let mut sequencer = Sequencer::new(vec![0, 60, 63, 55, 62, 65, 67, 69, 72, 0]);
         let mut note_frequency = sequencer.next_note_frequency();
 
-
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
         let filter_arc = self.filter.clone();
         let lfo_arc = self.lfos.clone();
+        let dynamics_arc = self.dynamics.clone();
         let parameters_arc = self.parameters.clone();
-
 
         let stream = output_device
             .build_output_stream(
@@ -457,15 +507,17 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
+                    let dynamics = dynamics_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
                     for frame in buffer.chunks_mut(number_of_channels) {
-
-
-
                         let sub_oscillator_mod = if parameters.oscillator_mod_lfos[0].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[0].frequency,
                                 parameters.oscillator_mod_lfos[0].center_frequency,
-                                parameters.oscillator_mod_lfos[0].width))
+                                parameters.oscillator_mod_lfos[0].width,
+                            ))
                         } else {
                             None
                         };
@@ -474,7 +526,8 @@ impl Synth {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[1].frequency,
                                 parameters.oscillator_mod_lfos[1].center_frequency,
-                                parameters.oscillator_mod_lfos[1].width))
+                                parameters.oscillator_mod_lfos[1].width,
+                            ))
                         } else {
                             None
                         };
@@ -483,7 +536,8 @@ impl Synth {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[2].frequency,
                                 parameters.oscillator_mod_lfos[2].center_frequency,
-                                parameters.oscillator_mod_lfos[2].width))
+                                parameters.oscillator_mod_lfos[2].width,
+                            ))
                         } else {
                             None
                         };
@@ -492,18 +546,19 @@ impl Synth {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[3].frequency,
                                 parameters.oscillator_mod_lfos[3].center_frequency,
-                                parameters.oscillator_mod_lfos[3].width))
-                    } else {
-                        None
-                    };
+                                parameters.oscillator_mod_lfos[3].width,
+                            ))
+                        } else {
+                            None
+                        };
 
-                    let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
-                        note_frequency,
-                        sub_oscillator_level,
-                        sub_oscillator_mod,
-                    );
+                        let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
+                            note_frequency,
+                            sub_oscillator_level,
+                            sub_oscillator_mod,
+                        );
 
-                    let oscillator1_sample = oscillators.get_oscillator1_next_sample(
+                        let oscillator1_sample = oscillators.get_oscillator1_next_sample(
                             note_frequency,
                             oscillator1_level,
                             oscillator1_mod,
@@ -520,7 +575,6 @@ impl Synth {
                             oscillator3_mod,
                         );
 
-
                         let oscillator_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
@@ -534,10 +588,9 @@ impl Synth {
                                     + sub_oscillator_level;
 
                                 oscillator_sum / oscillator_level_sum
-                            },
-                            false => oscillator_sum/UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
+                            }
+                            false => oscillator_sum / UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
                         };
-
 
                         let filter_mod_value = match parameters.filter_mod.is_enabled {
                             true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
@@ -551,66 +604,104 @@ impl Synth {
                         let filtered_sample =
                             filter.filter_sample(balanced_oscillator_level_sum, filter_mod_value);
 
-                        let (left_panned_sample, right_panned_sample) = match parameters.auto_pan.is_enabled {
-                            true => {
-                                let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
-                                    parameters.auto_pan.frequency,
-                                    parameters.auto_pan.center_frequency,
-                                    parameters.auto_pan.width,
-                                );
-                                (
-                                    filtered_sample * pan_value,
-                                    filtered_sample * (1.0 - pan_value),
-                                )
-                            }
-                            false => (filtered_sample, filtered_sample),
-                        };
+                        let mut left_sample = filtered_sample;
+                        let mut right_sample = filtered_sample;
 
-                        let (left_tremolo_sample, right_tremolo_sample) = match parameters.tremolo.is_enabled {
-                            true => {
-                                let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
-                                    parameters.tremolo.frequency,
-                                    parameters.tremolo.center_frequency,
-                                    parameters.tremolo.width,
-                                );
-                                (
-                                    left_panned_sample * tremolo_value,
-                                    right_panned_sample * tremolo_value,
-                                )
-                            }
-                            false => (left_panned_sample, right_panned_sample),
-                        };
+                        if parameters.auto_pan.is_enabled {
+                            let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
+                                parameters.auto_pan.frequency,
+                                parameters.auto_pan.center_frequency,
+                                parameters.auto_pan.width,
+                            );
 
-                        let left_sample = left_tremolo_sample;
-                        let right_sample = right_tremolo_sample;
+                            left_sample *= pan_value;
+                            right_sample *= 1.0 - pan_value;
+                        }
+
+                        if parameters.tremolo.is_enabled {
+                            let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
+                                parameters.tremolo.frequency,
+                                parameters.tremolo.center_frequency,
+                                parameters.tremolo.width,
+                            );
+                            left_sample *= tremolo_value;
+                            right_sample *= tremolo_value;
+                        }
 
                         if parameters.amp_mode == AmpMode::Gate {
                             match envelope.gate(parameters.output_level) {
                                 GateState::On(db_adjustment) => {
-                                    frame[0] = left_sample * db_adjustment;
-                                    frame[1] = right_sample * db_adjustment;
+                                    left_sample *= db_adjustment;
+                                    right_sample *= db_adjustment;
                                 }
                                 GateState::Off(db_adjustment) => {
-                                    frame[0] = left_sample * db_adjustment;
-                                    frame[1] = right_sample * db_adjustment;
+                                    left_sample *= db_adjustment;
+                                    right_sample *= db_adjustment;
                                 }
                                 GateState::End(db_adjustment) => {
-                                    frame[0] = left_sample * db_adjustment;
-                                    frame[1] = right_sample * db_adjustment;
+                                    left_sample *= db_adjustment;
+                                    right_sample *= db_adjustment;
                                     note_frequency = sequencer.next_note_frequency();
                                 }
                             }
                         } else {
                             match envelope.adsr(parameters.output_level) {
                                 ADSRState::Playing(db_adjustment) => {
-                                    frame[0] = left_sample * db_adjustment;
-                                    frame[1] = right_sample * db_adjustment;
+                                    left_sample *= db_adjustment;
+                                    right_sample *= db_adjustment;
                                 }
                                 ADSRState::Stopped => {
+                                    left_sample *= 0.0;
+                                    right_sample *= 0.0;
                                     note_frequency = sequencer.next_note_frequency();
                                 }
                             }
                         }
+
+                        if parameters.dynamics.compressor_enabled {
+
+                            left_sample = dynamics.compress(
+                                parameters.output_level,
+                                parameters.dynamics.compressor_threshold,
+                                parameters.dynamics.compressor_ratio,
+                                left_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.compressor_threshold, parameters.output_level);
+                            right_sample = dynamics.compress(
+                                parameters.output_level,
+                                parameters.dynamics.compressor_threshold,
+                                parameters.dynamics.compressor_ratio,
+                                right_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.compressor_threshold, parameters.output_level);
+                        }
+
+                        if parameters.dynamics.limiter_enabled {
+                            left_sample = dynamics.limit(
+                                parameters.output_level,
+                                parameters.dynamics.limiter_threshold,
+                                left_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.limiter_threshold, parameters.output_level);
+                            right_sample = dynamics.limit(
+                                parameters.output_level,
+                                parameters.dynamics.limiter_threshold,
+                                right_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.limiter_threshold, parameters.output_level);
+                        }
+
+                        if parameters.dynamics.clipper_enabled {
+                            left_sample = dynamics.clip(
+                                parameters.output_level,
+                                parameters.dynamics.clipper_threshold,
+                                left_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.clipper_threshold, parameters.output_level);
+                            right_sample = dynamics.clip(
+                                parameters.output_level,
+                                parameters.dynamics.clipper_threshold,
+                                right_sample,
+                            ) * dynamics.get_makeup_gain(parameters.dynamics.clipper_threshold, parameters.output_level);
+                        }
+
+                        frame[0] = left_sample;
+                        frame[1] = right_sample;
                     }
                 },
                 |err| panic!("an error occurred for the stream: {}", err),

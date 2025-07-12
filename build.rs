@@ -1,3 +1,3 @@
 fn main() {
-    slint_build::compile("ui/oscillator.slint").unwrap();
+    slint_build::compile("ui/oscillator_playground.slint").unwrap();
 }

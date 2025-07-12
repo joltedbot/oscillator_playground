@@ -4,13 +4,14 @@ export global Theme {
     // Main Window
     out property <string> window-title: "Oscillator Playground";
     out property <length> window-width: 1040px;
-    out property <length> window-height: 650px;
+    out property <length> window-height: 700px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
     out property <color> border-colour: #333333;
     out property <length> border-width: 2px;
     out property <length> border-radius: 15px;
     out property <color> header-background: #252525;
+    out property <length> top-panel-row-height: 500px;
 
 
 
@@ -30,13 +31,13 @@ export global Theme {
     // Start Button
     out property <string> start-button-running-text: "Stop";
     out property <string> start-button-stopped-text: "Start";
-    out property <length> start-button-width: 200px;
+    out property <length> start-button-width: 150px;
     out property <length> start-button-height: 35px;
 
     // Resync Buttons
     out property <string> resync-button-text: "Resync Oscillators";
     out property <string> resync-lfo-button-text: "Resync Modulation";
-    out property <length> resync-button-width: 200px;
+    out property <length> resync-button-width: 150px;
     out property <length> resync-button-height: 35px;
 
     // Detune Switch
@@ -119,7 +120,7 @@ export global Theme {
     // Activation Switch
     out property <string> activation-switch-active-text: "Active";
     out property <string> activation-switch-not-active-text: "Not Active";
-    out property <length> activation-switch-width: 150px;
+    out property <length> activation-switch-width: 120px;
 
     // Envelope ADRS Defaults
     out property <int> envelope-attack-default: 50;
@@ -179,6 +180,27 @@ export global Theme {
     out property <int> envelope-gate-note-length-default: 300;
     out property <length> envelope-gate-note-length-width: 100px;
 
+    // Dynamics Compress Sliders
+    out property <float> compressor-threshold-step: 1;
+    out property <float> compressor-threshold-minimum: -30;
+    out property <float> compressor-threshold-maximum: 0;
+    out property <float> compressor-threshold-default: 0;
+    out property <float> compressor-ratio-step: 1;
+    out property <float> compressor-ratio-minimum: 1;
+    out property <float> compressor-ratio-maximum: 10;
+    out property <float> compressor-ratio-default: 2;
+
+    out property <float> limiter-threshold-step: 1;
+    out property <float> limiter-threshold-minimum: -30;
+    out property <float> limiter-threshold-maximum: 0;
+    out property <float> limiter-threshold-default: 0;
+
+    out property <float> clipper-threshold-step: 1;
+    out property <float> clipper-threshold-minimum: -30;
+    out property <float> clipper-threshold-maximum: 0;
+    out property <float> clipper-threshold-default: 0;
+
+
     //
     // Label Text
     //
@@ -233,4 +255,13 @@ export global Theme {
     out property <string> filter-mod-amount-suffix: "%";
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
+    out property <string> compressor-heading-text: "Compressor";
+    out property <string> compressor-threshold-text: "Threshold: ";
+    out property <string> compressor-ratio-text: "Ratio: ";
+    out property <string> compressor-ratio-suffix: ":1";
+    out property <string> limiter-heading-text: "Limiter";
+    out property <string> limiter-threshold-text: "Threshold: ";
+    out property <string> clipper-heading-text: "Clipper";
+    out property <string> clipper-threshold-text: "Threshold: ";
+
 }

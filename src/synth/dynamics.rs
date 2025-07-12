@@ -6,31 +6,50 @@ impl Dynamics {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn compress(&self, threshold: f32, ratio: f32, sample: f32) -> f32 {
+    pub fn compress(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
+
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
-        if sample_dbfs < threshold {
+        if sample_dbfs <= threshold || output_level <= threshold {
             return sample;
         }
 
         let delta = sample_dbfs - threshold;
         let compressed_delta = delta * ratio;
         let new_dbfs = threshold + compressed_delta;
-        get_f32_sample_from_dbfs(new_dbfs)
+        let mut compressed_sample = get_f32_sample_from_dbfs(new_dbfs);
+
+
+        if sample.is_sign_negative() {
+            compressed_sample *= -1.0;
+        }
+
+        compressed_sample
+
     }
 
-    pub fn limit(&self, threshold: f32, sample: f32) -> f32 {
-        self.compress(threshold, FIXED_LIMIT_THRESHOLD, sample)
+    pub fn limit(&self, output_level: f32, threshold: f32, sample: f32) -> f32 {
+        self.compress(output_level, threshold, FIXED_LIMIT_THRESHOLD, sample)
     }
 
-    pub fn clip(&self, threshold: f32, sample: f32) -> f32 {
+    pub fn clip(&self, output_level: f32, threshold: f32, sample: f32) -> f32 {
+
+
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
-        if sample_dbfs < threshold {
+        if sample_dbfs <= threshold || output_level <= threshold {
             return sample;
         }
 
-        get_f32_sample_from_dbfs(threshold)
+        let mut clipped_sample = get_f32_sample_from_dbfs(threshold);
+
+
+        if sample.is_sign_negative() {
+            clipped_sample *= -1.0;
+        }
+
+        clipped_sample
+
     }
 
     pub fn get_makeup_gain(&self, threshold: f32, output_level: f32) -> f32 {

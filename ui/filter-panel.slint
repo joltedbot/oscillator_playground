@@ -14,10 +14,11 @@ export component FilterPanel inherits VerticalLayout {
         border-color: Theme.border-colour;
         border-radius: Theme.border-radius;
         background: Theme.adrs-box-background;
+        height: Theme.top-panel-row-height;
 
         VerticalLayout {
             vertical-stretch: 1;
-            alignment: center;
+            alignment: start;
             spacing: 10px;
             padding: 20px;
 
@@ -52,7 +53,6 @@ export component FilterPanel inherits VerticalLayout {
                     }
 
                     Label {
-                        width: 75px;
                         horizontal-alignment: center;
                         label: round(filter_cutoff.level);
                     }

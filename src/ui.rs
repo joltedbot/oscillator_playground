@@ -6,7 +6,6 @@ use std::error::Error;
 use std::process::exit;
 use std::sync::{Arc, Mutex};
 
-
 pub struct UI {
     pub ui: Weak<AppWindow>,
     synth_sender: Sender<EventType>,
@@ -88,6 +87,13 @@ impl UI {
         self.on_filter_mod_activated();
         self.on_filter_mod_speed_changed();
         self.on_filter_mod_depth_changed();
+        self.on_compressor_activated();
+        self.on_compressor_threshold_changed();
+        self.on_compressor_ratio_changed();
+        self.on_limiter_activated();
+        self.on_limiter_threshold_changed();
+        self.on_clipper_activated();
+        self.on_clipper_threshold_changed();
     }
 
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
@@ -187,7 +193,7 @@ impl UI {
             }
         });
     }
-    
+
     fn on_wave_mod1_speed_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -271,8 +277,7 @@ impl UI {
             }
         });
     }
-    
-    
+
     fn on_start_button_pressed_callback(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -331,7 +336,8 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_output_level_constant_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOutputLevelConstant(is_active).clone())
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateOutputLevelConstant(is_active).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }
@@ -610,4 +616,92 @@ impl UI {
         });
     }
 
+    fn on_compressor_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_compressor_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateCompressorActive(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_compressor_threshold_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_compressor_threshold_changed(move |threshold| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateCompressorThreshold(threshold).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_compressor_ratio_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_compressor_ratio_changed(move |ratio| {
+            if let Err(error) = synth_sender.send(EventType::UpdateCompressorRatio(ratio).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_limiter_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_limiter_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateLimiterActive(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_limiter_threshold_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_limiter_threshold_changed(move |threshold| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateLimiterThreshold(threshold).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_clipper_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_clipper_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateClipperActive(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_clipper_threshold_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_clipper_threshold_changed(move |threshold| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateClipperThreshold(threshold).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
 }
