@@ -1,5 +1,7 @@
-import { Button, ComboBox, Slider, Switch } from "std-widgets.slint";
+import { Button, ComboBox, Slider, Switch, GridBox, CheckBox } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
+
+
 
 export component Heading inherits Text {
     in-out property <string> heading;
@@ -159,5 +161,342 @@ export component FilterSlider inherits Slider {
         self.value = round(value);
         number_of_poles = round(value);
         number_of_poles_selected(round(value));
+    }
+}
+
+export component ArpNoteBox inherits HorizontalLayout {
+
+    in-out property <bool> check-default-note;
+    callback note_active(bool);
+
+    alignment: center;
+
+    box := CheckBox {
+        checked: check-default-note;
+        toggled() => {
+            check-default-note = self.checked;
+            note_active(self.checked)
+        }
+    }
+}
+
+export component DiabledBox inherits HorizontalLayout {
+    alignment: center;
+
+    CheckBox {
+        enabled: false;
+    }
+}
+
+export component ArpTableRow inherits HorizontalLayout {
+
+    in-out property <string> octave-number;
+    in-out property <int> row-number;
+    in-out property <bool> is-default-note;
+    property <int> box-offset: (12 * row-number);
+
+    callback note_activated(int);
+    callback note_deactivated(int);
+
+    spacing: 20px;
+    alignment: space-between;
+
+    Label {
+        width: 60px;
+        label: octave-number;
+    }
+
+    box0 := ArpNoteBox {
+        check-default-note: is-default-note;
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset);
+            } else {
+                note_deactivated(box-offset);
+            }
+        }
+    }
+
+    box1 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 1);
+            } else {
+                note_deactivated(box-offset + 1);
+            }
+        }
+    }
+
+    box2 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 2);
+            } else {
+                note_deactivated(box-offset + 2);
+            }
+        }
+    }
+
+    box3 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 3);
+            } else {
+                note_deactivated(box-offset + 3);
+            }
+        }
+    }
+
+    box4 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 4);
+            } else {
+                note_deactivated(box-offset + 4);
+            }
+        }
+    }
+
+    box5 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 5);
+            } else {
+                note_deactivated(box-offset + 5);
+            }
+        }
+    }
+
+    box6 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 6);
+            } else {
+                note_deactivated(box-offset + 6);
+            }
+        }
+    }
+
+    box7 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 7);
+            } else {
+                note_deactivated(box-offset + 7);
+            }
+        }
+    }
+
+    box8 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 8);
+            } else {
+                note_deactivated(box-offset + 8);
+            }
+        }
+    }
+
+    box9 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 9);
+            } else {
+                note_deactivated(box-offset + 9);
+            }
+        }
+    }
+
+    box10 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 10);
+            } else {
+                note_deactivated(box-offset + 10);
+            }
+        }
+    }
+
+    box11 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 11);
+            } else {
+                note_deactivated(box-offset + 11);
+            }
+        }
+    }
+}
+
+export component ArpTableLastRow inherits HorizontalLayout {
+
+    in-out property <string> octave-number;
+    in-out property <int> row-number;
+    property <int> box-offset: (12 * row-number);
+
+    callback note_activated(int);
+    callback note_deactivated(int);
+
+    spacing: 20px;
+    alignment: space-between;
+
+    Label {
+        width: 60px;
+        label: octave-number;
+    }
+
+    box1 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset);
+            } else {
+                note_deactivated(box-offset);
+            }
+        }
+    }
+
+    box2 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 1);
+            } else {
+                note_deactivated(box-offset + 1);
+            }
+        }
+    }
+
+    box3 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 2);
+            } else {
+                note_deactivated(box-offset + 2);
+            }
+        }
+    }
+
+    box4 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 3);
+            } else {
+                note_deactivated(box-offset + 3);
+            }
+        }
+    }
+
+    box5 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 4);
+            } else {
+                note_deactivated(box-offset + 4);
+            }
+        }
+    }
+
+    box6 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 5);
+            } else {
+                note_deactivated(box-offset + 5);
+            }
+        }
+    }
+
+    box7 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 6);
+            } else {
+                note_deactivated(box-offset + 6);
+            }
+        }
+    }
+
+    box8 := ArpNoteBox {
+        note_active(is_checked) => {
+            if (is_checked) {
+                note_activated(box-offset + 7);
+            } else {
+                note_deactivated(box-offset + 7);
+            }
+        }
+    }
+
+    Label {
+        label: " - ";
+    }
+
+    Label {
+        label: " - ";
+    }
+
+    Label {
+        label: " - ";
+    }
+
+    Label {
+        label: " - ";
+    }
+}
+
+export component ArpTableFirstRow inherits HorizontalLayout {
+
+    spacing: 20px;
+    alignment: space-between;
+
+    Label {
+        width: 60px;
+        label: "Octave";
+    }
+
+    Label {
+        label: "C";
+    }
+
+    Label {
+        label: "C#/Db";
+    }
+
+    Label {
+        label: "D";
+    }
+
+    Label {
+        label: "D#/Eb";
+    }
+
+    Label {
+        label: "E";
+    }
+
+    Label {
+        label: "F";
+    }
+
+    Label {
+        label: "F#/Gb";
+    }
+
+    Label {
+        label: "G";
+    }
+
+    Label {
+        label: "G#/Ab";
+    }
+
+    Label {
+        label: "A";
+    }
+
+    Label {
+        label: "A#/Bb";
+    }
+
+    Label {
+        label: "B";
     }
 }

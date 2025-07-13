@@ -94,6 +94,8 @@ impl UI {
         self.on_limiter_threshold_changed();
         self.on_clipper_activated();
         self.on_clipper_threshold_changed();
+        self.on_note_activated();
+        self.on_note_deactivated();
     }
 
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
@@ -658,8 +660,7 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_limiter_activated(move |is_active| {
-            if let Err(error) =
-                synth_sender.send(EventType::UpdateLimiterActive(is_active).clone())
+            if let Err(error) = synth_sender.send(EventType::UpdateLimiterActive(is_active).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }
@@ -684,8 +685,7 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_clipper_activated(move |is_active| {
-            if let Err(error) =
-                synth_sender.send(EventType::UpdateClipperActive(is_active).clone())
+            if let Err(error) = synth_sender.send(EventType::UpdateClipperActive(is_active).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }
@@ -704,4 +704,32 @@ impl UI {
             }
         });
     }
+
+    fn on_note_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_note_activated(move |note_number| {
+            if let Err(error) =
+                synth_sender.send(EventType::ArpeggiatorAddNote(note_number).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+
+    fn on_note_deactivated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_note_deactivated(move |note_number| {
+            if let Err(error) =
+                synth_sender.send(EventType::ArpeggiatorRemoveNote(note_number).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+    
 }

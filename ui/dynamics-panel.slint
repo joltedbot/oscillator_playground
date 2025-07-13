@@ -71,120 +71,105 @@ export component DynamicsPanel inherits HorizontalLayout {
                         maximum: Theme.compressor-ratio-maximum;
                         enabled: false;
                         level_selected(level) => {
-                            compressor_ratio_changed(1/round(level));
+                            compressor_ratio_changed(1 / round(level));
                         }
                     }
-
                 }
             }
         }
-
     }
-    Rectangle {
-            border-width: Theme.window-border-width;
-            border-color: Theme.border-colour;
-            border-radius: Theme.border-radius;
-            background: Theme.adrs-box-background;
-    
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-    
-                HorizontalLayout {
-                    alignment: start;
-                    spacing: 20px;
-    
-                    VerticalLayout {
-                        spacing: 10px;
-    
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.limiter-heading-text;
-                        }
-    
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-    
-                            activation_toggled => {
-                                limiter_threshold.enabled = self.activated;
-                                limiter_activated(self.checked);
-                            }
-                        }
-    
-                        Label {
-                            label: Theme.limiter-threshold-text + round(limiter_threshold.slider_value);
-                        }
-    
-                        limiter_threshold := LFOSlider {
-                            slider_value: Theme.limiter-threshold-default;
-                            step: Theme.limiter-threshold-step;
-                            minimum: Theme.limiter-threshold-minimum;
-                            maximum: Theme.limiter-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                limiter_threshold_changed(round(level));
-                            }
-                        }
-    
-                    }
-                }
-            }
-    
-        }
-    Rectangle {
-            border-width: Theme.window-border-width;
-            border-color: Theme.border-colour;
-            border-radius: Theme.border-radius;
-            background: Theme.adrs-box-background;
-    
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-    
-                HorizontalLayout {
-                    alignment: start;
-                    spacing: 20px;
-    
-                    VerticalLayout {
-                        spacing: 10px;
-    
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.clipper-heading-text;
-                        }
-    
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-    
-                            activation_toggled => {
-                                clipper_threshold.enabled = self.activated;
-                                clipper_activated(self.checked);
-                            }
-                        }
-    
-                        Label {
-                            label: Theme.clipper-threshold-text + round(clipper_threshold.slider_value);
-                        }
-    
-                        clipper_threshold := LFOSlider {
-                            slider_value: Theme.clipper-threshold-default;
-                            step: Theme.clipper-threshold-step;
-                            minimum: Theme.clipper-threshold-minimum;
-                            maximum: Theme.clipper-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                clipper_threshold_changed(round(level));
-                            }
-                        }
 
-    
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+            HorizontalLayout {
+                alignment: start;
+                spacing: 20px;
+                VerticalLayout {
+                    spacing: 10px;
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.limiter-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+                        activation_toggled => {
+                            limiter_threshold.enabled = self.activated;
+                            limiter_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.limiter-threshold-text + round(limiter_threshold.slider_value);
+                    }
+
+                    limiter_threshold := LFOSlider {
+                        slider_value: Theme.limiter-threshold-default;
+                        step: Theme.limiter-threshold-step;
+                        minimum: Theme.limiter-threshold-minimum;
+                        maximum: Theme.limiter-threshold-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            limiter_threshold_changed(round(level));
+                        }
                     }
                 }
             }
-    
-        }    
+        }
+    }
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+            HorizontalLayout {
+                alignment: start;
+                spacing: 20px;
+                VerticalLayout {
+                    spacing: 10px;
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.clipper-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+                        activation_toggled => {
+                            clipper_threshold.enabled = self.activated;
+                            clipper_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.clipper-threshold-text + round(clipper_threshold.slider_value);
+                    }
+
+                    clipper_threshold := LFOSlider {
+                        slider_value: Theme.clipper-threshold-default;
+                        step: Theme.clipper-threshold-step;
+                        minimum: Theme.clipper-threshold-minimum;
+                        maximum: Theme.clipper-threshold-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            clipper_threshold_changed(round(level));
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

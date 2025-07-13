@@ -1,8 +1,10 @@
 use rand::prelude::*;
 
-const MIDI_NOTE_FREQUENCIES: [(&str, f32); 128] = [
-    //("C-1", 8.1758),
-    ("Rest", 0.0), // 0
+const REST_FREQUENCY: f32 = 0.0;
+const NUMBER_OF_MIDI_NOTES: usize = 128;
+const FIRST_REST_NOTE: u32 = 128;
+const MIDI_NOTE_FREQUENCIES: [(&str, f32); NUMBER_OF_MIDI_NOTES] = [
+    ("C-1", 8.1758),
     ("C#-1/Db-1", 8.6620),
     ("D-1", 9.1770),
     ("D#-1/Eb-1", 9.7227),
@@ -132,16 +134,40 @@ const MIDI_NOTE_FREQUENCIES: [(&str, f32); 128] = [
     ("G9", 12543.8540),
 ];
 
-pub struct Sequencer {
+#[derive(Debug, Default, Clone,PartialEq)]
+pub struct Arpeggiator {
     sequence: Vec<u32>,
     sequence_index: usize,
 }
 
-impl Sequencer {
-    pub fn new(sequence: Vec<u32>) -> Sequencer {
-        Sequencer {
+impl Arpeggiator {
+    pub fn new(sequence: Vec<u32>) -> Arpeggiator {
+        Arpeggiator {
             sequence,
             sequence_index: 0,
+        }
+    }
+
+    pub fn add_note(&mut self, note_number: u32) {
+
+        if self.sequence.len() == 1 && self.sequence[0] == FIRST_REST_NOTE {
+            self.sequence.push(note_number);
+            self.sequence.remove(0);
+        }
+
+        if !self.sequence.contains(&note_number) {
+            self.sequence.push(note_number);
+        }
+    }
+
+    pub fn remove_note(&mut self, note_number: u32) {
+        if self.sequence.len() == 1 {
+            self.sequence.push(FIRST_REST_NOTE);
+            self.sequence.remove(0);
+        }
+
+        if let Some(note_index) =  self.sequence.iter().position(|&note| note == note_number) {
+            self.sequence.remove(note_index);
         }
     }
 
@@ -155,6 +181,11 @@ impl Sequencer {
             self.sequence_index = 0;
         }
 
+        if midi_note >= NUMBER_OF_MIDI_NOTES as u32 {
+            return REST_FREQUENCY
+        }
+
         MIDI_NOTE_FREQUENCIES[midi_note as usize].1
+
     }
 }

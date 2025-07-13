@@ -80,7 +80,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text  + (round(osc1_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
+                        label: Theme.oscillator-mod-amount-text + (round(osc1_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc1_mod_amount := LFOSlider {
@@ -96,12 +96,12 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text + (round(osc1_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
+                        label: Theme.oscillator-mod-speed-text + (round(osc1_mod_speed.slider_value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc1_mod_speed := LFOSlider {
                         slider_value: Theme.osc-mod-speed-slider-default;
-                        step: Theme.osc-mod-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.osc-mod-speed-slider-minimum;
                         maximum: Theme.osc-mod-speed-slider-maximum;
 
@@ -109,7 +109,6 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.wave_mod1_speed_changed(amount);
                         }
                     }
-
                 }
 
                 VerticalLayout {
@@ -144,7 +143,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text  + (round(osc2_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
+                        label: Theme.oscillator-mod-amount-text + (round(osc2_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc2_mod_amount := LFOSlider {
@@ -160,12 +159,12 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text + (round(osc2_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
+                        label: Theme.oscillator-mod-speed-text + (round(osc2_mod_speed.slider_value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc2_mod_speed := LFOSlider {
                         slider_value: Theme.osc-mod-speed-slider-default;
-                        step: Theme.osc-mod-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.osc-mod-speed-slider-minimum;
                         maximum: Theme.osc-mod-speed-slider-maximum;
 
@@ -173,7 +172,6 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.wave_mod2_speed_changed(amount);
                         }
                     }
-
                 }
 
                 VerticalLayout {
@@ -208,7 +206,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text  + (round(osc3_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
+                        label: Theme.oscillator-mod-amount-text + (round(osc3_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     osc3_mod_amount := LFOSlider {
@@ -224,12 +222,12 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text + (round(osc3_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
+                        label: Theme.oscillator-mod-speed-text + (round(osc3_mod_speed.slider_value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     osc3_mod_speed := LFOSlider {
                         slider_value: Theme.osc-mod-speed-slider-default;
-                        step: Theme.osc-mod-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.osc-mod-speed-slider-minimum;
                         maximum: Theme.osc-mod-speed-slider-maximum;
 
@@ -237,7 +235,6 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.wave_mod3_speed_changed(amount);
                         }
                     }
-
                 }
 
                 VerticalLayout {
@@ -272,7 +269,7 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text   + (round(sub_mod_amount.slider_value*100)) + Theme.oscillator-mod-amount-suffix;
+                        label: Theme.oscillator-mod-amount-text + (round(sub_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
                     }
 
                     sub_mod_amount := LFOSlider {
@@ -288,12 +285,12 @@ export component OscillatorPanel inherits VerticalLayout {
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.oscillator-mod-speed-text + (round(sub_mod_speed.slider_value*100)/100) + Theme.oscillator-mod-speed-suffix;
+                        label: Theme.oscillator-mod-speed-text + (round(sub_mod_speed.slider_value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
                     }
 
                     sub_mod_speed := LFOSlider {
                         slider_value: Theme.osc-mod-speed-slider-default;
-                        step: Theme.osc-mod-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.osc-mod-speed-slider-minimum;
                         maximum: Theme.osc-mod-speed-slider-maximum;
 
@@ -301,15 +298,12 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.sub_mod_speed_changed(amount);
                         }
                     }
-
                 }
-
             }
 
             HorizontalLayout {
                 alignment: center;
                 spacing: 10px;
-
 
                 VerticalLayout {
                     spacing: 10px;
@@ -378,7 +372,6 @@ export component OscillatorPanel inherits VerticalLayout {
                             root.output_level_constant_activated(self.checked);
                         }
                     }
-
                 }
             }
 
@@ -386,13 +379,6 @@ export component OscillatorPanel inherits VerticalLayout {
                 spacing: 30px;
                 padding: 20px;
                 alignment: center;
-
-                start_button := StartButton {
-                    active: start_button_active;
-                    tone_start_button_pressed(active) => {
-                        root.start_button_pressed(active);
-                    }
-                }
 
                 reset_button := ActionButton {
                     text: Theme.resync-button-text;

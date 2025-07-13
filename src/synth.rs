@@ -8,7 +8,7 @@ use crossbeam_channel::Receiver;
 use device::AudioDevice;
 use filter::Filter;
 use oscillators::Oscillators;
-use sequencer::Sequencer;
+use arpeggiator::Arpeggiator;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 pub mod device;
@@ -17,7 +17,7 @@ pub mod envelope;
 pub mod filter;
 pub mod lfo;
 pub mod oscillators;
-pub mod sequencer;
+pub mod arpeggiator;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
 const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
@@ -30,9 +30,11 @@ const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 5;
 const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
 
 const DEFAULT_CENTER_FREQUENCY: f32 = 0.5;
+const DEFAULT_AUTO_PAN_CENTER_FREQUENCY: f32 = 1.0;
 const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
 const DEFAULT_COMPRESSOR_RATIO: f32 = 0.5;
 const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
+const DEFAULT_SEQUENCER_NOTE: u32 = 60;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
@@ -70,6 +72,8 @@ pub struct SynthParameters {
     filter_mod: LFOInstance,
     oscillator_mod_lfos: Vec<LFOInstance>,
     dynamics: DynamicsParameters,
+    arpeggiator: Arpeggiator,
+    current_note_frequency: f32,
 }
 
 pub struct Synth {
@@ -111,7 +115,7 @@ impl Synth {
         let dynamic_arc = Arc::new(Mutex::new(dynamic));
 
         let auto_pan = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_frequency: DEFAULT_AUTO_PAN_CENTER_FREQUENCY,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
@@ -159,6 +163,9 @@ impl Synth {
             compressor_threshold: DEFAULT_COMPRESSOR_THRESHOLD,
             ..Default::default()
         };
+        
+        let mut arpeggiator= Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
+        let current_note_frequency = arpeggiator.next_note_frequency();
 
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
@@ -168,7 +175,9 @@ impl Synth {
             filter_mod,
             oscillator_mod_lfos,
             output_level_constant: false,
-            dynamics: dynamics,
+            dynamics,
+            arpeggiator,
+            current_note_frequency,
         };
 
         Self {
@@ -185,7 +194,6 @@ impl Synth {
 
     pub fn run(&mut self, ui_receiver: Receiver<EventType>) {
         self.stream = Some(self.create_audio_engine());
-        println!("Synth run");
 
         loop {
             if let Ok(event) = ui_receiver.recv() {
@@ -405,7 +413,15 @@ impl Synth {
                     EventType::UpdateClipperThreshold(threshold) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.clipper_threshold = threshold;
-                    }                    
+                    }
+                    EventType::ArpeggiatorAddNote(note_number) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.arpeggiator.add_note(note_number as u32);
+                    }
+                    EventType::ArpeggiatorRemoveNote(note_number) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.arpeggiator.remove_note(note_number as u32);
+                    }
                     EventType::Start => {
                         self.start();
                     }
@@ -467,18 +483,13 @@ impl Synth {
         let output_device = self.audio_device.get_output_device();
         let number_of_channels = self.audio_device.get_number_of_channels();
 
-        // The sequence is midi note numbers
-        // For rests use note 0 - It leaves out c-1 but 8 Hz doesn't do you much good anyway.
-        let mut sequencer = Sequencer::new(vec![0, 60, 63, 55, 62, 65, 67, 69, 72, 0]);
-        let mut note_frequency = sequencer.next_note_frequency();
-
         let envelope_arc = self.envelope.clone();
         let oscillators_arc = self.oscillators.clone();
         let filter_arc = self.filter.clone();
         let lfo_arc = self.lfos.clone();
         let dynamics_arc = self.dynamics.clone();
         let parameters_arc = self.parameters.clone();
-
+        
         let stream = output_device
             .build_output_stream(
                 &stream_config,
@@ -499,7 +510,7 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                    let parameters = parameters_arc
+                    let mut parameters = parameters_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
@@ -553,24 +564,24 @@ impl Synth {
                         };
 
                         let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
-                            note_frequency,
+                            parameters.current_note_frequency,
                             sub_oscillator_level,
                             sub_oscillator_mod,
                         );
 
                         let oscillator1_sample = oscillators.get_oscillator1_next_sample(
-                            note_frequency,
+                            parameters.current_note_frequency,
                             oscillator1_level,
                             oscillator1_mod,
                         );
 
                         let oscillator2_sample = oscillators.get_oscillator2_next_sample(
-                            note_frequency,
+                            parameters.current_note_frequency,
                             oscillator2_level,
                             oscillator2_mod,
                         );
                         let oscillator3_sample = oscillators.get_oscillator3_next_sample(
-                            note_frequency,
+                            parameters.current_note_frequency,
                             oscillator3_level,
                             oscillator3_mod,
                         );
@@ -615,7 +626,7 @@ impl Synth {
                             );
 
                             left_sample *= pan_value;
-                            right_sample *= 1.0 - pan_value;
+                            right_sample *= 2.0 - pan_value;
                         }
 
                         if parameters.tremolo.is_enabled {
@@ -641,7 +652,7 @@ impl Synth {
                                 GateState::End(db_adjustment) => {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
-                                    note_frequency = sequencer.next_note_frequency();
+                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency();
                                 }
                             }
                         } else {
@@ -653,25 +664,24 @@ impl Synth {
                                 ADSRState::Stopped => {
                                     left_sample *= 0.0;
                                     right_sample *= 0.0;
-                                    note_frequency = sequencer.next_note_frequency();
+                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency();
                                 }
                             }
                         }
 
                         if parameters.dynamics.compressor_enabled {
-
                             left_sample = dynamics.compress(
                                 parameters.output_level,
                                 parameters.dynamics.compressor_threshold,
                                 parameters.dynamics.compressor_ratio,
                                 left_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.compressor_threshold, parameters.output_level);
+                            );
                             right_sample = dynamics.compress(
                                 parameters.output_level,
                                 parameters.dynamics.compressor_threshold,
                                 parameters.dynamics.compressor_ratio,
                                 right_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.compressor_threshold, parameters.output_level);
+                            );
                         }
 
                         if parameters.dynamics.limiter_enabled {
@@ -679,12 +689,12 @@ impl Synth {
                                 parameters.output_level,
                                 parameters.dynamics.limiter_threshold,
                                 left_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.limiter_threshold, parameters.output_level);
+                            );
                             right_sample = dynamics.limit(
                                 parameters.output_level,
                                 parameters.dynamics.limiter_threshold,
                                 right_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.limiter_threshold, parameters.output_level);
+                            );
                         }
 
                         if parameters.dynamics.clipper_enabled {
@@ -692,12 +702,12 @@ impl Synth {
                                 parameters.output_level,
                                 parameters.dynamics.clipper_threshold,
                                 left_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.clipper_threshold, parameters.output_level);
+                            );
                             right_sample = dynamics.clip(
                                 parameters.output_level,
                                 parameters.dynamics.clipper_threshold,
                                 right_sample,
-                            ) * dynamics.get_makeup_gain(parameters.dynamics.clipper_threshold, parameters.output_level);
+                            );
                         }
 
                         frame[0] = left_sample;
@@ -709,7 +719,7 @@ impl Synth {
             )
             .unwrap();
 
-        stream.play().unwrap();
+        stream.pause().unwrap();
 
         stream
     }

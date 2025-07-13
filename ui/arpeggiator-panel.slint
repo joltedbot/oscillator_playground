@@ -1,0 +1,195 @@
+import { Heading, Label, StartButton, ArpTableRow, ArpTableFirstRow, ArpTableLastRow, ActionButton } from "../ui/components.slint";
+import { CheckBox,  } from "std-widgets.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component ArpeggiatorPanel inherits HorizontalLayout {
+
+    in-out property <bool> start_button_active: false;
+
+    callback start_button_pressed(bool);
+    callback note_activated(int);
+    callback note_deactivated(int);
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.adrs-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            Heading {
+                heading: Theme.arpeggiator-heading-text;
+            }
+
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 20px;
+                padding: 10px;
+
+                ArpTableFirstRow { }
+
+                row0 := ArpTableRow {
+                    octave-number: "-1";
+                    row-number: 0;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row1 := ArpTableRow {
+                    octave-number: "0";
+                    row-number: 1;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row2 := ArpTableRow {
+                    octave-number: "1";
+                    row-number: 2;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row3 := ArpTableRow {
+                    octave-number: "2";
+                    row-number: 3;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row4 := ArpTableRow {
+                    octave-number: "3";
+                    row-number: 4;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row5 := ArpTableRow {
+                    octave-number: "4";
+                    row-number: 5;
+                    is-default-note: true;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row6 := ArpTableRow {
+                    octave-number: "5";
+                    row-number: 6;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row7 := ArpTableRow {
+                    octave-number: "6";
+                    row-number: 7;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row8 := ArpTableRow {
+                    octave-number: "7";
+                    row-number: 8;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row9 := ArpTableRow {
+                    octave-number: "8";
+                    row-number: 9;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                row10 := ArpTableLastRow {
+                    octave-number: "9";
+                    row-number: 10;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+                HorizontalLayout {
+                spacing: 10px;
+                padding: 10px;
+
+                alignment: center;
+                    start_button := StartButton {
+                        active: start_button_active;
+                        tone_start_button_pressed(active) => {
+                            root.start_button_pressed(active);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}

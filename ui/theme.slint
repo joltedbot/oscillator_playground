@@ -12,6 +12,8 @@ export global Theme {
     out property <length> border-radius: 15px;
     out property <color> header-background: #252525;
     out property <length> top-panel-row-height: 500px;
+    out property <string> tab-synth-title: "Synth Engine";
+    out property <string> tab-arpeggiator-title: "Arpeggiator";
 
 
 
@@ -19,14 +21,25 @@ export global Theme {
     out property <color> text-color: #aaaaaa;
     out property <color> greyed-out: #444444;
     out property <int> text-weight-bold: 800;
-    out property <length> text-size: 12px;
+    out property <length> text-size: 14px;
     out property <length> label-text-size: 14px;
     out property <length> heading-text-size: 16px;
 
 
+    // Arpeggiator
+    out property <string> arpeggiator-heading-text: "Note Selection";
+    out property <string> arpeggiator-button-text: "Update Notes";
+    out property <length> arpeggiator-button-width: 150px;
+    out property <length> arpeggiator-button-height: 35px;
+
     //
     // Components
     //
+
+    // Slider Adjustment Ratios
+    out property <float> lfo-slider-step-ratio: 0.01;
+
+
 
     // Start Button
     out property <string> start-button-running-text: "Stop";
@@ -68,13 +81,10 @@ export global Theme {
     out property <float> osc-mod-speed-slider-minimum: 0.01;
     out property <float> osc-mod-speed-slider-maximum: 10.0;
     out property <float> osc-mod-speed-slider-default: 0.1;
-    
     out property <float> osc-mod-amount-slider-step: 0.01;
     out property <float> osc-mod-amount-slider-minimum: 0.0;
     out property <float> osc-mod-amount-slider-maximum: 1.0;
     out property <float> osc-mod-amount-slider-default: 0.0;
-
-
 
     // Filter Cutoff Slider
     out property <int> filter-cutoff-slider-step-factor: 0.05;
@@ -138,9 +148,9 @@ export global Theme {
     out property <float> auto-pan-speed-slider-minimum: 0.01;
     out property <float> auto-pan-speed-slider-maximum: 10;
     out property <float> auto-pan-speed-slider-default: 1.0;
-    out property <float> auto-pan-width-slider-step: 0.01;
+    out property <float> auto-pan-width-slider-step: 0.1;
     out property <float> auto-pan-width-slider-minimum: 0.0;
-    out property <float> auto-pan-width-slider-maximum: 1.0;
+    out property <float> auto-pan-width-slider-maximum: 2.0;
     out property <float> auto-pan-width-slider-default: 0.0;
 
 
@@ -204,7 +214,6 @@ export global Theme {
     //
     // Label Text
     //
-
     out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
     out property <string> oscillator1-heading-text: "Oscillator 1";
@@ -263,5 +272,4 @@ export global Theme {
     out property <string> limiter-threshold-text: "Threshold: ";
     out property <string> clipper-heading-text: "Clipper";
     out property <string> clipper-threshold-text: "Threshold: ";
-
 }

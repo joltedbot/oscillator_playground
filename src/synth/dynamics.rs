@@ -7,7 +7,6 @@ impl Dynamics {
         Self {}
     }
     pub fn compress(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
-
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
@@ -19,13 +18,11 @@ impl Dynamics {
         let new_dbfs = threshold + compressed_delta;
         let mut compressed_sample = get_f32_sample_from_dbfs(new_dbfs);
 
-
         if sample.is_sign_negative() {
             compressed_sample *= -1.0;
         }
 
-        compressed_sample
-
+        compressed_sample * self.get_makeup_gain(threshold * (1.0 - ratio), output_level)
     }
 
     pub fn limit(&self, output_level: f32, threshold: f32, sample: f32) -> f32 {
@@ -33,8 +30,6 @@ impl Dynamics {
     }
 
     pub fn clip(&self, output_level: f32, threshold: f32, sample: f32) -> f32 {
-
-
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
@@ -43,13 +38,11 @@ impl Dynamics {
 
         let mut clipped_sample = get_f32_sample_from_dbfs(threshold);
 
-
         if sample.is_sign_negative() {
             clipped_sample *= -1.0;
         }
 
-        clipped_sample
-
+        clipped_sample * self.get_makeup_gain(threshold, output_level)
     }
 
     pub fn get_makeup_gain(&self, threshold: f32, output_level: f32) -> f32 {

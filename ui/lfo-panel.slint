@@ -55,7 +55,7 @@ export component LFOPanel inherits HorizontalLayout {
 
                     auto_pan_speed := LFOSlider {
                         slider_value: Theme.auto-pan-speed-slider-default;
-                        step: Theme.auto-pan-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.auto-pan-speed-slider-minimum;
                         maximum: Theme.auto-pan-speed-slider-maximum;
                         enabled: false;
@@ -65,7 +65,7 @@ export component LFOPanel inherits HorizontalLayout {
                     }
 
                     Label {
-                        label: Theme.auto-pan-width-text + round(auto_pan_width.value * 100) + Theme.auto-pan-width-suffix;
+                        label: Theme.auto-pan-width-text + round((auto_pan_width.value / 2.0) * 100) + Theme.auto-pan-width-suffix;
                     }
 
                     auto_pan_width := LFOSlider {
@@ -123,7 +123,7 @@ export component LFOPanel inherits HorizontalLayout {
 
                     tremolo_speed := LFOSlider {
                         slider_value: Theme.tremolo-speed-slider-default;
-                        step: Theme.tremolo-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.tremolo-speed-slider-minimum;
                         maximum: Theme.tremolo-speed-slider-maximum;
                         enabled: false;
@@ -177,7 +177,6 @@ export component LFOPanel inherits HorizontalLayout {
                     ActivationSwitch {
                         activated-text: Theme.activation-switch-active-text;
                         not-activated-text: Theme.activation-switch-not-active-text;
-                        
                         activation_toggled => {
                             filter_mod_speed.enabled = self.activated;
                             filter_mod_amount.enabled = self.activated;
@@ -191,7 +190,7 @@ export component LFOPanel inherits HorizontalLayout {
 
                     filter_mod_speed := LFOSlider {
                         slider_value: Theme.filter-mod-speed-slider-default;
-                        step: Theme.filter-mod-speed-slider-step;
+                        step: self.slider_value * Theme.lfo-slider-step-ratio;
                         minimum: Theme.filter-mod-speed-slider-minimum;
                         maximum: Theme.filter-mod-speed-slider-maximum;
                         enabled: false;

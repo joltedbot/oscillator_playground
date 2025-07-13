@@ -1,4 +1,4 @@
-import { Button, Slider, Switch, SpinBox, HorizontalBox } from "std-widgets.slint";
+import { Button, Slider, Switch, SpinBox, HorizontalBox, TabWidget } from "std-widgets.slint";
 import { Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
@@ -6,6 +6,8 @@ import { FilterPanel } from "../ui/filter-panel.slint";
 import { EnvelopePanel } from "../ui/envelope-panel.slint";
 import { LFOPanel } from "../ui/lfo-panel.slint";
 import { DynamicsPanel } from "../ui/dynamics-panel.slint";
+import { ArpeggiatorPanel } from "../ui/arpeggiator-panel.slint";
+
 
 export component AppWindow inherits Window {
     title: Theme.window-title;
@@ -14,7 +16,7 @@ export component AppWindow inherits Window {
     default-font-size: Theme.text-size;
     background: transparent;
 
-    in-out property <bool> start_button_active: true;
+    in-out property <bool> start_button_active: false;
 
     callback start_button_pressed(bool);
     callback wave_shape1_selected(string);
@@ -66,7 +68,8 @@ export component AppWindow inherits Window {
     callback limiter_threshold_changed(float);
     callback clipper_activated(bool);
     callback clipper_threshold_changed(float);
-
+    callback note_activated(int);
+    callback note_deactivated(int);
 
     Rectangle {
         padding: 4px;
@@ -76,239 +79,254 @@ export component AppWindow inherits Window {
         border-bottom-left-radius: Theme.border-radius;
         border-bottom-right-radius: Theme.border-radius;
 
-        HorizontalLayout {
-            alignment: center;
-            spacing: 10px;
-            padding: 10px;
-
-            VerticalLayout {
-                spacing: 5px;
-                alignment: start;
-
+        TabWidget {
+            Tab {
+                title: Theme.tab-synth-title;
 
                 HorizontalLayout {
-                    spacing: 5px;
-                    alignment: start;
+                    alignment: center;
+                    spacing: 10px;
+                    padding: 10px;
 
-                    OscillatorPanel {
-                    start_button_active: start_button_active;
+                    VerticalLayout {
+                        spacing: 5px;
+                        alignment: start;
 
-                    wave_level1_selected(level) => {
-                        root.wave_level1_selected(level);
-                    }
-                    wave_shape1_selected(shape) => {
-                        root.wave_shape1_selected(shape);
-                    }
+                        HorizontalLayout {
+                            spacing: 5px;
+                            alignment: start;
 
-                    wave_level2_selected(level) => {
-                        root.wave_level2_selected(level);
-                    }
+                            OscillatorPanel {
 
-                    wave_shape2_selected(shape) => {
-                        root.wave_shape2_selected(shape);
-                    }
+                                wave_level1_selected(level) => {
+                                    root.wave_level1_selected(level);
+                                }
+                                wave_shape1_selected(shape) => {
+                                    root.wave_shape1_selected(shape);
+                                }
 
-                    wave_level3_selected(level) => {
-                        root.wave_level3_selected(level);
-                    }
+                                wave_level2_selected(level) => {
+                                    root.wave_level2_selected(level);
+                                }
 
-                    wave_shape3_selected(shape) => {
-                        root.wave_shape3_selected(shape);
-                    }
-                    sub_level_selected(level) => {
-                        root.sub_level_selected(level);
-                    }
+                                wave_shape2_selected(shape) => {
+                                    root.wave_shape2_selected(shape);
+                                }
 
-                    sub_shape_selected(shape) => {
-                        root.sub_shape_selected(shape);
-                    }
+                                wave_level3_selected(level) => {
+                                    root.wave_level3_selected(level);
+                                }
 
-                    wave_mod1_speed_changed(speed_hz) => {
-                         root.wave_mod1_speed_changed(speed_hz);
-                    }
+                                wave_shape3_selected(shape) => {
+                                    root.wave_shape3_selected(shape);
+                                }
+                                sub_level_selected(level) => {
+                                    root.sub_level_selected(level);
+                                }
 
-                    wave_mod2_speed_changed(speed_hz) => {
-                         root.wave_mod2_speed_changed(speed_hz);
-                    }
+                                sub_shape_selected(shape) => {
+                                    root.sub_shape_selected(shape);
+                                }
 
-                    wave_mod3_speed_changed(speed_hz) => {
-                         root.wave_mod3_speed_changed(speed_hz);
-                    }
+                                wave_mod1_speed_changed(speed_hz) => {
+                                    root.wave_mod1_speed_changed(speed_hz);
+                                }
 
-                    sub_mod_speed_changed(speed_hz) => {
-                         root.sub_mod_speed_changed(speed_hz);
-                    }
+                                wave_mod2_speed_changed(speed_hz) => {
+                                    root.wave_mod2_speed_changed(speed_hz);
+                                }
 
-                    wave_mod1_amount_changed(amount) => {
-                         root.wave_mod1_amount_changed(amount);
-                    }
+                                wave_mod3_speed_changed(speed_hz) => {
+                                    root.wave_mod3_speed_changed(speed_hz);
+                                }
 
-                    wave_mod2_amount_changed(amount) => {
-                         root.wave_mod2_amount_changed(amount);
-                    }
+                                sub_mod_speed_changed(speed_hz) => {
+                                    root.sub_mod_speed_changed(speed_hz);
+                                }
 
-                    wave_mod3_amount_changed(amount) => {
-                         root.wave_mod3_amount_changed(amount);
-                    }
+                                wave_mod1_amount_changed(amount) => {
+                                    root.wave_mod1_amount_changed(amount);
+                                }
 
-                    sub_mod_amount_changed(amount) => {
-                         root.sub_mod_amount_changed(amount);
-                    }
+                                wave_mod2_amount_changed(amount) => {
+                                    root.wave_mod2_amount_changed(amount);
+                                }
 
+                                wave_mod3_amount_changed(amount) => {
+                                    root.wave_mod3_amount_changed(amount);
+                                }
 
-                    wave_detune_value_changed(int) => {
-                        root.wave_detune_value_changed(int);
-                    }
+                                sub_mod_amount_changed(amount) => {
+                                    root.sub_mod_amount_changed(amount);
+                                }
 
-                    wave_detune_state_changed(active, amount) => {
-                        root.wave_detune_state_changed(active, amount)
-                    }
+                                wave_detune_value_changed(int) => {
+                                    root.wave_detune_value_changed(int);
+                                }
 
-                    output_level_value_changed(level) => {
-                        root.output_level_value_changed(level);
-                    }
+                                wave_detune_state_changed(active, amount) => {
+                                    root.wave_detune_state_changed(active, amount)
+                                }
 
-                    output_level_constant_activated(is_active) => {
-                        root.output_level_constant_activated(is_active);
+                                output_level_value_changed(level) => {
+                                    root.output_level_value_changed(level);
+                                }
+
+                                output_level_constant_activated(is_active) => {
+                                    root.output_level_constant_activated(is_active);
+                                }
+
+                                resync_oscillators() => {
+                                    root.resync_oscillators();
+                                }
+                            }
+
+                            FilterPanel {
+                                number_of_poles_selected(number_of_poles) => {
+                                    root.number_of_poles_selected(number_of_poles);
+                                }
+
+                                filter_cutoff_value_changed(cutoff) => {
+                                    root.filter_cutoff_value_changed(cutoff);
+                                }
+
+                                filter_resonance_value_changed(resonance) => {
+                                    root.filter_resonance_value_changed(resonance);
+                                }
+                            }
+
+                            EnvelopePanel {
+                                envelope_attack_updated(milliseconds) => {
+                                    root.envelope_attack_updated(milliseconds);
+                                }
+
+                                envelope_decay_updated(milliseconds) => {
+                                    root.envelope_decay_updated(milliseconds);
+                                }
+
+                                envelope_release_updated(milliseconds) => {
+                                    root.envelope_release_updated(milliseconds);
+                                }
+
+                                envelope_sustain_updated(milliseconds) => {
+                                    root.envelope_sustain_updated(milliseconds);
+                                }
+
+                                envelope_sustain_level_updated(level) => {
+                                    root.envelope_sustain_level_updated(level);
+                                }
+
+                                enable_amp_envelope(is_enabled) => {
+                                    root.enable_amp_envelope(is_enabled);
+                                }
+
+                                gate_note_length_changed(note_length) => {
+                                    root.gate_note_length_changed(note_length);
+                                }
+
+                                gate_duty_cycle_changed(duty_cycle) => {
+                                    root.gate_duty_cycle_changed(duty_cycle);
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 5px;
+                            alignment: start;
+
+                            LFOPanel {
+
+                                auto_pan_activated(is_activated) => {
+                                    root.auto_pan_activated(is_activated);
+                                }
+
+                                auto_pan_speed_changed(speed_hz) => {
+                                    root.auto_pan_speed_changed(speed_hz);
+                                }
+
+                                auto_pan_width_changed(depth) => {
+                                    auto_pan_width_changed(depth);
+                                }
+
+                                tremolo_activated(is_activated) => {
+                                    root.tremolo_activated(is_activated);
+                                }
+
+                                tremolo_speed_changed(speed_hz) => {
+                                    root.tremolo_speed_changed(speed_hz);
+                                }
+
+                                tremolo_depth_changed(depth) => {
+                                    tremolo_depth_changed(depth);
+                                }
+
+                                filter_mod_activated(is_activated) => {
+                                    filter_mod_activated(is_activated);
+                                }
+
+                                filter_mod_speed_changed(speed_hz) => {
+                                    filter_mod_speed_changed(speed_hz);
+                                }
+
+                                filter_mod_amount_changed(amount) => {
+                                    filter_mod_amount_changed(amount);
+                                }
+                            }
+
+                            DynamicsPanel {
+                                compressor_activated(is_active) => {
+                                    root.compressor_activated(is_active);
+                                }
+
+                                compressor_threshold_changed(threshold) => {
+                                    root.compressor_threshold_changed(threshold);
+                                }
+
+                                compressor_ratio_changed(ratio) => {
+                                    root.compressor_ratio_changed(ratio);
+                                }
+
+                                limiter_activated(is_active) => {
+                                    root.limiter_activated(is_active);
+                                }
+
+                                limiter_threshold_changed(threshold) => {
+                                    root.limiter_threshold_changed(threshold);
+                                }
+
+                                clipper_activated(is_active) => {
+                                    root.clipper_activated(is_active);
+                                }
+
+                                clipper_threshold_changed(threshold) => {
+                                    root.clipper_threshold_changed(threshold);
+                                }
+                            }
+                        }
                     }
+                }
+            }
+
+            Tab {
+                title: Theme.tab-arpeggiator-title;
+
+                ArpeggiatorPanel {
+
+                   start_button_active: start_button_active;
 
                     start_button_pressed(active) => {
                         root.start_button_pressed(active);
                     }
 
-                    resync_oscillators() => {
-                        root.resync_oscillators();
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
                     }
                 }
-
-                    FilterPanel {
-                        number_of_poles_selected(number_of_poles) => {
-                            root.number_of_poles_selected(number_of_poles);
-                        }
-
-                        filter_cutoff_value_changed(cutoff) => {
-                            root.filter_cutoff_value_changed(cutoff);
-                        }
-
-                        filter_resonance_value_changed(resonance) => {
-                            root.filter_resonance_value_changed(resonance);
-                        }
-                    }
-
-                    EnvelopePanel {
-                        envelope_attack_updated(milliseconds) => {
-                            root.envelope_attack_updated(milliseconds);
-                        }
-
-                        envelope_decay_updated(milliseconds) => {
-                            root.envelope_decay_updated(milliseconds);
-                        }
-
-                        envelope_release_updated(milliseconds) => {
-                            root.envelope_release_updated(milliseconds);
-                        }
-
-                        envelope_sustain_updated(milliseconds) => {
-                            root.envelope_sustain_updated(milliseconds);
-                        }
-
-                        envelope_sustain_level_updated(level) => {
-                            root.envelope_sustain_level_updated(level);
-                        }
-
-                        enable_amp_envelope(is_enabled) => {
-                            root.enable_amp_envelope(is_enabled);
-                        }
-
-                        gate_note_length_changed(note_length) => {
-                            root.gate_note_length_changed(note_length);
-                        }
-
-                        gate_duty_cycle_changed(duty_cycle) => {
-                            root.gate_duty_cycle_changed(duty_cycle);
-                        }
-                    }
-
-                }
-
-                HorizontalLayout {
-                    spacing: 5px;
-                    alignment: start;
-
-                    LFOPanel {
-
-                      auto_pan_activated(is_activated) => {
-                            root.auto_pan_activated(is_activated);
-                        }
-
-                        auto_pan_speed_changed(speed_hz) => {
-                            root.auto_pan_speed_changed(speed_hz);
-                        }
-
-                        auto_pan_width_changed(depth) => {
-                            auto_pan_width_changed(depth);
-                        }
-
-                        tremolo_activated(is_activated) => {
-                            root.tremolo_activated(is_activated);
-                        }
-
-                        tremolo_speed_changed(speed_hz) => {
-                            root.tremolo_speed_changed(speed_hz);
-                        }
-
-                        tremolo_depth_changed(depth) => {
-                            tremolo_depth_changed(depth);
-                        }
-
-                        filter_mod_activated(is_activated) => {
-                            filter_mod_activated(is_activated);
-                        }
-
-                        filter_mod_speed_changed(speed_hz) => {
-                            filter_mod_speed_changed(speed_hz);
-                        }
-
-                        filter_mod_amount_changed(amount) => {
-                            filter_mod_amount_changed(amount);
-                        }
-                    }
-
-                    DynamicsPanel {
-                        compressor_activated(is_active) => {
-                            root.compressor_activated(is_active);
-                        }
-
-                        compressor_threshold_changed(threshold) => {
-                            root.compressor_threshold_changed(threshold);
-                        }
-
-                        compressor_ratio_changed(ratio) => {
-                            root.compressor_ratio_changed(ratio);
-                        }
-
-                        limiter_activated(is_active) => {
-                            root.limiter_activated(is_active);
-                        }
-
-                        limiter_threshold_changed(threshold) => {
-                            root.limiter_threshold_changed(threshold);
-                        }
-
-                        clipper_activated(is_active) => {
-                            root.clipper_activated(is_active);
-                        }
-
-                        clipper_threshold_changed(threshold) => {
-                             root.clipper_threshold_changed(threshold);
-                        }
-
-                    }
-                    
-                }
-
             }
-
         }
     }
 }
