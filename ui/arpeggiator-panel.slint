@@ -176,6 +176,20 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
                     }
                 }
 
+                row11 := ArpTableRow {
+                    octave-number: "Rest";
+                    row-number: 11;
+
+                    note_activated(note_number) => {
+                        root.note_activated(note_number);
+                    }
+
+                    note_deactivated(note_number) => {
+                        root.note_deactivated(note_number);
+                    }
+                }
+
+
                 HorizontalLayout {
                 spacing: 10px;
                 padding: 10px;
