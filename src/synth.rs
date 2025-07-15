@@ -36,6 +36,8 @@ const DEFAULT_COMPRESSOR_RATIO: f32 = 0.5;
 const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
 const DEFAULT_SEQUENCER_NOTE: u32 = 60;
 
+const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
+
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
     Gate,
@@ -73,6 +75,7 @@ pub struct SynthParameters {
     oscillator_mod_lfos: Vec<LFOInstance>,
     dynamics: DynamicsParameters,
     arpeggiator: Arpeggiator,
+    randomize_arp: bool,
     current_note_frequency: f32,
 }
 
@@ -165,7 +168,9 @@ impl Synth {
         };
         
         let mut arpeggiator= Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
-        let current_note_frequency = arpeggiator.next_note_frequency();
+        let randomize_arp = ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE;
+
+        let current_note_frequency = arpeggiator.next_note_frequency(randomize_arp);
 
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
@@ -178,6 +183,7 @@ impl Synth {
             dynamics,
             arpeggiator,
             current_note_frequency,
+            randomize_arp,
         };
 
         Self {
@@ -422,6 +428,10 @@ impl Synth {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.arpeggiator.remove_note(note_number as u32);
                     }
+                    EventType::ArpeggiatorRandomEnabled(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.randomize_arp = is_active;
+                    }
                     EventType::Start => {
                         self.start();
                     }
@@ -652,7 +662,8 @@ impl Synth {
                                 GateState::End(db_adjustment) => {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
-                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency();
+                                    let randomize = parameters.randomize_arp;
+                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency(randomize);
                                 }
                             }
                         } else {
@@ -664,7 +675,8 @@ impl Synth {
                                 ADSRState::Stopped => {
                                     left_sample *= 0.0;
                                     right_sample *= 0.0;
-                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency();
+                                    let randomize = parameters.randomize_arp;
+                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency(randomize);
                                 }
                             }
                         }

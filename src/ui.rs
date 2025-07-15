@@ -96,6 +96,7 @@ impl UI {
         self.on_clipper_threshold_changed();
         self.on_note_activated();
         self.on_note_deactivated();
+        self.on_arpeggiator_random_activated();
     }
 
     fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
@@ -726,6 +727,19 @@ impl UI {
         ui.on_note_deactivated(move |note_number| {
             if let Err(error) =
                 synth_sender.send(EventType::ArpeggiatorRemoveNote(note_number).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_arpeggiator_random_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_arpeggiator_random_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::ArpeggiatorRandomEnabled(is_active).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }

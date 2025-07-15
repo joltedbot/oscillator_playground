@@ -54,6 +54,7 @@ pub enum EventType {
     ResyncOscillatorLFOs,
     ArpeggiatorAddNote(i32),
     ArpeggiatorRemoveNote(i32),
+    ArpeggiatorRandomEnabled(bool),
     Start,
     Stop,
     Exit,

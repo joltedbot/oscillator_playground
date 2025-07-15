@@ -158,6 +158,7 @@ impl Arpeggiator {
         if !self.sequence.contains(&note_number) {
             self.sequence.push(note_number);
         }
+
     }
 
     pub fn remove_note(&mut self, note_number: u32) {
@@ -171,15 +172,22 @@ impl Arpeggiator {
         }
     }
 
-    pub fn next_note_frequency(&mut self) -> f32 {
-        let index = rand::rng().random_range(0..self.sequence.len());
-        let midi_note = self.sequence[index];
+    pub fn next_note_frequency(&mut self, randomize: bool) -> f32 {
 
         if self.sequence_index < self.sequence.len() - 1 {
             self.sequence_index += 1;
         } else {
             self.sequence_index = 0;
         }
+
+        let midi_note = match randomize {
+            false => self.sequence[self.sequence_index],
+            true => {
+                let index = rand::rng().random_range(0..self.sequence.len());
+                self.sequence[index]
+            }
+        };
+
 
         if midi_note >= NUMBER_OF_MIDI_NOTES as u32 {
             return REST_FREQUENCY

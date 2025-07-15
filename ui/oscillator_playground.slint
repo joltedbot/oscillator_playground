@@ -70,6 +70,7 @@ export component AppWindow inherits Window {
     callback clipper_threshold_changed(float);
     callback note_activated(int);
     callback note_deactivated(int);
+    callback arpeggiator_random_activated(bool);
 
     Rectangle {
         padding: 4px;
@@ -324,6 +325,10 @@ export component AppWindow inherits Window {
 
                     note_deactivated(note_number) => {
                         root.note_deactivated(note_number);
+                    }
+                    
+                    arpeggiator_random_activated(is_active) => {
+                        root.arpeggiator_random_activated(is_active);
                     }
                 }
             }
