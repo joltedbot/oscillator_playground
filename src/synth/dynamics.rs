@@ -10,7 +10,7 @@ impl Dynamics {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
-            return sample * self.get_makeup_gain(threshold * (1.0 - ratio), output_level)
+            return sample * self.get_makeup_gain(threshold * (1.0 - ratio), output_level);
         }
 
         let delta = sample_dbfs - threshold;
@@ -33,7 +33,7 @@ impl Dynamics {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
-            return sample * self.get_makeup_gain(threshold, output_level)
+            return sample * self.get_makeup_gain(threshold, output_level);
         }
 
         let mut clipped_sample = get_f32_sample_from_dbfs(threshold);
@@ -49,7 +49,7 @@ impl Dynamics {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
-            return sample  * self.get_makeup_gain(threshold, output_level)
+            return sample * self.get_makeup_gain(threshold, output_level);
         }
 
         let delta = sample_dbfs - threshold;

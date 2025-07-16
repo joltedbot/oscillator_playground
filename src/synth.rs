@@ -24,10 +24,16 @@ const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 const LFO_INDEX_FOR_AUTO_PAN: usize = 0;
 const LFO_INDEX_FOR_TREMOLO: usize = 1;
 const LFO_INDEX_FOR_FILTER_MOD: usize = 2;
-const LFO_INDEX_FOR_OSCILLATOR1_MOD: usize = 3;
-const LFO_INDEX_FOR_OSCILLATOR2_MOD: usize = 4;
-const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 5;
-const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
+const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 3;
+const LFO_INDEX_FOR_OSCILLATOR1_MOD: usize = 4;
+const LFO_INDEX_FOR_OSCILLATOR2_MOD: usize = 5;
+const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 6;
+
+const OSC_MOD_LFO_INDEX_FOR_SUB: usize = 0;
+const OSC_MOD_LFO_INDEX_FOR_OSC1: usize = 1;
+const OSC_MOD_LFO_INDEX_FOR_OSC2: usize = 2;
+const OSC_MOD_LFO_INDEX_FOR_OSC3: usize = 3;
+
 const LFO_INDEX_FOR_PHASE_DELAY: usize = 7;
 
 const DEFAULT_CENTER_VALUE: f32 = 0.5;
@@ -49,7 +55,7 @@ pub enum AmpMode {
 }
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
-pub struct LFOInstance {
+pub struct LFOParameters {
     is_enabled: bool,
     frequency: f32,
     center_value: f32,
@@ -75,11 +81,11 @@ pub struct SynthParameters {
     amp_mode: AmpMode,
     output_level: f32,
     output_level_constant: bool,
-    auto_pan: LFOInstance,
-    tremolo: LFOInstance,
-    filter_mod: LFOInstance,
-    phaser: LFOInstance,
-    oscillator_mod_lfos: Vec<LFOInstance>,
+    auto_pan: LFOParameters,
+    tremolo: LFOParameters,
+    filter_mod: LFOParameters,
+    phaser: LFOParameters,
+    oscillator_mod_lfos: Vec<LFOParameters>,
     dynamics: DynamicsParameters,
     arpeggiator: Arpeggiator,
     randomize_arp: bool,
@@ -128,49 +134,49 @@ impl Synth {
         let dynamic = Dynamics::new();
         let dynamic_arc = Arc::new(Mutex::new(dynamic));
 
-        let auto_pan = LFOInstance {
+        let auto_pan = LFOParameters {
             center_value: DEFAULT_AUTO_PAN_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let tremolo = LFOInstance {
+        let tremolo = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let filter_mod = LFOInstance {
+        let filter_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let sub_osc_mod = LFOInstance {
+        let sub_osc_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let osc1_mod = LFOInstance {
+        let osc1_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let osc2_mod = LFOInstance {
+        let osc2_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let osc3_mod = LFOInstance {
+        let osc3_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
-        let phaser = LFOInstance {
+        let phaser = LFOParameters {
             center_value: DEFAULT_PHASER_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             width: DEFAULT_PHASER_WIDTH,
@@ -326,7 +332,7 @@ impl Synth {
                         let mut envelope = self.get_envelope_mutex_lock();
                         envelope.set_release_milliseconds(milliseconds.unsigned_abs());
                     }
-                    EventType::UpdateEnvelopeSustain(milliseconds) => {
+                    EventType::UpdateADSRNoteLength(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
                         envelope.set_sustain_milliseconds(milliseconds.unsigned_abs());
                     }
@@ -369,10 +375,10 @@ impl Synth {
                     EventType::ResyncOscillatorLFOs => {
                         let mut lfos = self.get_lfo_mutex_lock();
 
+                        lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
                         lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].reset();
                         lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
                         lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].reset();
-                        lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
                     }
                     EventType::UpdateAutoPanEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -423,9 +429,10 @@ impl Synth {
                     EventType::UpdatePhaserAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.phaser.width = amount;
-                        parameters.phaser.center_value = (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor();
+                        parameters.phaser.center_value =
+                            (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor();
                     }
-                    
+
                     EventType::UpdateCompressorActive(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.compressor_enabled = is_active;
@@ -589,45 +596,29 @@ impl Synth {
                     }
 
                     for frame in buffer.chunks_mut(number_of_channels) {
-                        let sub_oscillator_mod = if parameters.oscillator_mod_lfos[0].width > 0.0 {
-                            Some(lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].get_next_value(
-                                parameters.oscillator_mod_lfos[0].frequency,
-                                parameters.oscillator_mod_lfos[0].center_value,
-                                parameters.oscillator_mod_lfos[0].width,
-                            ))
-                        } else {
-                            None
-                        };
+                        let sub_oscillator_mod = get_oscillator_mod_value(
+                            &mut &lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],
+                            OSC_MOD_LFO_INDEX_FOR_SUB,
+                            &mut parameters,
+                        );
 
-                        let oscillator1_mod = if parameters.oscillator_mod_lfos[1].width > 0.0 {
-                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].get_next_value(
-                                parameters.oscillator_mod_lfos[1].frequency,
-                                parameters.oscillator_mod_lfos[1].center_value,
-                                parameters.oscillator_mod_lfos[1].width,
-                            ))
-                        } else {
-                            None
-                        };
+                        let oscillator1_mod = get_oscillator_mod_value(
+                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD],
+                            OSC_MOD_LFO_INDEX_FOR_OSC1,
+                            &mut parameters,
+                        );
 
-                        let oscillator2_mod = if parameters.oscillator_mod_lfos[2].width > 0.0 {
-                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].get_next_value(
-                                parameters.oscillator_mod_lfos[2].frequency,
-                                parameters.oscillator_mod_lfos[2].center_value,
-                                parameters.oscillator_mod_lfos[2].width,
-                            ))
-                        } else {
-                            None
-                        };
+                        let oscillator2_mod = get_oscillator_mod_value(
+                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD],
+                            OSC_MOD_LFO_INDEX_FOR_OSC2,
+                            &mut parameters,
+                        );
 
-                        let oscillator3_mod = if parameters.oscillator_mod_lfos[3].width > 0.0 {
-                            Some(lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].get_next_value(
-                                parameters.oscillator_mod_lfos[3].frequency,
-                                parameters.oscillator_mod_lfos[3].center_value,
-                                parameters.oscillator_mod_lfos[3].width,
-                            ))
-                        } else {
-                            None
-                        };
+                        let oscillator3_mod = get_oscillator_mod_value(
+                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD],
+                            OSC_MOD_LFO_INDEX_FOR_OSC3,
+                            &mut parameters,
+                        );
 
                         let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
                             parameters.current_note_frequency,
@@ -666,26 +657,16 @@ impl Synth {
                             );
                         }
 
-                        let balanced_oscillator_level_sum = match parameters.output_level_constant {
-                            true => {
-                                let oscillator_level_sum = oscillator1_level
-                                    + oscillator2_level
-                                    + oscillator3_level
-                                    + sub_oscillator_level;
+                        let balanced_oscillator_level_sum = get_balanced_oscillator_sum(
+                            oscillator1_level,
+                            oscillator2_level,
+                            oscillator3_level,
+                            sub_oscillator_level,
+                            &mut parameters,
+                            oscillator_sum,
+                        );
 
-                                oscillator_sum / oscillator_level_sum
-                            }
-                            false => oscillator_sum / UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
-                        };
-
-                        let filter_mod_value = match parameters.filter_mod.is_enabled {
-                            true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
-                                parameters.filter_mod.frequency,
-                                parameters.filter_mod.center_value,
-                                parameters.filter_mod.width,
-                            )),
-                            false => None,
-                        };
+                        let filter_mod_value = get_filter_mod_value(&mut lfos, &mut parameters);
 
                         let filtered_sample =
                             filter.filter_sample(balanced_oscillator_level_sum, filter_mod_value);
@@ -793,6 +774,55 @@ impl Synth {
         stream.pause().unwrap();
 
         stream
+    }
+}
+
+fn get_filter_mod_value(
+    mut lfos: &mut MutexGuard<Vec<LFO>>,
+    mut parameters: &mut MutexGuard<SynthParameters>,
+) -> Option<f32> {
+    match parameters.filter_mod.is_enabled {
+        true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
+            parameters.filter_mod.frequency,
+            parameters.filter_mod.center_value,
+            parameters.filter_mod.width,
+        )),
+        false => None,
+    }
+}
+
+fn get_balanced_oscillator_sum(
+    oscillator1_level: f32,
+    oscillator2_level: f32,
+    oscillator3_level: f32,
+    sub_oscillator_level: f32,
+    mut parameters: &mut MutexGuard<SynthParameters>,
+    mut oscillator_sum: f32,
+) -> f32 {
+    match parameters.output_level_constant {
+        true => {
+            let oscillator_level_sum =
+                oscillator1_level + oscillator2_level + oscillator3_level + sub_oscillator_level;
+
+            oscillator_sum / oscillator_level_sum
+        }
+        false => oscillator_sum / UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
+    }
+}
+
+fn get_oscillator_mod_value(
+    mut lfo: &LFO,
+    index: usize,
+    mut parameters: &mut MutexGuard<SynthParameters>,
+) -> Option<f32> {
+    if parameters.oscillator_mod_lfos[index].width > 0.0 {
+        Some(lfo.get_next_value(
+            parameters.oscillator_mod_lfos[index].frequency,
+            parameters.oscillator_mod_lfos[index].center_value,
+            parameters.oscillator_mod_lfos[index].width,
+        ))
+    } else {
+        None
     }
 }
 
@@ -921,7 +951,6 @@ fn get_phased_sample(
     delay_buffer: &mut MutexGuard<Vec<f32>>,
     oscillator_sum: f32,
 ) -> f32 {
-
     delay_buffer.insert(0, oscillator_sum);
 
     let _trash = delay_buffer.pop();

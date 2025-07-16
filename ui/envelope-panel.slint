@@ -7,10 +7,10 @@ export component EnvelopePanel inherits VerticalLayout {
     callback envelope_attack_updated(float);
     callback envelope_decay_updated(float);
     callback envelope_release_updated(float);
+    callback adsr_note_length_updated(float);
     callback envelope_sustain_updated(float);
-    callback envelope_sustain_level_updated(float);
     callback enable_amp_envelope(bool);
-    callback gate_note_length_changed(int);
+    callback gate_length_changed(int);
     callback gate_duty_cycle_changed(float);
 
     Rectangle {
@@ -18,7 +18,7 @@ export component EnvelopePanel inherits VerticalLayout {
         border-width: Theme.window-border-width;
         border-color: Theme.border-colour;
         border-radius: Theme.border-radius;
-        background: Theme.adrs-box-background;
+        background: Theme.panel-box-background;
         height: Theme.top-panel-row-height;
 
         VerticalLayout {
@@ -46,21 +46,26 @@ export component EnvelopePanel inherits VerticalLayout {
                 }
 
                 adsr_enabled := ActivationSwitch {
-                    activated-text: Theme.envelope-amp-mode-gate-text;
-                    not-activated-text: Theme.envelope-amp-mode-envelope-text;
+                    activated-text: Theme.envelope-amp-mode-adsr-text;
+                    not-activated-text: Theme.envelope-amp-mode-gate-text;
                     checked: true;
 
                     activation_toggled => {
                         root.enable_amp_envelope(adsr_enabled.checked);
-                        note_length.enabled = !adsr_enabled.checked;
+                        gate_length.enabled = !adsr_enabled.checked;
                         duty_cycle.enabled = !adsr_enabled.checked;
+                        attack_time.enabled = adsr_enabled.checked;
+                        decay_time.enabled = adsr_enabled.checked;
+                        sustain_level.enabled = adsr_enabled.checked;
+                        release_time.enabled = adsr_enabled.checked;
+                        adsr_note_length.enabled = adsr_enabled.checked;
                     }
                 }
             }
 
-            Label {
+            adsr_heading := Heading {
                 horizontal-alignment: center;
-                label: Theme.envelope-mode-text;
+                heading: Theme.envelope-amp-mode-adsr-text;
             }
 
             HorizontalLayout {
@@ -111,25 +116,6 @@ export component EnvelopePanel inherits VerticalLayout {
                 VerticalLayout {
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.envelope-sustain-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: sustain_time.milliseconds + Theme.envelope-time-suffix;
-                    }
-
-                    sustain_time := ADSRSlider {
-                        milliseconds: Theme.envelope-sustain-default;
-                        milliseconds_selected(milliseconds) => {
-                            root.envelope_sustain_updated(milliseconds);
-                        }
-                    }
-                }
-
-                VerticalLayout {
-                    Label {
-                        horizontal-alignment: center;
                         label: Theme.envelope-sustain-level-text;
                     }
 
@@ -145,14 +131,10 @@ export component EnvelopePanel inherits VerticalLayout {
                         maximum: Theme.envelope-sustain-level-maximum;
 
                         level_selected(dbfs) => {
-                            root.envelope_sustain_level_updated(dbfs);
+                            root.envelope_sustain_updated(dbfs);
                         }
                     }
                 }
-            }
-
-            HorizontalLayout {
-                spacing: 5px;
 
                 VerticalLayout {
                     Label {
@@ -178,11 +160,34 @@ export component EnvelopePanel inherits VerticalLayout {
                 spacing: 5px;
 
                 VerticalLayout {
-                    spacing: 5px;
+                    Label {
+                        horizontal-alignment: center;
+                        label: Theme.envelope-adsr-note-length-text;
+                    }
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.envelope-gate-text;
+                        label: adsr_note_length.milliseconds + Theme.envelope-time-suffix;
+                    }
+
+                    adsr_note_length := ADSRSlider {
+                        milliseconds: Theme.envelope-sustain-default;
+                        milliseconds_selected(milliseconds) => {
+                            root.adsr_note_length_updated(milliseconds);
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 5px;
+
+                VerticalLayout {
+                    spacing: 5px;
+
+                    gate_heading := Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.envelope-amp-mode-gate-text;
                     }
 
                     Label {
@@ -190,14 +195,14 @@ export component EnvelopePanel inherits VerticalLayout {
                         label: Theme.envelope-gate-note-length-text;
                     }
 
-                    note_length := LevelSlider {
+                    gate_length := LevelSlider {
                         level: Theme.envelope-gate-note-length-default;
                         level-step: Theme.envelope-gate-note-length-step;
                         minimum-level: Theme.envelope-gate-note-length-minimum;
                         maximum-level: Theme.envelope-gate-note-length-maximum;
                         enabled: false;
                         level_selected(level) => {
-                            root.gate_note_length_changed(level);
+                            root.gate_length_changed(level);
                         }
                     }
 

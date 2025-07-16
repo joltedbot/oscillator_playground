@@ -43,14 +43,14 @@ export component AppWindow inherits Window {
     callback envelope_decay_updated(int);
     callback envelope_release_updated(int);
     callback envelope_sustain_updated(int);
-    callback envelope_sustain_level_updated(int);
+    callback adsr_note_length_updated(int);
     callback filter_cutoff_value_changed(int);
     callback filter_resonance_value_changed(float);
     callback number_of_poles_selected(int);
     callback resync_oscillators();
     callback resync_oscillator_lfos();
     callback enable_amp_envelope(bool);
-    callback gate_note_length_changed(int);
+    callback gate_length_changed(int);
     callback gate_duty_cycle_changed(float);
     callback auto_pan_activated(bool);
     callback auto_pan_speed_changed(float);
@@ -66,7 +66,7 @@ export component AppWindow inherits Window {
     callback phaser_amount_changed(float);
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
-    callback compressor_ratio_changed(float);    
+    callback compressor_ratio_changed(float);
     callback wavefolder_activated(bool);
     callback wavefolder_threshold_changed(float);
     callback wavefolder_ratio_changed(float);
@@ -86,14 +86,24 @@ export component AppWindow inherits Window {
         border-bottom-left-radius: Theme.border-radius;
         border-bottom-right-radius: Theme.border-radius;
 
+
         TabWidget {
             Tab {
                 title: Theme.tab-synth-title;
 
-                HorizontalLayout {
+                VerticalLayout {
+                    padding: 0px;
+                    spacing: 0px;
+
+                    Image {
+                        width: 1100px;
+                        height: 50px;
+                        source: @image-url("../images/header.png");
+                    }
+
+                    HorizontalLayout {
                     alignment: center;
                     spacing: 10px;
-                    padding: 10px;
 
                     VerticalLayout {
                         spacing: 5px;
@@ -219,16 +229,16 @@ export component AppWindow inherits Window {
                                     root.envelope_sustain_updated(milliseconds);
                                 }
 
-                                envelope_sustain_level_updated(level) => {
-                                    root.envelope_sustain_level_updated(level);
+                                adsr_note_length_updated(milliseconds) => {
+                                    root.adsr_note_length_updated(milliseconds);
                                 }
 
                                 enable_amp_envelope(is_enabled) => {
                                     root.enable_amp_envelope(is_enabled);
                                 }
 
-                                gate_note_length_changed(note_length) => {
-                                    root.gate_note_length_changed(note_length);
+                                gate_length_changed(note_length) => {
+                                    root.gate_length_changed(note_length);
                                 }
 
                                 gate_duty_cycle_changed(duty_cycle) => {
@@ -289,8 +299,7 @@ export component AppWindow inherits Window {
 
                                 phaser_amount_changed(amount) => {
                                     phaser_amount_changed(amount);
-                                }                                
-
+                                }
                             }
 
                             DynamicsPanel {
@@ -337,14 +346,15 @@ export component AppWindow inherits Window {
                         }
                     }
                 }
-            }
 
+                }
+            }
             Tab {
                 title: Theme.tab-arpeggiator-title;
 
                 ArpeggiatorPanel {
 
-                   start_button_active: start_button_active;
+                    start_button_active: start_button_active;
 
                     start_button_pressed(active) => {
                         root.start_button_pressed(active);
@@ -357,7 +367,6 @@ export component AppWindow inherits Window {
                     note_deactivated(note_number) => {
                         root.note_deactivated(note_number);
                     }
-                    
                     arpeggiator_random_activated(is_active) => {
                         root.arpeggiator_random_activated(is_active);
                     }

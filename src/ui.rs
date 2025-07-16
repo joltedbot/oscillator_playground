@@ -68,14 +68,14 @@ impl UI {
         self.on_envelope_attack_updated();
         self.on_envelope_decay_updated();
         self.on_envelope_release_updated();
+        self.on_adsr_note_length_updated();
         self.on_envelope_sustain_updated();
-        self.on_envelope_sustain_level_updated();
         self.on_filter_cutoff_value_changed();
         self.on_filter_resonance_value_changed();
         self.on_number_of_poles_selected();
         self.on_resync_oscillators();
         self.on_resync_oscillator_lfos();
-        self.on_gate_note_length_changed();
+        self.on_gate_length_changed();
         self.on_gate_duty_cycle_changed();
         self.on_enable_amp_envelope();
         self.on_auto_pan_activated();
@@ -92,7 +92,7 @@ impl UI {
         self.on_phaser_depth_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
-        self.on_compressor_ratio_changed();        
+        self.on_compressor_ratio_changed();
         self.on_wavefolder_activated();
         self.on_wavefolder_threshold_changed();
         self.on_wavefolder_ratio_changed();
@@ -396,22 +396,22 @@ impl UI {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_envelope_sustain_updated(move |milliseconds| {
+        ui.on_envelope_sustain_updated(move |level| {
             if let Err(error) =
-                synth_sender.send(EventType::UpdateEnvelopeSustain(milliseconds).clone())
+                synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }
         });
     }
 
-    fn on_envelope_sustain_level_updated(&mut self) {
+    fn on_adsr_note_length_updated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_envelope_sustain_level_updated(move |level| {
+        ui.on_adsr_note_length_updated(move |milliseconds| {
             if let Err(error) =
-                synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone())
+                synth_sender.send(EventType::UpdateADSRNoteLength(milliseconds).clone())
             {
                 eprintln!("Error sending event: {}", error);
             }
@@ -505,11 +505,11 @@ impl UI {
         });
     }
 
-    fn on_gate_note_length_changed(&mut self) {
+    fn on_gate_length_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_gate_note_length_changed(move |milliseconds| {
+        ui.on_gate_length_changed(move |milliseconds| {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateGateNoteLength(milliseconds).clone())
             {
@@ -731,8 +731,8 @@ impl UI {
                 eprintln!("Error sending event: {}", error);
             }
         });
-    }    
-    
+    }
+
     fn on_limiter_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();

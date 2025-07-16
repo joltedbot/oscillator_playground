@@ -15,7 +15,7 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
         border-width: Theme.window-border-width;
         border-color: Theme.border-colour;
         border-radius: Theme.border-radius;
-        background: Theme.adrs-box-background;
+        background: Theme.panel-box-background;
 
         VerticalLayout {
             alignment: start;
@@ -190,43 +190,39 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
                     }
                 }
 
-
                 HorizontalLayout {
-                spacing: 10px;
-                padding: 10px;
+                    spacing: 10px;
+                    padding: 10px;
 
-                alignment: center;
+                    alignment: center;
                     start_button := StartButton {
                         active: start_button_active;
                         tone_start_button_pressed(active) => {
                             root.start_button_pressed(active);
                         }
                     }
-
                 }
 
                 HorizontalLayout {
-                                spacing: 10px;
-                                padding: 10px;
+                    spacing: 10px;
+                    padding: 10px;
 
-                                alignment: center;
+                    alignment: center;
 
+                    Label {
+                        label: Theme.arpeggiator-note-order-text;
+                    }
 
-                                Label {
-                                    label: Theme.arpeggiator-note-order-text;
-                                }
+                    ActivationSwitch {
+                        activated-text: Theme.arpeggiator-switch-active-text;
+                        not-activated-text: Theme.arpeggiator-switch-not-active-text;
 
-                                    ActivationSwitch {
-                                        activated-text: Theme.arpeggiator-switch-active-text;
-                                        not-activated-text: Theme.arpeggiator-switch-not-active-text;
-
-                                        activation_toggled => {
-                                            arpeggiator_random_activated(self.checked)
-                                        }
-                                    }
+                        activation_toggled => {
+                            arpeggiator_random_activated(self.checked)
+                        }
+                    }
                 }
             }
-
         }
     }
 }

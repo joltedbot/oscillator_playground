@@ -4,21 +4,22 @@ export global Theme {
     // Main Window
     out property <string> window-title: "Oscillator Playground";
     out property <length> window-width: 1100px;
-    out property <length> window-height: 750px;
+    out property <length> window-height: 850px;
     out property <length> window-border-width: 2px;
-    out property <color> window-background: #101010;
-    out property <color> border-colour: #333333;
+    out property <color> window-background: #000010;
+    out property <color> border-colour: #404040;
     out property <length> border-width: 2px;
     out property <length> border-radius: 15px;
     out property <color> header-background: #252525;
     out property <length> top-panel-row-height: 500px;
     out property <string> tab-synth-title: "Synth Engine";
     out property <string> tab-arpeggiator-title: "Arpeggiator";
-
+    out property <color> panel-box-background:#000018
+    ;
 
 
     // Fonts
-    out property <color> text-color: #aaaaaa;
+    out property <color> text-color: #AAAAAA;
     out property <color> greyed-out: #444444;
     out property <int> text-weight-bold: 800;
     out property <length> text-size: 14px;
@@ -144,10 +145,6 @@ export global Theme {
     out property <int> envelope-sustain-level-default: 6;
     out property <int> envelope-release-default: 300;
 
-    // Envelope ADSR Box
-    out property <color> adrs-box-background:#202020;
-
-
     // Auto Pan Sliders
     out property <float> auto-pan-speed-slider-step: 0.01;
     out property <float> auto-pan-speed-slider-minimum: 0.01;
@@ -239,7 +236,7 @@ export global Theme {
     //
     // Label Text
     //
-    out property <string> output-level-heading-text: "Output Level";
+    out property <string> output-level-heading-text: "Sustain";
     out property <string> output-level-label-suffix: " dbfs";
     out property <string> oscillator1-heading-text: "Oscillator 1";
     out property <string> oscillator2-heading-text: "Oscillator 2";
@@ -256,15 +253,14 @@ export global Theme {
     out property <string> envelope-header-text: "ADSR Envelope";
     out property <string> envelope-attack-text: "Attack";
     out property <string> envelope-decay-text: "Decay";
-    out property <string> envelope-sustain-text: "Sustain";
+    out property <string> envelope-adsr-note-length-text: "Note Length";
     out property <string> envelope-sustain-level-text: "Level";
     out property <string> envelope-release-text: "Release";
     out property <string> envelope-time-suffix: " ms";
     out property <string> envelope-sustain-level-prefix: "Output -";
     out property <string> envelope-sustain-level-suffix: "dbfs";
-    out property <string> envelope-gate-text: "Gate";
-    out property <string> envelope-amp-mode-gate-text: "ADSR";
-    out property <string> envelope-amp-mode-envelope-text: "Gate";
+    out property <string> envelope-amp-mode-adsr-text: "ADSR";
+    out property <string> envelope-amp-mode-gate-text: "Gate";
     out property <string> envelope-gate-note-length-text: "Note Length";
     out property <string> envelope-gate-duty-cycle-text: "Duty Cycle";
     out property <string> envelope-mode-text: "Mode: ";
@@ -290,8 +286,6 @@ export global Theme {
     out property <string> phaser-speed-text: "Speed: ";
     out property <string> phaser-speed-suffix: " Hz";
     out property <string> phaser-amount-text: "Samples: ";
-   
-    
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
     out property <string> phaser-heading-text: "Phaser";
@@ -302,10 +296,9 @@ export global Theme {
     out property <string> wavefolder-heading-text: "Wave Folder";
     out property <string> wavefolder-threshold-text: "Threshold: ";
     out property <string> wavefolder-ratio-text: "Ratio: ";
-    out property <string> wavefolder-ratio-suffix: ":1";    
+    out property <string> wavefolder-ratio-suffix: ":1";
     out property <string> limiter-heading-text: "Limiter";
     out property <string> limiter-threshold-text: "Threshold: ";
     out property <string> clipper-heading-text: "Clipper";
     out property <string> clipper-threshold-text: "Threshold: ";
-
 }
