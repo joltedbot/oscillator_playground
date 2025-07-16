@@ -3,8 +3,8 @@ export global Theme {
 
     // Main Window
     out property <string> window-title: "Oscillator Playground";
-    out property <length> window-width: 1040px;
-    out property <length> window-height: 700px;
+    out property <length> window-width: 1100px;
+    out property <length> window-height: 750px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
     out property <color> border-colour: #333333;
@@ -84,7 +84,7 @@ export global Theme {
     // Oscillator Modulation Slider
     out property <float> osc-mod-speed-slider-step: 0.01;
     out property <float> osc-mod-speed-slider-minimum: 0.01;
-    out property <float> osc-mod-speed-slider-maximum: 10.0;
+    out property <float> osc-mod-speed-slider-maximum: 20.0;
     out property <float> osc-mod-speed-slider-default: 0.1;
     out property <float> osc-mod-amount-slider-step: 0.01;
     out property <float> osc-mod-amount-slider-minimum: 0.0;
@@ -135,7 +135,7 @@ export global Theme {
     // Activation Switch
     out property <string> activation-switch-active-text: "Active";
     out property <string> activation-switch-not-active-text: "Not Active";
-    out property <length> activation-switch-width: 120px;
+    out property <length> activation-switch-width: 113px;
 
     // Envelope ADRS Defaults
     out property <int> envelope-attack-default: 50;
@@ -151,7 +151,7 @@ export global Theme {
     // Auto Pan Sliders
     out property <float> auto-pan-speed-slider-step: 0.01;
     out property <float> auto-pan-speed-slider-minimum: 0.01;
-    out property <float> auto-pan-speed-slider-maximum: 10;
+    out property <float> auto-pan-speed-slider-maximum: 20;
     out property <float> auto-pan-speed-slider-default: 1.0;
     out property <float> auto-pan-width-slider-step: 0.1;
     out property <float> auto-pan-width-slider-minimum: 0.0;
@@ -162,7 +162,7 @@ export global Theme {
     // Tremolo Sliders
     out property <float> tremolo-speed-slider-step: 0.01;
     out property <float> tremolo-speed-slider-minimum: 0.01;
-    out property <float> tremolo-speed-slider-maximum: 50;
+    out property <float> tremolo-speed-slider-maximum: 20;
     out property <float> tremolo-speed-slider-default: 1.0;
     out property <float> tremolo-depth-slider-step: 0.01;
     out property <float> tremolo-depth-slider-minimum: 0.0;
@@ -173,13 +173,22 @@ export global Theme {
     // Filter Mod Sliders
     out property <float> filter-mod-speed-slider-step: 0.01;
     out property <float> filter-mod-speed-slider-minimum: 0.01;
-    out property <float> filter-mod-speed-slider-maximum: 50;
+    out property <float> filter-mod-speed-slider-maximum: 20;
     out property <float> filter-mod-speed-slider-default: 1.0;
     out property <float> filter-mod-amount-slider-step: 0.01;
     out property <float> filter-mod-amount-slider-minimum: 0.0;
     out property <float> filter-mod-amount-slider-maximum: 1.0;
     out property <float> filter-mod-amount-slider-default: 0.0;
 
+    // Phaser  Sliders
+    out property <float> phaser-speed-slider-step: 0.01;
+    out property <float> phaser-speed-slider-minimum: 0.01;
+    out property <float> phaser-speed-slider-maximum: 20;
+    out property <float> phaser-speed-slider-default: 1.0;
+    out property <float> phaser-amount-slider-step: 1.0;
+    out property <float> phaser-amount-slider-minimum: 0.0;
+    out property <float> phaser-amount-slider-maximum: 128;
+    out property <float> phaser-amount-slider-default: 40.0;
 
     // Gate Duty Cycle Slider
     out property <int> envelope-gate-duty-cycle-step: 1;
@@ -205,6 +214,16 @@ export global Theme {
     out property <float> compressor-ratio-maximum: 10;
     out property <float> compressor-ratio-default: 2;
 
+    // Wave Folder Sliders
+    out property <float> wavefolder-threshold-step: 1;
+    out property <float> wavefolder-threshold-minimum: -30;
+    out property <float> wavefolder-threshold-maximum: 0;
+    out property <float> wavefolder-threshold-default: 0;
+    out property <float> wavefolder-ratio-step: 1;
+    out property <float> wavefolder-ratio-minimum: 1;
+    out property <float> wavefolder-ratio-maximum: 10;
+    out property <float> wavefolder-ratio-default: 2;
+
     out property <float> limiter-threshold-step: 1;
     out property <float> limiter-threshold-minimum: -30;
     out property <float> limiter-threshold-maximum: 0;
@@ -214,6 +233,7 @@ export global Theme {
     out property <float> clipper-threshold-minimum: -30;
     out property <float> clipper-threshold-maximum: 0;
     out property <float> clipper-threshold-default: 0;
+
 
 
     //
@@ -267,14 +287,25 @@ export global Theme {
     out property <string> filter-mod-speed-suffix: " Hz";
     out property <string> filter-mod-amount-text: "Amount: ";
     out property <string> filter-mod-amount-suffix: "%";
+    out property <string> phaser-speed-text: "Speed: ";
+    out property <string> phaser-speed-suffix: " Hz";
+    out property <string> phaser-amount-text: "Samples: ";
+   
+    
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
+    out property <string> phaser-heading-text: "Phaser";
     out property <string> compressor-heading-text: "Compressor";
     out property <string> compressor-threshold-text: "Threshold: ";
     out property <string> compressor-ratio-text: "Ratio: ";
     out property <string> compressor-ratio-suffix: ":1";
+    out property <string> wavefolder-heading-text: "Wave Folder";
+    out property <string> wavefolder-threshold-text: "Threshold: ";
+    out property <string> wavefolder-ratio-text: "Ratio: ";
+    out property <string> wavefolder-ratio-suffix: ":1";    
     out property <string> limiter-heading-text: "Limiter";
     out property <string> limiter-threshold-text: "Threshold: ";
     out property <string> clipper-heading-text: "Clipper";
     out property <string> clipper-threshold-text: "Threshold: ";
+
 }

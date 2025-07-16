@@ -14,7 +14,6 @@ impl Triangle {
     pub fn new(sample_rate: f32) -> Self {
         let x_coordinate = DEFAULT_X_COORDINATE;
         let x_increment = DEFAULT_X_INCREMENT;
-        let sample_rate = sample_rate;
 
         Self {
             x_coordinate,

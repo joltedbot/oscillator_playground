@@ -134,7 +134,7 @@ const MIDI_NOTE_FREQUENCIES: [(&str, f32); NUMBER_OF_MIDI_NOTES] = [
     ("G9", 12543.8540),
 ];
 
-#[derive(Debug, Default, Clone,PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Arpeggiator {
     sequence: Vec<u32>,
     sequence_index: usize,
@@ -149,7 +149,6 @@ impl Arpeggiator {
     }
 
     pub fn add_note(&mut self, note_number: u32) {
-
         if self.sequence.len() == 1 && self.sequence[0] == FIRST_REST_NOTE {
             self.sequence.push(note_number);
             self.sequence.remove(0);
@@ -158,7 +157,6 @@ impl Arpeggiator {
         if !self.sequence.contains(&note_number) {
             self.sequence.push(note_number);
         }
-
     }
 
     pub fn remove_note(&mut self, note_number: u32) {
@@ -167,13 +165,12 @@ impl Arpeggiator {
             self.sequence.remove(0);
         }
 
-        if let Some(note_index) =  self.sequence.iter().position(|&note| note == note_number) {
+        if let Some(note_index) = self.sequence.iter().position(|&note| note == note_number) {
             self.sequence.remove(note_index);
         }
     }
 
     pub fn next_note_frequency(&mut self, randomize: bool) -> f32 {
-
         if self.sequence_index < self.sequence.len() - 1 {
             self.sequence_index += 1;
         } else {
@@ -188,12 +185,10 @@ impl Arpeggiator {
             }
         };
 
-
         if midi_note >= NUMBER_OF_MIDI_NOTES as u32 {
-            return REST_FREQUENCY
+            return REST_FREQUENCY;
         }
 
         MIDI_NOTE_FREQUENCIES[midi_note as usize].1
-
     }
 }

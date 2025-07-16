@@ -2,22 +2,22 @@ use crate::events::EventType;
 use crate::synth::dynamics::Dynamics;
 use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
+use arpeggiator::Arpeggiator;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
 use crossbeam_channel::Receiver;
 use device::AudioDevice;
 use filter::Filter;
 use oscillators::Oscillators;
-use arpeggiator::Arpeggiator;
 use std::sync::{Arc, Mutex, MutexGuard};
 
+pub mod arpeggiator;
 pub mod device;
 pub mod dynamics;
 pub mod envelope;
 pub mod filter;
 pub mod lfo;
 pub mod oscillators;
-pub mod arpeggiator;
 
 const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
 const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
@@ -28,14 +28,17 @@ const LFO_INDEX_FOR_OSCILLATOR1_MOD: usize = 3;
 const LFO_INDEX_FOR_OSCILLATOR2_MOD: usize = 4;
 const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 5;
 const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 6;
+const LFO_INDEX_FOR_PHASE_DELAY: usize = 7;
 
-const DEFAULT_CENTER_FREQUENCY: f32 = 0.5;
-const DEFAULT_AUTO_PAN_CENTER_FREQUENCY: f32 = 1.0;
+const DEFAULT_CENTER_VALUE: f32 = 0.5;
+const DEFAULT_AUTO_PAN_CENTER_VALUE: f32 = 1.0;
+const DEFAULT_PHASER_CENTER_VALUE: f32 = 87.0;
+const DEFAULT_PHASER_WIDTH: f32 = 40.0;
 const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
 const DEFAULT_COMPRESSOR_RATIO: f32 = 0.5;
 const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
 const DEFAULT_SEQUENCER_NOTE: u32 = 60;
-
+const PHASER_MAX_WIDTH_VALUE: usize = 126;
 const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
@@ -49,7 +52,7 @@ pub enum AmpMode {
 pub struct LFOInstance {
     is_enabled: bool,
     frequency: f32,
-    center_frequency: f32,
+    center_value: f32,
     width: f32,
 }
 
@@ -58,6 +61,9 @@ pub struct DynamicsParameters {
     compressor_enabled: bool,
     compressor_threshold: f32,
     compressor_ratio: f32,
+    wavefolder_enabled: bool,
+    wavefolder_threshold: f32,
+    wavefolder_ratio: f32,
     limiter_enabled: bool,
     limiter_threshold: f32,
     clipper_enabled: bool,
@@ -72,6 +78,7 @@ pub struct SynthParameters {
     auto_pan: LFOInstance,
     tremolo: LFOInstance,
     filter_mod: LFOInstance,
+    phaser: LFOInstance,
     oscillator_mod_lfos: Vec<LFOInstance>,
     dynamics: DynamicsParameters,
     arpeggiator: Arpeggiator,
@@ -88,6 +95,7 @@ pub struct Synth {
     filter: Arc<Mutex<Filter>>,
     dynamics: Arc<Mutex<Dynamics>>,
     parameters: Arc<Mutex<SynthParameters>>,
+    phaser_buffer: Arc<Mutex<Vec<f32>>>,
 }
 
 impl Synth {
@@ -108,8 +116,11 @@ impl Synth {
         let lfo5 = LFO::new(sample_rate);
         let lfo6 = LFO::new(sample_rate);
         let lfo7 = LFO::new(sample_rate);
+        let lfo8 = LFO::new(sample_rate);
 
-        let lfos_arc = Arc::new(Mutex::new(vec![lfo1, lfo2, lfo3, lfo4, lfo5, lfo6, lfo7]));
+        let lfos_arc = Arc::new(Mutex::new(vec![
+            lfo1, lfo2, lfo3, lfo4, lfo5, lfo6, lfo7, lfo8,
+        ]));
 
         let filter = Filter::new(sample_rate);
         let filter_arc = Arc::new(Mutex::new(filter));
@@ -118,44 +129,51 @@ impl Synth {
         let dynamic_arc = Arc::new(Mutex::new(dynamic));
 
         let auto_pan = LFOInstance {
-            center_frequency: DEFAULT_AUTO_PAN_CENTER_FREQUENCY,
+            center_value: DEFAULT_AUTO_PAN_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let tremolo = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let filter_mod = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let sub_osc_mod = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let osc1_mod = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let osc2_mod = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
             ..Default::default()
         };
 
         let osc3_mod = LFOInstance {
-            center_frequency: DEFAULT_CENTER_FREQUENCY,
+            center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let phaser = LFOInstance {
+            center_value: DEFAULT_PHASER_CENTER_VALUE,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            width: DEFAULT_PHASER_WIDTH,
             ..Default::default()
         };
 
@@ -166,8 +184,8 @@ impl Synth {
             compressor_threshold: DEFAULT_COMPRESSOR_THRESHOLD,
             ..Default::default()
         };
-        
-        let mut arpeggiator= Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
+
+        let mut arpeggiator = Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
         let randomize_arp = ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE;
 
         let current_note_frequency = arpeggiator.next_note_frequency(randomize_arp);
@@ -178,6 +196,7 @@ impl Synth {
             auto_pan,
             tremolo,
             filter_mod,
+            phaser,
             oscillator_mod_lfos,
             output_level_constant: false,
             dynamics,
@@ -195,6 +214,7 @@ impl Synth {
             filter: filter_arc,
             dynamics: dynamic_arc,
             parameters: Arc::new(Mutex::new(parameters)),
+            phaser_buffer: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -296,19 +316,19 @@ impl Synth {
                     }
                     EventType::UpdateEnvelopeAttack(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_attack_milliseconds(milliseconds.abs() as u32);
+                        envelope.set_attack_milliseconds(milliseconds.unsigned_abs());
                     }
                     EventType::UpdateEnvelopeDecay(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_decay_milliseconds(milliseconds.abs() as u32);
+                        envelope.set_decay_milliseconds(milliseconds.unsigned_abs());
                     }
                     EventType::UpdateEnvelopeRelease(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_release_milliseconds(milliseconds.abs() as u32);
+                        envelope.set_release_milliseconds(milliseconds.unsigned_abs());
                     }
                     EventType::UpdateEnvelopeSustain(milliseconds) => {
                         let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_sustain_milliseconds(milliseconds.abs() as u32);
+                        envelope.set_sustain_milliseconds(milliseconds.unsigned_abs());
                     }
                     EventType::UpdateEnvelopeSustainLevel(level) => {
                         let mut envelope = self.get_envelope_mutex_lock();
@@ -328,7 +348,7 @@ impl Synth {
                     }
                     EventType::UpdateGateNoteLength(note_length) => {
                         let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_gate_note_length(note_length.abs() as u32);
+                        envelope.set_gate_note_length(note_length.unsigned_abs());
                     }
                     EventType::UpdateFilterCutoffValue(cutoff) => {
                         let mut filter = self.get_filter_mutex_lock();
@@ -377,7 +397,7 @@ impl Synth {
                     EventType::UpdateTremoloDepth(depth) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.tremolo.width = depth;
-                        parameters.tremolo.center_frequency = 1.0 - (depth / 2.0);
+                        parameters.tremolo.center_value = 1.0 - (depth / 2.0);
                     }
                     EventType::UpdateFilterModEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -390,8 +410,22 @@ impl Synth {
                     EventType::UpdateFilterModAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.filter_mod.width = amount;
-                        parameters.filter_mod.center_frequency = 1.0 - (amount / 2.0);
+                        parameters.filter_mod.center_value = 1.0 - (amount / 2.0);
                     }
+                    EventType::UpdatePhaserEnabled(is_enabled) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.phaser.is_enabled = is_enabled;
+                    }
+                    EventType::UpdatePhaserSpeed(speed_hz) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.phaser.frequency = speed_hz;
+                    }
+                    EventType::UpdatePhaserAmount(amount) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.phaser.width = amount;
+                        parameters.phaser.center_value = (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor();
+                    }
+                    
                     EventType::UpdateCompressorActive(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.compressor_enabled = is_active;
@@ -403,6 +437,18 @@ impl Synth {
                     EventType::UpdateCompressorRatio(ratio) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.compressor_ratio = ratio;
+                    }
+                    EventType::UpdateWavefolderActive(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.wavefolder_enabled = is_active;
+                    }
+                    EventType::UpdateWavefolderThreshold(threshold) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.wavefolder_threshold = threshold;
+                    }
+                    EventType::UpdateWavefolderRatio(ratio) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.dynamics.wavefolder_ratio = ratio;
                     }
                     EventType::UpdateLimiterActive(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -432,6 +478,7 @@ impl Synth {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.randomize_arp = is_active;
                     }
+
                     EventType::Start => {
                         self.start();
                     }
@@ -499,10 +546,11 @@ impl Synth {
         let lfo_arc = self.lfos.clone();
         let dynamics_arc = self.dynamics.clone();
         let parameters_arc = self.parameters.clone();
-        
+        let delay_buffer_arc = self.phaser_buffer.clone();
+
         let stream = output_device
             .build_output_stream(
-                &stream_config,
+                stream_config,
                 move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
                     let mut oscillators = oscillators_arc
                         .lock()
@@ -532,11 +580,19 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
+                    let mut delay_buffer = delay_buffer_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+                    if delay_buffer.is_empty() {
+                        *delay_buffer = vec![0.0; buffer.len()];
+                    }
+
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_mod = if parameters.oscillator_mod_lfos[0].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[0].frequency,
-                                parameters.oscillator_mod_lfos[0].center_frequency,
+                                parameters.oscillator_mod_lfos[0].center_value,
                                 parameters.oscillator_mod_lfos[0].width,
                             ))
                         } else {
@@ -546,7 +602,7 @@ impl Synth {
                         let oscillator1_mod = if parameters.oscillator_mod_lfos[1].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[1].frequency,
-                                parameters.oscillator_mod_lfos[1].center_frequency,
+                                parameters.oscillator_mod_lfos[1].center_value,
                                 parameters.oscillator_mod_lfos[1].width,
                             ))
                         } else {
@@ -556,7 +612,7 @@ impl Synth {
                         let oscillator2_mod = if parameters.oscillator_mod_lfos[2].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[2].frequency,
-                                parameters.oscillator_mod_lfos[2].center_frequency,
+                                parameters.oscillator_mod_lfos[2].center_value,
                                 parameters.oscillator_mod_lfos[2].width,
                             ))
                         } else {
@@ -566,7 +622,7 @@ impl Synth {
                         let oscillator3_mod = if parameters.oscillator_mod_lfos[3].width > 0.0 {
                             Some(lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].get_next_value(
                                 parameters.oscillator_mod_lfos[3].frequency,
-                                parameters.oscillator_mod_lfos[3].center_frequency,
+                                parameters.oscillator_mod_lfos[3].center_value,
                                 parameters.oscillator_mod_lfos[3].width,
                             ))
                         } else {
@@ -596,10 +652,19 @@ impl Synth {
                             oscillator3_mod,
                         );
 
-                        let oscillator_sum = oscillator1_sample
+                        let mut oscillator_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
                             + sub_oscillator_sample;
+
+                        if parameters.phaser.is_enabled {
+                            oscillator_sum = get_phased_sample(
+                                &mut lfos,
+                                &mut parameters,
+                                &mut delay_buffer,
+                                oscillator_sum,
+                            );
+                        }
 
                         let balanced_oscillator_level_sum = match parameters.output_level_constant {
                             true => {
@@ -616,7 +681,7 @@ impl Synth {
                         let filter_mod_value = match parameters.filter_mod.is_enabled {
                             true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
                                 parameters.filter_mod.frequency,
-                                parameters.filter_mod.center_frequency,
+                                parameters.filter_mod.center_value,
                                 parameters.filter_mod.width,
                             )),
                             false => None,
@@ -629,24 +694,21 @@ impl Synth {
                         let mut right_sample = filtered_sample;
 
                         if parameters.auto_pan.is_enabled {
-                            let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
-                                parameters.auto_pan.frequency,
-                                parameters.auto_pan.center_frequency,
-                                parameters.auto_pan.width,
+                            (left_sample, right_sample) = get_auto_pan_value(
+                                &mut lfos,
+                                &mut parameters,
+                                left_sample,
+                                right_sample,
                             );
-
-                            left_sample *= pan_value;
-                            right_sample *= 2.0 - pan_value;
                         }
 
                         if parameters.tremolo.is_enabled {
-                            let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
-                                parameters.tremolo.frequency,
-                                parameters.tremolo.center_frequency,
-                                parameters.tremolo.width,
+                            (left_sample, right_sample) = get_tremolo_value(
+                                &mut lfos,
+                                &mut parameters,
+                                left_sample,
+                                right_sample,
                             );
-                            left_sample *= tremolo_value;
-                            right_sample *= tremolo_value;
                         }
 
                         if parameters.amp_mode == AmpMode::Gate {
@@ -663,7 +725,8 @@ impl Synth {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
                                     let randomize = parameters.randomize_arp;
-                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency(randomize);
+                                    parameters.current_note_frequency =
+                                        parameters.arpeggiator.next_note_frequency(randomize);
                                 }
                             }
                         } else {
@@ -676,48 +739,44 @@ impl Synth {
                                     left_sample *= 0.0;
                                     right_sample *= 0.0;
                                     let randomize = parameters.randomize_arp;
-                                    parameters.current_note_frequency = parameters.arpeggiator.next_note_frequency(randomize);
+                                    parameters.current_note_frequency =
+                                        parameters.arpeggiator.next_note_frequency(randomize);
                                 }
                             }
                         }
 
                         if parameters.dynamics.compressor_enabled {
-                            left_sample = dynamics.compress(
-                                parameters.output_level,
-                                parameters.dynamics.compressor_threshold,
-                                parameters.dynamics.compressor_ratio,
+                            (left_sample, right_sample) = get_compressed_samples(
+                                &mut parameters,
+                                &dynamics,
                                 left_sample,
+                                right_sample,
                             );
-                            right_sample = dynamics.compress(
-                                parameters.output_level,
-                                parameters.dynamics.compressor_threshold,
-                                parameters.dynamics.compressor_ratio,
+                        }
+
+                        if parameters.dynamics.wavefolder_enabled {
+                            (left_sample, right_sample) = get_wavefolded_samples(
+                                &mut parameters,
+                                &dynamics,
+                                left_sample,
                                 right_sample,
                             );
                         }
 
                         if parameters.dynamics.limiter_enabled {
-                            left_sample = dynamics.limit(
-                                parameters.output_level,
-                                parameters.dynamics.limiter_threshold,
+                            (left_sample, right_sample) = get_limited_samples(
+                                &mut parameters,
+                                &dynamics,
                                 left_sample,
-                            );
-                            right_sample = dynamics.limit(
-                                parameters.output_level,
-                                parameters.dynamics.limiter_threshold,
                                 right_sample,
                             );
                         }
 
                         if parameters.dynamics.clipper_enabled {
-                            left_sample = dynamics.clip(
-                                parameters.output_level,
-                                parameters.dynamics.clipper_threshold,
+                            (left_sample, right_sample) = get_clipped_samples(
+                                &mut parameters,
+                                &dynamics,
                                 left_sample,
-                            );
-                            right_sample = dynamics.clip(
-                                parameters.output_level,
-                                parameters.dynamics.clipper_threshold,
                                 right_sample,
                             );
                         }
@@ -735,4 +794,142 @@ impl Synth {
 
         stream
     }
+}
+
+fn get_tremolo_value(
+    lfos: &mut MutexGuard<Vec<LFO>>,
+    parameters: &mut MutexGuard<SynthParameters>,
+    mut left_sample: f32,
+    mut right_sample: f32,
+) -> (f32, f32) {
+    let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
+        parameters.tremolo.frequency,
+        parameters.tremolo.center_value,
+        parameters.tremolo.width,
+    );
+    left_sample *= tremolo_value;
+    right_sample *= tremolo_value;
+
+    (left_sample, right_sample)
+}
+
+fn get_auto_pan_value(
+    lfos: &mut MutexGuard<Vec<LFO>>,
+    parameters: &mut MutexGuard<SynthParameters>,
+    mut left_sample: f32,
+    mut right_sample: f32,
+) -> (f32, f32) {
+    let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
+        parameters.auto_pan.frequency,
+        parameters.auto_pan.center_value,
+        parameters.auto_pan.width,
+    );
+
+    left_sample *= pan_value;
+    right_sample *= 2.0 - pan_value;
+
+    (left_sample, right_sample)
+}
+
+fn get_compressed_samples(
+    parameters: &mut MutexGuard<SynthParameters>,
+    dynamics: &MutexGuard<Dynamics>,
+    left_sample: f32,
+    right_sample: f32,
+) -> (f32, f32) {
+    let left_sample = dynamics.compress(
+        parameters.output_level,
+        parameters.dynamics.compressor_threshold,
+        parameters.dynamics.compressor_ratio,
+        left_sample,
+    );
+    let right_sample = dynamics.compress(
+        parameters.output_level,
+        parameters.dynamics.compressor_threshold,
+        parameters.dynamics.compressor_ratio,
+        right_sample,
+    );
+
+    (left_sample, right_sample)
+}
+
+fn get_wavefolded_samples(
+    parameters: &mut MutexGuard<SynthParameters>,
+    dynamics: &MutexGuard<Dynamics>,
+    left_sample: f32,
+    right_sample: f32,
+) -> (f32, f32) {
+    let left_sample = dynamics.wavefold(
+        parameters.output_level,
+        parameters.dynamics.wavefolder_threshold,
+        parameters.dynamics.wavefolder_ratio,
+        left_sample,
+    );
+    let right_sample = dynamics.wavefold(
+        parameters.output_level,
+        parameters.dynamics.wavefolder_threshold,
+        parameters.dynamics.wavefolder_ratio,
+        right_sample,
+    );
+
+    (left_sample, right_sample)
+}
+
+fn get_limited_samples(
+    parameters: &mut MutexGuard<SynthParameters>,
+    dynamics: &MutexGuard<Dynamics>,
+    left_sample: f32,
+    right_sample: f32,
+) -> (f32, f32) {
+    let left_sample = dynamics.limit(
+        parameters.output_level,
+        parameters.dynamics.limiter_threshold,
+        left_sample,
+    );
+    let right_sample = dynamics.limit(
+        parameters.output_level,
+        parameters.dynamics.limiter_threshold,
+        right_sample,
+    );
+
+    (left_sample, right_sample)
+}
+
+fn get_clipped_samples(
+    parameters: &mut MutexGuard<SynthParameters>,
+    dynamics: &MutexGuard<Dynamics>,
+    left_sample: f32,
+    right_sample: f32,
+) -> (f32, f32) {
+    let left_sample = dynamics.clip(
+        parameters.output_level,
+        parameters.dynamics.clipper_threshold,
+        left_sample,
+    );
+    let right_sample = dynamics.clip(
+        parameters.output_level,
+        parameters.dynamics.clipper_threshold,
+        right_sample,
+    );
+
+    (left_sample, right_sample)
+}
+
+fn get_phased_sample(
+    lfos: &mut MutexGuard<Vec<LFO>>,
+    parameters: &mut MutexGuard<SynthParameters>,
+    delay_buffer: &mut MutexGuard<Vec<f32>>,
+    oscillator_sum: f32,
+) -> f32 {
+
+    delay_buffer.insert(0, oscillator_sum);
+
+    let _trash = delay_buffer.pop();
+
+    let phase_shift = lfos[LFO_INDEX_FOR_PHASE_DELAY].get_next_value(
+        parameters.phaser.frequency,
+        parameters.phaser.center_value,
+        parameters.phaser.width,
+    );
+    (oscillator_sum + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)]) / 2.0
 }

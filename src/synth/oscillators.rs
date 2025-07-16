@@ -208,12 +208,12 @@ impl Oscillators {
     ) -> Box<dyn GenerateSamples + Send + Sync> {
         match wave_shape {
             WaveShape::Noise => Box::new(Noise::new()),
-            WaveShape::Ramp => Box::new(Ramp::new(self.sample_rate.clone())),
-            WaveShape::Saw => Box::new(Saw::new(self.sample_rate.clone())),
-            WaveShape::Sine => Box::new(Sine::new(self.sample_rate.clone())),
-            WaveShape::Square => Box::new(Square::new(self.sample_rate.clone())),
-            WaveShape::SuperSaw => Box::new(SuperSaw::new(self.sample_rate.clone())),
-            WaveShape::Triangle => Box::new(Triangle::new(self.sample_rate.clone())),
+            WaveShape::Ramp => Box::new(Ramp::new(self.sample_rate)),
+            WaveShape::Saw => Box::new(Saw::new(self.sample_rate)),
+            WaveShape::Sine => Box::new(Sine::new(self.sample_rate)),
+            WaveShape::Square => Box::new(Square::new(self.sample_rate)),
+            WaveShape::SuperSaw => Box::new(SuperSaw::new(self.sample_rate)),
+            WaveShape::Triangle => Box::new(Triangle::new(self.sample_rate)),
         }
     }
 

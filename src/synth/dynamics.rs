@@ -10,7 +10,7 @@ impl Dynamics {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
-            return sample;
+            return sample * self.get_makeup_gain(threshold * (1.0 - ratio), output_level)
         }
 
         let delta = sample_dbfs - threshold;
@@ -33,7 +33,7 @@ impl Dynamics {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
-            return sample;
+            return sample * self.get_makeup_gain(threshold, output_level)
         }
 
         let mut clipped_sample = get_f32_sample_from_dbfs(threshold);
@@ -43,6 +43,25 @@ impl Dynamics {
         }
 
         clipped_sample * self.get_makeup_gain(threshold, output_level)
+    }
+
+    pub fn wavefold(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
+        let sample_dbfs = get_dbfs_from_f32_sample(sample);
+
+        if sample_dbfs <= threshold || output_level <= threshold {
+            return sample  * self.get_makeup_gain(threshold, output_level)
+        }
+
+        let delta = sample_dbfs - threshold;
+        let compressed_delta = delta * ratio;
+        let new_dbfs = threshold - compressed_delta;
+        let mut compressed_sample = get_f32_sample_from_dbfs(new_dbfs);
+
+        if sample.is_sign_negative() {
+            compressed_sample *= -1.0;
+        }
+
+        compressed_sample * self.get_makeup_gain(threshold, output_level)
     }
 
     pub fn get_makeup_gain(&self, threshold: f32, output_level: f32) -> f32 {

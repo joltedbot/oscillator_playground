@@ -87,9 +87,15 @@ impl UI {
         self.on_filter_mod_activated();
         self.on_filter_mod_speed_changed();
         self.on_filter_mod_depth_changed();
+        self.on_phaser_activated();
+        self.on_phaser_speed_changed();
+        self.on_phaser_depth_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
-        self.on_compressor_ratio_changed();
+        self.on_compressor_ratio_changed();        
+        self.on_wavefolder_activated();
+        self.on_wavefolder_threshold_changed();
+        self.on_wavefolder_ratio_changed();
         self.on_limiter_activated();
         self.on_limiter_threshold_changed();
         self.on_clipper_activated();
@@ -619,6 +625,40 @@ impl UI {
         });
     }
 
+    fn on_phaser_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_phaser_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdatePhaserEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_phaser_speed_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_phaser_speed_changed(move |speed_hz| {
+            if let Err(error) = synth_sender.send(EventType::UpdatePhaserSpeed(speed_hz).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_phaser_depth_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_phaser_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdatePhaserAmount(amount).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
     fn on_compressor_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -656,6 +696,43 @@ impl UI {
         });
     }
 
+    fn on_wavefolder_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wavefolder_activated(move |is_active| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateWavefolderActive(is_active).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_wavefolder_threshold_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wavefolder_threshold_changed(move |threshold| {
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateWavefolderThreshold(threshold).clone())
+            {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }
+
+    fn on_wavefolder_ratio_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wavefolder_ratio_changed(move |ratio| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWavefolderRatio(ratio).clone()) {
+                eprintln!("Error sending event: {}", error);
+            }
+        });
+    }    
+    
     fn on_limiter_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -719,7 +796,6 @@ impl UI {
         });
     }
 
-
     fn on_note_deactivated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -745,5 +821,4 @@ impl UI {
             }
         });
     }
-    
 }

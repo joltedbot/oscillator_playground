@@ -61,9 +61,15 @@ export component AppWindow inherits Window {
     callback filter_mod_activated(bool);
     callback filter_mod_speed_changed(float);
     callback filter_mod_amount_changed(float);
+    callback phaser_activated(bool);
+    callback phaser_speed_changed(float);
+    callback phaser_amount_changed(float);
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
-    callback compressor_ratio_changed(float);
+    callback compressor_ratio_changed(float);    
+    callback wavefolder_activated(bool);
+    callback wavefolder_threshold_changed(float);
+    callback wavefolder_ratio_changed(float);
     callback limiter_activated(bool);
     callback limiter_threshold_changed(float);
     callback clipper_activated(bool);
@@ -272,6 +278,19 @@ export component AppWindow inherits Window {
                                 filter_mod_amount_changed(amount) => {
                                     filter_mod_amount_changed(amount);
                                 }
+
+                                phaser_activated(is_activated) => {
+                                    phaser_activated(is_activated);
+                                }
+
+                                phaser_speed_changed(speed_hz) => {
+                                    phaser_speed_changed(speed_hz);
+                                }
+
+                                phaser_amount_changed(amount) => {
+                                    phaser_amount_changed(amount);
+                                }                                
+
                             }
 
                             DynamicsPanel {
@@ -285,6 +304,18 @@ export component AppWindow inherits Window {
 
                                 compressor_ratio_changed(ratio) => {
                                     root.compressor_ratio_changed(ratio);
+                                }
+
+                                wavefolder_activated(is_active) => {
+                                    root.wavefolder_activated(is_active);
+                                }
+
+                                wavefolder_threshold_changed(threshold) => {
+                                    root.wavefolder_threshold_changed(threshold);
+                                }
+
+                                wavefolder_ratio_changed(ratio) => {
+                                    root.wavefolder_ratio_changed(ratio);
                                 }
 
                                 limiter_activated(is_active) => {
