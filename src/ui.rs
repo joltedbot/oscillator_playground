@@ -1,6 +1,6 @@
 use super::AppWindow;
 use crate::events::EventType;
-use crossbeam_channel::{Receiver, Sender};
+use crossbeam_channel::Sender;
 use slint::Weak;
 use std::error::Error;
 use std::process::exit;
@@ -26,21 +26,6 @@ impl UI {
         };
 
         Ok(ui)
-    }
-
-    pub fn run(&mut self, ui_receiver: Receiver<EventType>) -> Result<(), Box<dyn Error>> {
-        loop {
-            if let Ok(event) = ui_receiver.recv() {
-                match event {
-                    EventType::Exit => {
-                        break;
-                    }
-                    _ => (),
-                }
-            }
-        }
-
-        Ok(())
     }
 
     pub fn create_ui_callbacks(&mut self) {
@@ -90,6 +75,10 @@ impl UI {
         self.on_phaser_activated();
         self.on_phaser_speed_changed();
         self.on_phaser_depth_changed();
+        self.on_bitcrusher_activated();
+        self.on_bitcrusher_amount_changed();
+        self.on_stereo_width_activated();
+        self.on_stereo_width_amount_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
         self.on_compressor_ratio_changed();
@@ -123,7 +112,7 @@ impl UI {
 
         ui.on_wave_shape1_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Shape(shape)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -134,7 +123,7 @@ impl UI {
 
         ui.on_wave_shape2_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Shape(shape)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -145,7 +134,7 @@ impl UI {
 
         ui.on_wave_shape3_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Shape(shape)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -156,7 +145,7 @@ impl UI {
 
         ui.on_sub_shape_selected(move |shape| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShape(shape)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -167,7 +156,7 @@ impl UI {
 
         ui.on_wave_level1_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Level(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -177,7 +166,7 @@ impl UI {
 
         ui.on_wave_level2_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Level(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -187,7 +176,7 @@ impl UI {
 
         ui.on_wave_level3_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Level(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -198,7 +187,7 @@ impl UI {
 
         ui.on_sub_level_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorLevel(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -209,7 +198,7 @@ impl UI {
 
         ui.on_wave_mod1_speed_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModFreq(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -219,7 +208,7 @@ impl UI {
 
         ui.on_wave_mod2_speed_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModFreq(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -229,7 +218,7 @@ impl UI {
 
         ui.on_wave_mod3_speed_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModFreq(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -240,7 +229,7 @@ impl UI {
 
         ui.on_sub_mod_speed_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModFreq(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -251,7 +240,7 @@ impl UI {
 
         ui.on_wave_mod1_amount_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModAmount(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -261,7 +250,7 @@ impl UI {
 
         ui.on_wave_mod2_amount_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModAmount(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -271,7 +260,7 @@ impl UI {
 
         ui.on_wave_mod3_amount_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModAmount(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -282,7 +271,7 @@ impl UI {
 
         ui.on_sub_mod_amount_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModAmount(level)) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -298,7 +287,7 @@ impl UI {
             };
 
             if let Err(error) = synth_sender.send(event_type.clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -311,7 +300,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateOscillatorDetuneValue(detune_amount))
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -324,7 +313,7 @@ impl UI {
             if let Err(error) = synth_sender
                 .send(EventType::UpdateOscillatorDetuneActive(is_active, detune_amount).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -335,7 +324,7 @@ impl UI {
 
         ui.on_output_level_value_changed(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateOutputLevel(level).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -348,7 +337,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateOutputLevelConstant(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -361,7 +350,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateEnvelopeAttack(milliseconds).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -374,7 +363,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateEnvelopeDecay(milliseconds).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -387,7 +376,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateEnvelopeRelease(milliseconds).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -400,7 +389,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateEnvelopeSustainLevel(level).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -413,7 +402,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateADSRNoteLength(milliseconds).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -426,7 +415,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateFilterCutoffValue(cutoff).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -439,7 +428,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateFilterResonanceValue(level).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -452,7 +441,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateFilterNumberOfPoles(number_of_poles).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -463,7 +452,7 @@ impl UI {
 
         ui.on_resync_oscillators(move || {
             if let Err(error) = synth_sender.send(EventType::ResyncOscillators.clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -474,7 +463,7 @@ impl UI {
 
         ui.on_resync_oscillator_lfos(move || {
             if let Err(error) = synth_sender.send(EventType::ResyncOscillatorLFOs.clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -487,7 +476,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateAmpModeEnvelopeEnabled(is_enabled).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -500,7 +489,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateGateDutyCycle(duty_cycle).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -513,7 +502,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateGateNoteLength(milliseconds).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -526,7 +515,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateAutoPanEnabled(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -537,7 +526,7 @@ impl UI {
 
         ui.on_auto_pan_speed_changed(move |speed_hz| {
             if let Err(error) = synth_sender.send(EventType::UpdateAutoPanSpeed(speed_hz).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -548,7 +537,7 @@ impl UI {
 
         ui.on_auto_pan_width_changed(move |width| {
             if let Err(error) = synth_sender.send(EventType::UpdateAutoPanWidth(width).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -561,7 +550,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateTremoloEnabled(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -572,7 +561,7 @@ impl UI {
 
         ui.on_tremolo_speed_changed(move |speed_hz| {
             if let Err(error) = synth_sender.send(EventType::UpdateTremoloSpeed(speed_hz).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -583,7 +572,7 @@ impl UI {
 
         ui.on_tremolo_depth_changed(move |depth| {
             if let Err(error) = synth_sender.send(EventType::UpdateTremoloDepth(depth).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -596,7 +585,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateFilterModEnabled(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -608,7 +597,7 @@ impl UI {
         ui.on_filter_mod_speed_changed(move |speed_hz| {
             if let Err(error) = synth_sender.send(EventType::UpdateFilterModSpeed(speed_hz).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -620,7 +609,7 @@ impl UI {
         ui.on_filter_mod_amount_changed(move |amount| {
             if let Err(error) = synth_sender.send(EventType::UpdateFilterModAmount(amount).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -632,7 +621,7 @@ impl UI {
         ui.on_phaser_activated(move |is_active| {
             if let Err(error) = synth_sender.send(EventType::UpdatePhaserEnabled(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -643,7 +632,7 @@ impl UI {
 
         ui.on_phaser_speed_changed(move |speed_hz| {
             if let Err(error) = synth_sender.send(EventType::UpdatePhaserSpeed(speed_hz).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -654,11 +643,59 @@ impl UI {
 
         ui.on_phaser_amount_changed(move |amount| {
             if let Err(error) = synth_sender.send(EventType::UpdatePhaserAmount(amount).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
 
+    fn on_bitcrusher_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_bitcrusher_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdateBitCrusherEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+    
+
+    fn on_bitcrusher_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_bitcrusher_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateBitCrusherAmount(amount).clone()) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_stereo_width_activated(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_stereo_width_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdateStereoWidthEnabled(is_active).clone())
+            {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+
+    fn on_stereo_width_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_stereo_width_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateStereoWidthAmount(amount).clone()) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+    
     fn on_compressor_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -667,7 +704,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateCompressorActive(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -680,7 +717,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateCompressorThreshold(threshold).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -691,7 +728,7 @@ impl UI {
 
         ui.on_compressor_ratio_changed(move |ratio| {
             if let Err(error) = synth_sender.send(EventType::UpdateCompressorRatio(ratio).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -704,7 +741,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateWavefolderActive(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -717,7 +754,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateWavefolderThreshold(threshold).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -728,7 +765,7 @@ impl UI {
 
         ui.on_wavefolder_ratio_changed(move |ratio| {
             if let Err(error) = synth_sender.send(EventType::UpdateWavefolderRatio(ratio).clone()) {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -740,7 +777,7 @@ impl UI {
         ui.on_limiter_activated(move |is_active| {
             if let Err(error) = synth_sender.send(EventType::UpdateLimiterActive(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -753,7 +790,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateLimiterThreshold(threshold).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -765,7 +802,7 @@ impl UI {
         ui.on_clipper_activated(move |is_active| {
             if let Err(error) = synth_sender.send(EventType::UpdateClipperActive(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -778,7 +815,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateClipperThreshold(threshold).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -791,7 +828,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::ArpeggiatorAddNote(note_number).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -804,7 +841,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::ArpeggiatorRemoveNote(note_number).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }
@@ -817,7 +854,7 @@ impl UI {
             if let Err(error) =
                 synth_sender.send(EventType::ArpeggiatorRandomEnabled(is_active).clone())
             {
-                eprintln!("Error sending event: {error}", );
+                eprintln!("Error sending event: {error}",);
             }
         });
     }

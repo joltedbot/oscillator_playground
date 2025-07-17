@@ -6,17 +6,14 @@ export component LFOPanel inherits HorizontalLayout {
     callback auto_pan_activated(bool);
     callback tremolo_activated(bool);
     callback filter_mod_activated(bool);
-    callback phaser_activated(bool);
 
     callback auto_pan_speed_changed(float);
     callback tremolo_speed_changed(float);
     callback filter_mod_speed_changed(float);
-    callback phaser_speed_changed(float);
 
     callback auto_pan_width_changed(float);
     callback tremolo_depth_changed(float);
     callback filter_mod_amount_changed(float);
-    callback phaser_amount_changed(float);
 
     Rectangle {
         border-width: Theme.window-border-width;
@@ -30,7 +27,7 @@ export component LFOPanel inherits HorizontalLayout {
             padding: 10px;
 
             HorizontalLayout {
-                alignment: start;
+                alignment: center;
                 spacing: 20px;
 
                 VerticalLayout {
@@ -166,7 +163,7 @@ export component LFOPanel inherits HorizontalLayout {
             padding: 10px;
 
             HorizontalLayout {
-                alignment: start;
+                alignment: center;
                 spacing: 20px;
 
                 VerticalLayout {
@@ -214,73 +211,6 @@ export component LFOPanel inherits HorizontalLayout {
                         enabled: false;
                         level_selected(level) => {
                             filter_mod_amount_changed(level);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        border-width: Theme.window-border-width;
-        border-color: Theme.border-colour;
-        border-radius: Theme.border-radius;
-        background: Theme.panel-box-background;
-
-        VerticalLayout {
-            alignment: start;
-            spacing: 20px;
-            padding: 10px;
-
-            HorizontalLayout {
-                alignment: start;
-                spacing: 20px;
-
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Heading {
-                        horizontal-alignment: center;
-                        heading: Theme.phaser-heading-text;
-                    }
-
-                    ActivationSwitch {
-                        activated-text: Theme.activation-switch-active-text;
-                        not-activated-text: Theme.activation-switch-not-active-text;
-                        activation_toggled => {
-                            phaser_speed.enabled = self.activated;
-                            phaser_amount.enabled = self.activated;
-                            phaser_activated(self.checked);
-                        }
-                    }
-
-                    Label {
-                        label: Theme.phaser-speed-text + (round(phaser_speed.value * 100) / 100) + Theme.phaser-speed-suffix;
-                    }
-
-                    phaser_speed := LFOSlider {
-                        slider_value: Theme.phaser-speed-slider-default;
-                        step: self.slider_value * Theme.lfo-slider-step-ratio;
-                        minimum: Theme.phaser-speed-slider-minimum;
-                        maximum: Theme.phaser-speed-slider-maximum;
-                        enabled: false;
-                        level_selected(level) => {
-                            phaser_speed_changed(level);
-                        }
-                    }
-
-                    Label {
-                        label: Theme.phaser-amount-text + round(phaser_amount.value);
-                    }
-
-                    phaser_amount := LFOSlider {
-                        slider_value: Theme.phaser-amount-slider-default;
-                        step: Theme.phaser-amount-slider-step;
-                        minimum: Theme.phaser-amount-slider-minimum;
-                        maximum: Theme.phaser-amount-slider-maximum;
-                        enabled: false;
-                        level_selected(level) => {
-                            phaser_amount_changed(round(level));
                         }
                     }
                 }

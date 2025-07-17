@@ -19,7 +19,6 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let synth_sender = events.get_synth_sender();
     let syn_receiver = events.get_synth_receiver();
-    let ui_receiver = events.get_user_interface_receiver();
 
     // Initialize the default audio output device for your system
     let audio_device = AudioDevice::new();
@@ -33,10 +32,6 @@ fn main() -> Result<(), slint::PlatformError> {
         .expect("Could not create UI");
 
     ui.create_ui_callbacks();
-
-    thread::spawn(move || {
-        ui.run(ui_receiver).expect("Could not initialize UI");
-    });
 
     application.run()
 }

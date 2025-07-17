@@ -2,64 +2,80 @@ import { Heading, Label, FilterSlider, LevelSlider  } from "../ui/components.sli
 import { Theme } from "../ui/theme.slint";
 
 export component FilterPanel inherits VerticalLayout {
-    alignment: center;
+    alignment: start;
 
     callback number_of_poles_selected(int);
     callback filter_cutoff_value_changed(float);
     callback filter_resonance_value_changed(float);
 
     Rectangle {
-        horizontal-stretch: 1;
         border-width: Theme.window-border-width;
         border-color: Theme.border-colour;
         border-radius: Theme.border-radius;
         background: Theme.panel-box-background;
-        height: Theme.top-panel-row-height;
 
         VerticalLayout {
-            vertical-stretch: 1;
             alignment: start;
             spacing: 10px;
             padding: 20px;
 
             Heading {
-                horizontal-alignment: center;
                 heading: Theme.filter-header-text;
             }
 
-            Label {
-                horizontal-alignment: center;
-                label: Theme.filter-poles-label-text + filter_poles.number_of_poles;
-            }
-
             HorizontalLayout {
-                alignment: center;
-                filter_poles := FilterSlider {
-                    number_of_poles_selected(number_of_poles) => {
-                        root.number_of_poles_selected(number_of_poles);
+                alignment: start;
+                spacing: 10px;
+                padding: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Label {
+                        label: Theme.filter-poles-label-text;
+                    }
+
+                    Label {
+                        label: Theme.filter-cutoff-text;
+                    }
+
+                    Label {
+                        label: Theme.filter-resonance-text;
                     }
                 }
-            }
-
-            HorizontalLayout {
-                spacing: 20px;
 
                 VerticalLayout {
                     spacing: 10px;
 
                     Label {
                         horizontal-alignment: center;
-                        label: Theme.filter-cutoff-text;
+                        label: filter_poles.number_of_poles;
                     }
 
                     Label {
                         horizontal-alignment: center;
+                        width: Theme.filter-cutoff-value-width;
                         label: round(filter_cutoff.level);
                     }
 
+                    Label {
+                        horizontal-alignment: center;
+                        label: 100 - filter_resonance.level;
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    filter_poles := FilterSlider {
+                        number_of_poles_selected(number_of_poles) => {
+                            root.number_of_poles_selected(number_of_poles);
+                        }
+                    }
+
                     filter_cutoff := LevelSlider {
-                        height: 200px;
-                        orientation: vertical;
+                        width: 200px;
+                        orientation: horizontal;
 
                         level: Theme.filter-cutoff-slider-default;
                         level-step: self.level * Theme.filter-cutoff-slider-step-factor;
@@ -69,24 +85,10 @@ export component FilterPanel inherits VerticalLayout {
                             filter_cutoff_value_changed(level);
                         }
                     }
-                }
-
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.filter-resonance-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: 100 - filter_resonance.level;
-                    }
 
                     filter_resonance := LevelSlider {
-                        orientation: vertical;
-                        height: 200px;
+                        width: 200px;
+                        orientation: horizontal;
 
                         level: Theme.filter-resonance-slider-default;
                         level-step: Theme.filter-resonance-slider-step;

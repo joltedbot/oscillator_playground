@@ -46,6 +46,8 @@ const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
 const DEFAULT_SEQUENCER_NOTE: u32 = 60;
 const PHASER_MAX_WIDTH_VALUE: usize = 126;
 const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
+const DEFAULT_BITCRUSHER_DEPTH: u32 = 8;
+const DEFAULT_STEREO_WIDTH: f32 = 0.0;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
@@ -77,6 +79,15 @@ pub struct DynamicsParameters {
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
+pub struct EffectsParameters {
+    phaser: LFOParameters,
+    bitcrusher_is_enabled: bool,
+    bitcrusher_depth: u32,
+    stereo_width_is_enabled: bool,
+    stereo_width: f32,
+}
+
+#[derive(Default, Clone, Debug, PartialEq)]
 pub struct SynthParameters {
     amp_mode: AmpMode,
     output_level: f32,
@@ -84,9 +95,9 @@ pub struct SynthParameters {
     auto_pan: LFOParameters,
     tremolo: LFOParameters,
     filter_mod: LFOParameters,
-    phaser: LFOParameters,
     oscillator_mod_lfos: Vec<LFOParameters>,
     dynamics: DynamicsParameters,
+    effects: EffectsParameters,
     arpeggiator: Arpeggiator,
     randomize_arp: bool,
     current_note_frequency: f32,
@@ -183,6 +194,13 @@ impl Synth {
             ..Default::default()
         };
 
+        let effects = EffectsParameters {
+            phaser,
+            bitcrusher_depth: DEFAULT_BITCRUSHER_DEPTH,
+            stereo_width: DEFAULT_STEREO_WIDTH,
+            ..Default::default()
+        };
+
         let oscillator_mod_lfos = vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod];
 
         let dynamics = DynamicsParameters {
@@ -202,10 +220,10 @@ impl Synth {
             auto_pan,
             tremolo,
             filter_mod,
-            phaser,
             oscillator_mod_lfos,
             output_level_constant: false,
             dynamics,
+            effects,
             arpeggiator,
             current_note_frequency,
             randomize_arp,
@@ -420,19 +438,34 @@ impl Synth {
                     }
                     EventType::UpdatePhaserEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.phaser.is_enabled = is_enabled;
+                        parameters.effects.phaser.is_enabled = is_enabled;
                     }
                     EventType::UpdatePhaserSpeed(speed_hz) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.phaser.frequency = speed_hz;
+                        parameters.effects.phaser.frequency = speed_hz;
                     }
                     EventType::UpdatePhaserAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.phaser.width = amount;
-                        parameters.phaser.center_value =
+                        parameters.effects.phaser.width = amount;
+                        parameters.effects.phaser.center_value =
                             (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor();
                     }
-
+                    EventType::UpdateBitCrusherEnabled(is_enabled) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.effects.bitcrusher_is_enabled = is_enabled;
+                    }
+                    EventType::UpdateBitCrusherAmount(depth) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.effects.bitcrusher_depth = depth as u32;
+                    }
+                    EventType::UpdateStereoWidthEnabled(is_enabled) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.effects.stereo_width_is_enabled = is_enabled;
+                    }
+                    EventType::UpdateStereoWidthAmount(width) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.effects.stereo_width = width;
+                    }                    
                     EventType::UpdateCompressorActive(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.compressor_enabled = is_active;
@@ -491,9 +524,6 @@ impl Synth {
                     }
                     EventType::Stop => {
                         self.stop();
-                    }
-                    EventType::Exit => {
-                        break;
                     }
                 }
             }
@@ -648,7 +678,7 @@ impl Synth {
                             + oscillator3_sample
                             + sub_oscillator_sample;
 
-                        if parameters.phaser.is_enabled {
+                        if parameters.effects.phaser.is_enabled {
                             oscillator_sum = get_phased_sample(
                                 &mut lfos,
                                 &mut parameters,
@@ -657,7 +687,7 @@ impl Synth {
                             );
                         }
 
-                        let balanced_oscillator_level_sum = get_balanced_oscillator_sum(
+                        let mut balanced_oscillator_level_sum = get_balanced_oscillator_sum(
                             oscillator1_level,
                             oscillator2_level,
                             oscillator3_level,
@@ -666,6 +696,14 @@ impl Synth {
                             oscillator_sum,
                         );
 
+                        if parameters.effects.bitcrusher_is_enabled {
+                            balanced_oscillator_level_sum = get_bitcrush_sample(
+                                balanced_oscillator_level_sum,
+                                parameters.effects.bitcrusher_depth,
+                            );
+                        }
+
+
                         let filter_mod_value = get_filter_mod_value(&mut lfos, &mut parameters);
 
                         let filtered_sample =
@@ -673,6 +711,13 @@ impl Synth {
 
                         let mut left_sample = filtered_sample;
                         let mut right_sample = filtered_sample;
+
+                        if parameters.effects.stereo_width_is_enabled {
+                            (left_sample, right_sample)  = get_stereo_width_samples(
+                                left_sample,
+                                right_sample,
+                            );
+                        }
 
                         if parameters.auto_pan.is_enabled {
                             (left_sample, right_sample) = get_auto_pan_value(
@@ -949,16 +994,54 @@ fn get_phased_sample(
     lfos: &mut MutexGuard<Vec<LFO>>,
     parameters: &mut MutexGuard<SynthParameters>,
     delay_buffer: &mut MutexGuard<Vec<f32>>,
-    oscillator_sum: f32,
+    original_sample: f32,
 ) -> f32 {
-    delay_buffer.insert(0, oscillator_sum);
+    delay_buffer.insert(0, original_sample);
 
     let _trash = delay_buffer.pop();
 
     let phase_shift = lfos[LFO_INDEX_FOR_PHASE_DELAY].get_next_value(
-        parameters.phaser.frequency,
-        parameters.phaser.center_value,
-        parameters.phaser.width,
+        parameters.effects.phaser.frequency,
+        parameters.effects.phaser.center_value,
+        parameters.effects.phaser.width,
     );
-    (oscillator_sum + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)]) / 2.0
+    (original_sample + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)]) / 2.0
+}
+
+fn get_bitcrush_sample(original_sample: f32, new_bit_depth: u32) -> f32 {
+
+    let bits = (2_u32.pow(new_bit_depth)/2) as f32;
+
+    let quantized = (original_sample.abs() * bits).ceil();
+
+    let mut bitcrushed_sample = quantized / bits;
+
+    if original_sample.is_sign_negative() {
+        bitcrushed_sample *= -1.0;
+    }
+
+    bitcrushed_sample
+
+}
+
+fn get_stereo_width_samples(left_sample: f32, right_sample: f32) -> (f32, f32) {
+
+    /*
+
+    [code]
+// calc coefs
+tmp = 1/max(1 + width,2);
+coef_M = 1 * tmp;
+coef_S = width * tmp;
+
+// then do this per sample
+m = (in_left + in_right)*coef_M;
+s = (in_right - in_left )*coef_S;
+
+out_left = m - s;
+out_right = m + s;
+[/code]
+     */
+
+    (left_sample, right_sample)
 }

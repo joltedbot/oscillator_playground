@@ -1,0 +1,183 @@
+import { Heading, Label, LFOSlider, ActivationSwitch } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component EffectsPanel inherits HorizontalLayout {
+
+    callback phaser_activated(bool);
+    callback phaser_speed_changed(float);
+    callback phaser_amount_changed(float);
+    callback bitcrusher_activated(bool);
+    callback bitcrusher_amount_changed(int);
+    callback stereo_width_activated(bool);
+    callback stereo_width_amount_changed(float);
+
+    Rectangle {
+            border-width: Theme.window-border-width;
+            border-color: Theme.border-colour;
+            border-radius: Theme.border-radius;
+            background: Theme.panel-box-background;
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.phaser-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                phaser_speed.enabled = self.activated;
+                                phaser_amount.enabled = self.activated;
+                                phaser_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.phaser-speed-text + (round(phaser_speed.value * 100) / 100) + Theme.phaser-speed-suffix;
+                        }
+
+                        phaser_speed := LFOSlider {
+                            slider_value: Theme.phaser-speed-slider-default;
+                            step: self.slider_value * Theme.lfo-slider-step-ratio;
+                            minimum: Theme.phaser-speed-slider-minimum;
+                            maximum: Theme.phaser-speed-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                phaser_speed_changed(level);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.phaser-amount-text + round(phaser_amount.value);
+                        }
+
+                        phaser_amount := LFOSlider {
+                            slider_value: Theme.phaser-amount-slider-default;
+                            step: Theme.phaser-amount-slider-step;
+                            minimum: Theme.phaser-amount-slider-minimum;
+                            maximum: Theme.phaser-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                phaser_amount_changed(round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.panel-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.bitcrush-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+                        activation_toggled => {
+                            bitcrush_amount.enabled = self.activated;
+                            bitcrusher_activated(self.checked);
+                        }
+                    }
+
+                    Label {
+                        label: Theme.bitcrush-amount-text + round(bitcrush_amount.value);
+                    }
+
+                    bitcrush_amount := LFOSlider {
+                        slider_value: Theme.bitcrush-amount-slider-default;
+                        step: Theme.bitcrush-amount-slider-step;
+                        minimum: Theme.bitcrush-amount-slider-minimum;
+                        maximum: Theme.bitcrush-amount-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            bitcrusher_amount_changed(round(level));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        border-width: Theme.window-border-width;
+        border-color: Theme.border-colour;
+        border-radius: Theme.border-radius;
+        background: Theme.panel-box-background;
+
+        VerticalLayout {
+            alignment: start;
+            spacing: 20px;
+            padding: 10px;
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 10px;
+
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.stereo_width-heading-text;
+                    }
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+                        activation_toggled => {
+                            stereo_width_amount.enabled = self.activated;
+                            stereo_width_activated(self.checked);
+                        }
+                    }
+
+
+                    Label {
+                        label: Theme.stereo_width-amount-text + round(stereo_width_amount.value);
+                    }
+
+                    stereo_width_amount := LFOSlider {
+                        slider_value: Theme.stereo_width-amount-slider-default;
+                        step: Theme.stereo_width-amount-slider-step;
+                        minimum: Theme.stereo_width-amount-slider-minimum;
+                        maximum: Theme.stereo_width-amount-slider-maximum;
+                        enabled: false;
+                        level_selected(level) => {
+                            stereo_width_amount_changed(round(level));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

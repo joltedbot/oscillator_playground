@@ -46,6 +46,10 @@ pub enum EventType {
     UpdatePhaserEnabled(bool),
     UpdatePhaserSpeed(f32),
     UpdatePhaserAmount(f32),
+    UpdateBitCrusherEnabled(bool),
+    UpdateBitCrusherAmount(i32),
+    UpdateStereoWidthEnabled(bool),
+    UpdateStereoWidthAmount(f32),
     UpdateCompressorActive(bool),
     UpdateCompressorThreshold(f32),
     UpdateCompressorRatio(f32),
@@ -63,26 +67,20 @@ pub enum EventType {
     ArpeggiatorRandomEnabled(bool),
     Start,
     Stop,
-    Exit,
 }
 
 pub struct Events {
     synth_sender: Sender<EventType>,
     synth_receiver: Receiver<EventType>,
-    user_interface_sender: Sender<EventType>,
-    user_interface_receiver: Receiver<EventType>,
 }
 
 impl Events {
     pub fn new() -> Self {
         let (synth_sender, synth_receiver) = unbounded();
-        let (user_interface_sender, user_interface_receiver) = unbounded();
 
         Events {
             synth_sender,
             synth_receiver,
-            user_interface_sender,
-            user_interface_receiver,
         }
     }
 
@@ -92,13 +90,5 @@ impl Events {
 
     pub fn get_synth_receiver(&self) -> Receiver<EventType> {
         self.synth_receiver.clone()
-    }
-
-    pub fn get_user_interface_sender(&self) -> Sender<EventType> {
-        self.user_interface_sender.clone()
-    }
-
-    pub fn get_user_interface_receiver(&self) -> Receiver<EventType> {
-        self.user_interface_receiver.clone()
     }
 }

@@ -3,8 +3,8 @@ export global Theme {
 
     // Main Window
     out property <string> window-title: "Oscillator Playground";
-    out property <length> window-width: 1100px;
-    out property <length> window-height: 850px;
+    out property <length> window-width: 1000px;
+    out property <length> window-height: 750px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #000010;
     out property <color> border-colour: #404040;
@@ -13,9 +13,9 @@ export global Theme {
     out property <color> header-background: #252525;
     out property <length> top-panel-row-height: 500px;
     out property <string> tab-synth-title: "Synth Engine";
+    out property <string> tab-effects-title: "Effects";
     out property <string> tab-arpeggiator-title: "Arpeggiator";
-    out property <color> panel-box-background:#000018
-    ;
+    out property <color> panel-box-background:#000018;
 
 
     // Fonts
@@ -35,7 +35,7 @@ export global Theme {
     out property <string> arpeggiator-note-order-text: "Note Order: ";
     out property <string> arpeggiator-switch-active-text: "Random";
     out property <string> arpeggiator-switch-not-active-text: "Order Selected";
-    out property <length> arpeggiator-switch-width: 120px;
+    out property <length> arpeggiator-switch-width: 200px;
 
 
     //
@@ -97,6 +97,7 @@ export global Theme {
     out property <int> filter-cutoff-slider-minimum: 0;
     out property <int> filter-cutoff-slider-maximum: 18500;
     out property <int> filter-cutoff-slider-default: 18500;
+    out property <length> filter-cutoff-value-width: 75px;
     out property <int> filter-cutoff-display-adjustment-factor: 185;
 
     // Filter Resonance Slider
@@ -136,7 +137,7 @@ export global Theme {
     // Activation Switch
     out property <string> activation-switch-active-text: "Active";
     out property <string> activation-switch-not-active-text: "Not Active";
-    out property <length> activation-switch-width: 113px;
+    out property <length> activation-switch-width: 125px;
 
     // Envelope ADRS Defaults
     out property <int> envelope-attack-default: 50;
@@ -186,6 +187,22 @@ export global Theme {
     out property <float> phaser-amount-slider-minimum: 0.0;
     out property <float> phaser-amount-slider-maximum: 128;
     out property <float> phaser-amount-slider-default: 40.0;
+
+    // Bitshift  Sliders
+    out property <int> bitcrush-amount-slider-step: 1;
+    out property <int> bitcrush-amount-slider-minimum: 1;
+    out property <int> bitcrush-amount-slider-maximum: 8;
+    out property <int> bitcrush-amount-slider-default: 8;
+
+    // Stereo Width  Sliders
+    out property <float> stereo-width-speed-slider-step: 0.01;
+    out property <float> stereo-width-speed-slider-minimum: 0.01;
+    out property <float> stereo-width-speed-slider-maximum: 20;
+    out property <float> stereo-width-speed-slider-default: 1.0;
+    out property <float> stereo-width-amount-slider-step: 1.0;
+    out property <float> stereo-width-amount-slider-minimum: 0.0;
+    out property <float> stereo-width-amount-slider-maximum: 128;
+    out property <float> stereo-width-amount-slider-default: 40.0;
 
     // Gate Duty Cycle Slider
     out property <int> envelope-gate-duty-cycle-step: 1;
@@ -253,15 +270,15 @@ export global Theme {
     out property <string> envelope-header-text: "ADSR Envelope";
     out property <string> envelope-attack-text: "Attack";
     out property <string> envelope-decay-text: "Decay";
-    out property <string> envelope-adsr-note-length-text: "Note Length";
-    out property <string> envelope-sustain-level-text: "Level";
+    out property <string> envelope-adsr-note-length-text: "Note Sustain Length";
+    out property <string> envelope-sustain-level-text: "Sustain";
     out property <string> envelope-release-text: "Release";
     out property <string> envelope-time-suffix: " ms";
-    out property <string> envelope-sustain-level-prefix: "Output -";
-    out property <string> envelope-sustain-level-suffix: "dbfs";
+    out property <string> envelope-sustain-level-prefix: "Minus ";
+    out property <string> envelope-sustain-level-suffix: " dbfs";
     out property <string> envelope-amp-mode-adsr-text: "ADSR";
     out property <string> envelope-amp-mode-gate-text: "Gate";
-    out property <string> envelope-gate-note-length-text: "Note Length";
+    out property <string> envelope-gate-note-length-text: "Gate Length";
     out property <string> envelope-gate-duty-cycle-text: "Duty Cycle";
     out property <string> envelope-mode-text: "Mode: ";
     out property <string> envelope-gate-duty-cycle-suffix: "%";
@@ -286,9 +303,14 @@ export global Theme {
     out property <string> phaser-speed-text: "Speed: ";
     out property <string> phaser-speed-suffix: " Hz";
     out property <string> phaser-amount-text: "Samples: ";
+    out property <string> phaser-heading-text: "Phaser";
+    out property <string> bitcrush-amount-text: "Samples: ";
+    out property <string> bitcrush-heading-text: "BitShift";
+    out property <string> stereo-width-speed-text: "Speed: ";
+    out property <string> stereo-width-amount-text: "Samples: ";
+    out property <string> stereo-width-heading-text: "Stereo Width";
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
-    out property <string> phaser-heading-text: "Phaser";
     out property <string> compressor-heading-text: "Compressor";
     out property <string> compressor-threshold-text: "Threshold: ";
     out property <string> compressor-ratio-text: "Ratio: ";
