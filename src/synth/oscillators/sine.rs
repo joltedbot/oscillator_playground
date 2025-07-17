@@ -32,5 +32,7 @@ impl GenerateSamples for Sine {
         self.phase.sin()
     }
 
-    fn reset(&mut self) {}
+    fn reset(&mut self) {
+        self.phase = DEFAULT_PHASE;
+    }
 }

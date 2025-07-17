@@ -8,8 +8,8 @@ export component EffectsPanel inherits HorizontalLayout {
     callback phaser_amount_changed(float);
     callback bitcrusher_activated(bool);
     callback bitcrusher_amount_changed(int);
-    callback stereo_width_activated(bool);
-    callback stereo_width_amount_changed(float);
+    callback wave_shaper_activated(bool);
+    callback wave_shaper_amount_changed(float);
 
     Rectangle {
             border-width: Theme.window-border-width;
@@ -149,31 +149,31 @@ export component EffectsPanel inherits HorizontalLayout {
 
                     Heading {
                         horizontal-alignment: center;
-                        heading: Theme.stereo_width-heading-text;
+                        heading: Theme.wave_shaper-heading-text;
                     }
 
                     ActivationSwitch {
                         activated-text: Theme.activation-switch-active-text;
                         not-activated-text: Theme.activation-switch-not-active-text;
                         activation_toggled => {
-                            stereo_width_amount.enabled = self.activated;
-                            stereo_width_activated(self.checked);
+                            wave_shaper_amount.enabled = self.activated;
+                            wave_shaper_activated(self.checked);
                         }
                     }
 
 
                     Label {
-                        label: Theme.stereo_width-amount-text + round(stereo_width_amount.value);
+                        label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
                     }
 
-                    stereo_width_amount := LFOSlider {
-                        slider_value: Theme.stereo_width-amount-slider-default;
-                        step: Theme.stereo_width-amount-slider-step;
-                        minimum: Theme.stereo_width-amount-slider-minimum;
-                        maximum: Theme.stereo_width-amount-slider-maximum;
+                    wave_shaper_amount := LFOSlider {
+                        slider_value: Theme.wave_shaper-amount-slider-default;
+                        step: Theme.wave_shaper-amount-slider-step;
+                        minimum: Theme.wave_shaper-amount-slider-minimum;
+                        maximum: Theme.wave_shaper-amount-slider-maximum;
                         enabled: false;
-                        level_selected(level) => {
-                            stereo_width_amount_changed(round(level));
+                        level_selected(amount) => {
+                            wave_shaper_amount_changed(round(amount * 10.0)/10.0);
                         }
                     }
                 }

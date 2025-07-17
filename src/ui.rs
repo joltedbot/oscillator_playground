@@ -77,8 +77,8 @@ impl UI {
         self.on_phaser_depth_changed();
         self.on_bitcrusher_activated();
         self.on_bitcrusher_amount_changed();
-        self.on_stereo_width_activated();
-        self.on_stereo_width_amount_changed();
+        self.on_wave_shaper_activated();
+        self.on_wave_shaper_amount_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
         self.on_compressor_ratio_changed();
@@ -672,12 +672,12 @@ impl UI {
         });
     }
 
-    fn on_stereo_width_activated(&mut self) {
+    fn on_wave_shaper_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_stereo_width_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateStereoWidthEnabled(is_active).clone())
+        ui.on_wave_shaper_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperEnabled(is_active).clone())
             {
                 eprintln!("Error sending event: {error}",);
             }
@@ -685,12 +685,12 @@ impl UI {
     }
 
 
-    fn on_stereo_width_amount_changed(&mut self) {
+    fn on_wave_shaper_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_stereo_width_amount_changed(move |amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateStereoWidthAmount(amount).clone()) {
+        ui.on_wave_shaper_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperAmount(amount).clone()) {
                 eprintln!("Error sending event: {error}",);
             }
         });

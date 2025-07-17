@@ -194,15 +194,11 @@ export global Theme {
     out property <int> bitcrush-amount-slider-maximum: 8;
     out property <int> bitcrush-amount-slider-default: 8;
 
-    // Stereo Width  Sliders
-    out property <float> stereo-width-speed-slider-step: 0.01;
-    out property <float> stereo-width-speed-slider-minimum: 0.01;
-    out property <float> stereo-width-speed-slider-maximum: 20;
-    out property <float> stereo-width-speed-slider-default: 1.0;
-    out property <float> stereo-width-amount-slider-step: 1.0;
-    out property <float> stereo-width-amount-slider-minimum: 0.0;
-    out property <float> stereo-width-amount-slider-maximum: 128;
-    out property <float> stereo-width-amount-slider-default: 40.0;
+    // Wave Shaper  Sliders
+    out property <float> wave-shaper-amount-slider-step: 0.1;
+    out property <float> wave-shaper-amount-slider-minimum: 0.0;
+    out property <float> wave-shaper-amount-slider-maximum: 1.0;
+    out property <float> wave-shaper-amount-slider-default: 0.0;
 
     // Gate Duty Cycle Slider
     out property <int> envelope-gate-duty-cycle-step: 1;
@@ -306,9 +302,9 @@ export global Theme {
     out property <string> phaser-heading-text: "Phaser";
     out property <string> bitcrush-amount-text: "Samples: ";
     out property <string> bitcrush-heading-text: "BitShift";
-    out property <string> stereo-width-speed-text: "Speed: ";
-    out property <string> stereo-width-amount-text: "Samples: ";
-    out property <string> stereo-width-heading-text: "Stereo Width";
+    out property <string> wave-shaper-speed-text: "Speed: ";
+    out property <string> wave-shaper-amount-text: "Amount: ";
+    out property <string> wave-shaper-heading-text: "Wave Shaper";
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
     out property <string> compressor-heading-text: "Compressor";

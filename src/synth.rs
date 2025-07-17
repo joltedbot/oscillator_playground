@@ -2,6 +2,7 @@ use crate::events::EventType;
 use crate::synth::dynamics::Dynamics;
 use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
+use crate::synth::oscillators::sine::Sine;
 use arpeggiator::Arpeggiator;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
@@ -10,6 +11,8 @@ use device::AudioDevice;
 use filter::Filter;
 use oscillators::Oscillators;
 use std::sync::{Arc, Mutex, MutexGuard};
+use constants::*;
+
 
 pub mod arpeggiator;
 pub mod device;
@@ -18,36 +21,9 @@ pub mod envelope;
 pub mod filter;
 pub mod lfo;
 pub mod oscillators;
+mod effects;
+mod constants;
 
-const OUTPUT_LEVEL: f32 = -10.0; // Sets output level to -10.  Change to any dbfs level you want
-const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
-const LFO_INDEX_FOR_AUTO_PAN: usize = 0;
-const LFO_INDEX_FOR_TREMOLO: usize = 1;
-const LFO_INDEX_FOR_FILTER_MOD: usize = 2;
-const LFO_INDEX_FOR_SUB_OSCILLATOR_MOD: usize = 3;
-const LFO_INDEX_FOR_OSCILLATOR1_MOD: usize = 4;
-const LFO_INDEX_FOR_OSCILLATOR2_MOD: usize = 5;
-const LFO_INDEX_FOR_OSCILLATOR3_MOD: usize = 6;
-
-const OSC_MOD_LFO_INDEX_FOR_SUB: usize = 0;
-const OSC_MOD_LFO_INDEX_FOR_OSC1: usize = 1;
-const OSC_MOD_LFO_INDEX_FOR_OSC2: usize = 2;
-const OSC_MOD_LFO_INDEX_FOR_OSC3: usize = 3;
-
-const LFO_INDEX_FOR_PHASE_DELAY: usize = 7;
-
-const DEFAULT_CENTER_VALUE: f32 = 0.5;
-const DEFAULT_AUTO_PAN_CENTER_VALUE: f32 = 1.0;
-const DEFAULT_PHASER_CENTER_VALUE: f32 = 87.0;
-const DEFAULT_PHASER_WIDTH: f32 = 40.0;
-const DEFAULT_LFO_FREQUENCY: f32 = 1.0;
-const DEFAULT_COMPRESSOR_RATIO: f32 = 0.5;
-const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
-const DEFAULT_SEQUENCER_NOTE: u32 = 60;
-const PHASER_MAX_WIDTH_VALUE: usize = 126;
-const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
-const DEFAULT_BITCRUSHER_DEPTH: u32 = 8;
-const DEFAULT_STEREO_WIDTH: f32 = 0.0;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
@@ -83,8 +59,8 @@ pub struct EffectsParameters {
     phaser: LFOParameters,
     bitcrusher_is_enabled: bool,
     bitcrusher_depth: u32,
-    stereo_width_is_enabled: bool,
-    stereo_width: f32,
+    wave_shaper_is_enabled: bool,
+    wave_shaper: f32,
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
@@ -125,15 +101,15 @@ impl Synth {
 
         // Initialize the modulation module and define your ADSR Envelope
         let envelope = Arc::new(Mutex::new(Envelope::new(sample_rate as u32)));
-
-        let lfo1 = LFO::new(sample_rate);
-        let lfo2 = LFO::new(sample_rate);
-        let lfo3 = LFO::new(sample_rate);
-        let lfo4 = LFO::new(sample_rate);
-        let lfo5 = LFO::new(sample_rate);
-        let lfo6 = LFO::new(sample_rate);
-        let lfo7 = LFO::new(sample_rate);
-        let lfo8 = LFO::new(sample_rate);
+        
+        let lfo1 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo2 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo3 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo4 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo5 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo6 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo7 = LFO::new(Box::new(Sine::new(sample_rate)));
+        let lfo8 = LFO::new(Box::new(Sine::new(sample_rate)));
 
         let lfos_arc = Arc::new(Mutex::new(vec![
             lfo1, lfo2, lfo3, lfo4, lfo5, lfo6, lfo7, lfo8,
@@ -197,7 +173,7 @@ impl Synth {
         let effects = EffectsParameters {
             phaser,
             bitcrusher_depth: DEFAULT_BITCRUSHER_DEPTH,
-            stereo_width: DEFAULT_STEREO_WIDTH,
+            wave_shaper: DEFAULT_WAVE_SHAPER_AMOUNT,
             ..Default::default()
         };
 
@@ -221,7 +197,7 @@ impl Synth {
             tremolo,
             filter_mod,
             oscillator_mod_lfos,
-            output_level_constant: false,
+            output_level_constant: true,
             dynamics,
             effects,
             arpeggiator,
@@ -447,8 +423,7 @@ impl Synth {
                     EventType::UpdatePhaserAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.effects.phaser.width = amount;
-                        parameters.effects.phaser.center_value =
-                            (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor();
+                        parameters.effects.phaser.center_value = effects::get_phaser_lfo_center_value_from_amount(amount);
                     }
                     EventType::UpdateBitCrusherEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -458,14 +433,14 @@ impl Synth {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.effects.bitcrusher_depth = depth as u32;
                     }
-                    EventType::UpdateStereoWidthEnabled(is_enabled) => {
+                    EventType::UpdateWaveShaperEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.stereo_width_is_enabled = is_enabled;
+                        parameters.effects.wave_shaper_is_enabled = is_enabled;
                     }
-                    EventType::UpdateStereoWidthAmount(width) => {
+                    EventType::UpdateWaveShaperAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.stereo_width = width;
-                    }                    
+                        parameters.effects.wave_shaper = amount;
+                    }
                     EventType::UpdateCompressorActive(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.compressor_enabled = is_active;
@@ -679,59 +654,56 @@ impl Synth {
                             + sub_oscillator_sample;
 
                         if parameters.effects.phaser.is_enabled {
-                            oscillator_sum = get_phased_sample(
-                                &mut lfos,
-                                &mut parameters,
+                            oscillator_sum = effects::get_phased_sample(
+                                &mut lfos[LFO_INDEX_FOR_PHASE_DELAY],
+                                &mut parameters.effects.phaser,
                                 &mut delay_buffer,
                                 oscillator_sum,
                             );
                         }
 
+                        let oscillator_level_sum = oscillator1_level + oscillator2_level + oscillator3_level + sub_oscillator_level;
                         let mut balanced_oscillator_level_sum = get_balanced_oscillator_sum(
-                            oscillator1_level,
-                            oscillator2_level,
-                            oscillator3_level,
-                            sub_oscillator_level,
-                            &mut parameters,
+                            oscillator_level_sum,
+                            parameters.output_level_constant,
                             oscillator_sum,
                         );
 
                         if parameters.effects.bitcrusher_is_enabled {
-                            balanced_oscillator_level_sum = get_bitcrush_sample(
+                            balanced_oscillator_level_sum = effects::get_bitcrush_sample(
                                 balanced_oscillator_level_sum,
                                 parameters.effects.bitcrusher_depth,
                             );
                         }
 
+                        if parameters.effects.wave_shaper_is_enabled {
+                            balanced_oscillator_level_sum = effects::get_wave_shaped_sample(
+                                balanced_oscillator_level_sum,
+                                parameters.effects.wave_shaper,
+                            );
+                        }
 
-                        let filter_mod_value = get_filter_mod_value(&mut lfos, &mut parameters);
 
+                        let filter_mod_value = get_filter_mod_value(&mut lfos[LFO_INDEX_FOR_FILTER_MOD], &mut parameters);
                         let filtered_sample =
                             filter.filter_sample(balanced_oscillator_level_sum, filter_mod_value);
 
                         let mut left_sample = filtered_sample;
                         let mut right_sample = filtered_sample;
 
-                        if parameters.effects.stereo_width_is_enabled {
-                            (left_sample, right_sample)  = get_stereo_width_samples(
-                                left_sample,
-                                right_sample,
-                            );
-                        }
-
                         if parameters.auto_pan.is_enabled {
-                            (left_sample, right_sample) = get_auto_pan_value(
-                                &mut lfos,
-                                &mut parameters,
+                            (left_sample, right_sample) = effects::get_auto_pan_value(
+                                &mut lfos[LFO_INDEX_FOR_AUTO_PAN],
+                                &mut parameters.auto_pan,
                                 left_sample,
                                 right_sample,
                             );
                         }
 
                         if parameters.tremolo.is_enabled {
-                            (left_sample, right_sample) = get_tremolo_value(
-                                &mut lfos,
-                                &mut parameters,
+                            (left_sample, right_sample) = effects::get_tremolo_value(
+                                &mut lfos[LFO_INDEX_FOR_TREMOLO],
+                                &mut parameters.tremolo,
                                 left_sample,
                                 right_sample,
                             );
@@ -823,11 +795,11 @@ impl Synth {
 }
 
 fn get_filter_mod_value(
-    lfos: &mut MutexGuard<Vec<LFO>>,
+    lfo: &mut LFO,
     parameters: &mut MutexGuard<SynthParameters>,
 ) -> Option<f32> {
     match parameters.filter_mod.is_enabled {
-        true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
+        true => Some(lfo.get_next_value(
             parameters.filter_mod.frequency,
             parameters.filter_mod.center_value,
             parameters.filter_mod.width,
@@ -837,20 +809,12 @@ fn get_filter_mod_value(
 }
 
 fn get_balanced_oscillator_sum(
-    oscillator1_level: f32,
-    oscillator2_level: f32,
-    oscillator3_level: f32,
-    sub_oscillator_level: f32,
-    parameters: &mut MutexGuard<SynthParameters>,
+    oscillator_level_sum: f32,
+    output_level_is_constant: bool,
     oscillator_sum: f32,
 ) -> f32 {
-    match parameters.output_level_constant {
-        true => {
-            let oscillator_level_sum =
-                oscillator1_level + oscillator2_level + oscillator3_level + sub_oscillator_level;
-
-            oscillator_sum / oscillator_level_sum
-        }
+    match output_level_is_constant {
+        true => oscillator_sum / oscillator_level_sum,
         false => oscillator_sum / UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
     }
 }
@@ -869,41 +833,6 @@ fn get_oscillator_mod_value(
     } else {
         None
     }
-}
-
-fn get_tremolo_value(
-    lfos: &mut MutexGuard<Vec<LFO>>,
-    parameters: &mut MutexGuard<SynthParameters>,
-    mut left_sample: f32,
-    mut right_sample: f32,
-) -> (f32, f32) {
-    let tremolo_value = lfos[LFO_INDEX_FOR_TREMOLO].get_next_value(
-        parameters.tremolo.frequency,
-        parameters.tremolo.center_value,
-        parameters.tremolo.width,
-    );
-    left_sample *= tremolo_value;
-    right_sample *= tremolo_value;
-
-    (left_sample, right_sample)
-}
-
-fn get_auto_pan_value(
-    lfos: &mut MutexGuard<Vec<LFO>>,
-    parameters: &mut MutexGuard<SynthParameters>,
-    mut left_sample: f32,
-    mut right_sample: f32,
-) -> (f32, f32) {
-    let pan_value = lfos[LFO_INDEX_FOR_AUTO_PAN].get_next_value(
-        parameters.auto_pan.frequency,
-        parameters.auto_pan.center_value,
-        parameters.auto_pan.width,
-    );
-
-    left_sample *= pan_value;
-    right_sample *= 2.0 - pan_value;
-
-    (left_sample, right_sample)
 }
 
 fn get_compressed_samples(
@@ -990,58 +919,3 @@ fn get_clipped_samples(
     (left_sample, right_sample)
 }
 
-fn get_phased_sample(
-    lfos: &mut MutexGuard<Vec<LFO>>,
-    parameters: &mut MutexGuard<SynthParameters>,
-    delay_buffer: &mut MutexGuard<Vec<f32>>,
-    original_sample: f32,
-) -> f32 {
-    delay_buffer.insert(0, original_sample);
-
-    let _trash = delay_buffer.pop();
-
-    let phase_shift = lfos[LFO_INDEX_FOR_PHASE_DELAY].get_next_value(
-        parameters.effects.phaser.frequency,
-        parameters.effects.phaser.center_value,
-        parameters.effects.phaser.width,
-    );
-    (original_sample + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)]) / 2.0
-}
-
-fn get_bitcrush_sample(original_sample: f32, new_bit_depth: u32) -> f32 {
-
-    let bits = (2_u32.pow(new_bit_depth)/2) as f32;
-
-    let quantized = (original_sample.abs() * bits).ceil();
-
-    let mut bitcrushed_sample = quantized / bits;
-
-    if original_sample.is_sign_negative() {
-        bitcrushed_sample *= -1.0;
-    }
-
-    bitcrushed_sample
-
-}
-
-fn get_stereo_width_samples(left_sample: f32, right_sample: f32) -> (f32, f32) {
-
-    /*
-
-    [code]
-// calc coefs
-tmp = 1/max(1 + width,2);
-coef_M = 1 * tmp;
-coef_S = width * tmp;
-
-// then do this per sample
-m = (in_left + in_right)*coef_M;
-s = (in_right - in_left )*coef_S;
-
-out_left = m - s;
-out_right = m + s;
-[/code]
-     */
-
-    (left_sample, right_sample)
-}

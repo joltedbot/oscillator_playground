@@ -67,8 +67,8 @@ export component AppWindow inherits Window {
     callback phaser_amount_changed(float);
     callback bitcrusher_activated(bool);
     callback bitcrusher_amount_changed(int);
-    callback stereo_width_activated(bool);
-    callback stereo_width_amount_changed(float);
+    callback wave_shaper_activated(bool);
+    callback wave_shaper_amount_changed(float);
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
     callback compressor_ratio_changed(float);
@@ -330,12 +330,12 @@ export component AppWindow inherits Window {
                             root.bitcrusher_amount_changed(depth);
                         }
 
-                        stereo_width_activated(is_activated) => {
-                            root.stereo_width_activated(is_activated);
+                        wave_shaper_activated(is_activated) => {
+                            root.wave_shaper_activated(is_activated);
                         }
 
-                        stereo_width_amount_changed(float) => {
-                            root.stereo_width_amount_changed(float);
+                        wave_shaper_amount_changed(float) => {
+                            root.wave_shaper_amount_changed(float);
                         }
                         
                     }

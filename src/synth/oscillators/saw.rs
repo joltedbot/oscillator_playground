@@ -6,18 +6,15 @@ const DEFAULT_X_INCREMENT: f32 = 1.0;
 
 pub struct Saw {
     x_coordinate: f32,
-    x_increment: f32,
     sample_rate: f32,
 }
 
 impl Saw {
     pub fn new(sample_rate: f32) -> Self {
         let x_coordinate = DEFAULT_X_COORDINATE;
-        let x_increment = DEFAULT_X_INCREMENT;
 
         Self {
             x_coordinate,
-            x_increment,
             sample_rate,
         }
     }
@@ -30,12 +27,11 @@ impl GenerateSamples for Saw {
             * (1.0f32 / (tone_frequency * PI * (self.x_coordinate / self.sample_rate)).tan())
                 .atan();
 
-        self.x_coordinate += self.x_increment;
+        self.x_coordinate += DEFAULT_X_INCREMENT;
         y_coordinate
     }
 
     fn reset(&mut self) {
         self.x_coordinate = DEFAULT_X_COORDINATE;
-        self.x_increment = DEFAULT_X_INCREMENT;
     }
 }

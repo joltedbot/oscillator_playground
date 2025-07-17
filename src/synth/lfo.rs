@@ -1,39 +1,27 @@
-const RADS_PER_CYCLE: f32 = 2.0 * std::f32::consts::PI;
+use crate::synth::oscillators::GenerateSamples;
 
 pub struct LFO {
-    pub phase: f32,
-    pub phase_increment: f32,
-    pub sample_rate: f32,
+    oscillator: Box<dyn GenerateSamples + Send + Sync>,
 }
 
 impl LFO {
-    pub fn new(sample_rate: f32) -> Self {
-        let phase: f32 = 0.0;
-        let seconds_per_sample = 1.0 / sample_rate;
-        let phase_increment = RADS_PER_CYCLE * seconds_per_sample;
-
-        Self {
-            phase,
-            phase_increment,
-            sample_rate,
-        }
+    pub fn new(oscillator: Box<dyn GenerateSamples + Send + Sync>) -> Self {
+        Self { oscillator }
     }
 
     pub fn get_next_value(&mut self, lfo_frequency: f32, center_value: f32, spread: f32) -> f32 {
-        let phase_increment = self.phase_increment * lfo_frequency;
 
-        self.phase += phase_increment;
-        if self.phase >= RADS_PER_CYCLE {
-            self.phase = 0.0;
-        }
-        let wave_position = self.phase.sin();
+        let wave_position = self.oscillator.next_sample(lfo_frequency, None);
 
         center_value + (wave_position * (spread / 2.0))
+
     }
 
     pub fn reset(&mut self) {
-        self.phase = 0.0;
-        let seconds_per_sample = 1.0 / self.sample_rate;
-        self.phase_increment = RADS_PER_CYCLE * seconds_per_sample;
+        self.oscillator.reset();
     }
+
 }
+
+
+

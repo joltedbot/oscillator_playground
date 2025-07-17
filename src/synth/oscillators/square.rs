@@ -6,18 +6,15 @@ const DEFAULT_X_INCREMENT: f32 = 1.0;
 
 pub struct Square {
     x_coordinate: f32,
-    x_increment: f32,
     sample_rate: f32,
 }
 
 impl Square {
     pub fn new(sample_rate: f32) -> Self {
         let x_coordinate = DEFAULT_X_COORDINATE;
-        let x_increment = DEFAULT_X_INCREMENT;
 
         Self {
             x_coordinate,
-            x_increment,
             sample_rate,
         }
     }
@@ -40,12 +37,11 @@ impl GenerateSamples for Square {
             y_coordinate = -1.0;
         }
 
-        self.x_coordinate += self.x_increment;
+        self.x_coordinate += DEFAULT_X_INCREMENT;
         y_coordinate
     }
 
     fn reset(&mut self) {
         self.x_coordinate = DEFAULT_X_COORDINATE;
-        self.x_increment = DEFAULT_X_INCREMENT;
     }
 }
