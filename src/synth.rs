@@ -597,25 +597,25 @@ impl Synth {
 
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_mod = get_oscillator_mod_value(
-                            &mut &lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],
+                            &mut lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],
                             OSC_MOD_LFO_INDEX_FOR_SUB,
                             &mut parameters,
                         );
 
                         let oscillator1_mod = get_oscillator_mod_value(
-                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD],
+                            &mut lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD],
                             OSC_MOD_LFO_INDEX_FOR_OSC1,
                             &mut parameters,
                         );
 
                         let oscillator2_mod = get_oscillator_mod_value(
-                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD],
+                            &mut lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD],
                             OSC_MOD_LFO_INDEX_FOR_OSC2,
                             &mut parameters,
                         );
 
                         let oscillator3_mod = get_oscillator_mod_value(
-                            &mut &lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD],
+                            &mut lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD],
                             OSC_MOD_LFO_INDEX_FOR_OSC3,
                             &mut parameters,
                         );
@@ -766,7 +766,7 @@ impl Synth {
                         frame[1] = right_sample;
                     }
                 },
-                |err| panic!("an error occurred for the stream: {}", err),
+                |err| panic!("an error occurred for the stream: {err}"),
                 None,
             )
             .unwrap();
@@ -778,8 +778,8 @@ impl Synth {
 }
 
 fn get_filter_mod_value(
-    mut lfos: &mut MutexGuard<Vec<LFO>>,
-    mut parameters: &mut MutexGuard<SynthParameters>,
+    lfos: &mut MutexGuard<Vec<LFO>>,
+    parameters: &mut MutexGuard<SynthParameters>,
 ) -> Option<f32> {
     match parameters.filter_mod.is_enabled {
         true => Some(lfos[LFO_INDEX_FOR_FILTER_MOD].get_next_value(
@@ -796,8 +796,8 @@ fn get_balanced_oscillator_sum(
     oscillator2_level: f32,
     oscillator3_level: f32,
     sub_oscillator_level: f32,
-    mut parameters: &mut MutexGuard<SynthParameters>,
-    mut oscillator_sum: f32,
+    parameters: &mut MutexGuard<SynthParameters>,
+    oscillator_sum: f32,
 ) -> f32 {
     match parameters.output_level_constant {
         true => {
@@ -811,9 +811,9 @@ fn get_balanced_oscillator_sum(
 }
 
 fn get_oscillator_mod_value(
-    mut lfo: &LFO,
+    lfo: &mut LFO,
     index: usize,
-    mut parameters: &mut MutexGuard<SynthParameters>,
+    parameters: &mut MutexGuard<SynthParameters>,
 ) -> Option<f32> {
     if parameters.oscillator_mod_lfos[index].width > 0.0 {
         Some(lfo.get_next_value(

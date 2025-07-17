@@ -79,8 +79,7 @@ impl Filter {
     fn filter_sample_pole1(&mut self, sample: f32, normalized_frequency: f32, feedback: f32) {
         let high_pass = sample - self.pole1_buffer_0;
         let band_pass = self.pole1_buffer_0 - self.pole1_buffer_1;
-        self.pole1_buffer_0 =
-            self.pole1_buffer_0 + normalized_frequency * (high_pass + feedback * band_pass);
+        self.pole1_buffer_0 += normalized_frequency * (high_pass + feedback * band_pass);
         self.pole1_buffer_1 = self.pole1_buffer_1
             + normalized_frequency * (self.pole1_buffer_0 - self.pole1_buffer_1);
     }
@@ -88,8 +87,7 @@ impl Filter {
     fn filter_sample_pole2(&mut self, normalized_frequency: f32, feedback: f32) {
         let high_pass = self.pole1_buffer_1 - self.pole2_buffer_0;
         let band_pass = self.pole2_buffer_0 - self.pole2_buffer_1;
-        self.pole2_buffer_0 =
-            self.pole2_buffer_0 + normalized_frequency * (high_pass + feedback * band_pass);
+        self.pole2_buffer_0 += normalized_frequency * (high_pass + feedback * band_pass);
         self.pole2_buffer_1 = self.pole2_buffer_1
             + normalized_frequency * (self.pole2_buffer_0 - self.pole2_buffer_1);
     }
@@ -97,8 +95,7 @@ impl Filter {
     fn filter_sample_pole3(&mut self, normalized_frequency: f32, feedback: f32) {
         let high_pass = self.pole2_buffer_1 - self.pole3_buffer_0;
         let band_pass = self.pole3_buffer_0 - self.pole3_buffer_1;
-        self.pole3_buffer_0 =
-            self.pole3_buffer_0 + normalized_frequency * (high_pass + feedback * band_pass);
+        self.pole3_buffer_0 += normalized_frequency * (high_pass + feedback * band_pass);
         self.pole3_buffer_1 = self.pole3_buffer_1
             + normalized_frequency * (self.pole3_buffer_0 - self.pole3_buffer_1);
     }
@@ -106,8 +103,7 @@ impl Filter {
     fn filter_sample_pole4(&mut self, normalized_frequency: f32, feedback: f32) {
         let high_pass = self.pole3_buffer_1 - self.pole4_buffer_0;
         let band_pass = self.pole4_buffer_0 - self.pole4_buffer_1;
-        self.pole4_buffer_0 =
-            self.pole4_buffer_0 + normalized_frequency * (high_pass + feedback * band_pass);
+        self.pole4_buffer_0 += normalized_frequency * (high_pass + feedback * band_pass);
         self.pole4_buffer_1 = self.pole4_buffer_1
             + normalized_frequency * (self.pole4_buffer_0 - self.pole4_buffer_1);
     }

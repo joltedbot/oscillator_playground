@@ -120,13 +120,11 @@ impl Envelope {
     pub fn set_gate_duty_cycle(&mut self, duty_cycle: f32) {
         if duty_cycle <= 0.0 {
             self.gate.duty_cycle = 0.0;
-        }
-
-        if duty_cycle >= MAXIMUM_GATE_DUTY_CYCLE {
+        } else if duty_cycle >= MAXIMUM_GATE_DUTY_CYCLE {
             self.gate.duty_cycle = MAXIMUM_GATE_DUTY_CYCLE;
+        } else {
+            self.gate.duty_cycle = duty_cycle;
         }
-
-        self.gate.duty_cycle = duty_cycle;
 
         let total_number_of_samples = get_number_of_samples_from_milliseconds(
             self.sample_rate,
