@@ -38,6 +38,10 @@ impl UI {
         self.on_wave_level2_selected_callback();
         self.on_wave_level3_selected_callback();
         self.on_sub_level_selected_callback();
+        self.on_wave1_shaper_amount_changed();
+        self.on_wave2_shaper_amount_changed();
+        self.on_wave3_shaper_amount_changed();
+        self.on_sub_shaper_amount_changed();
         self.on_wave_mod1_speed_changed();
         self.on_wave_mod2_speed_changed();
         self.on_wave_mod3_speed_changed();
@@ -192,6 +196,50 @@ impl UI {
         });
     }
 
+    fn on_wave1_shaper_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave1_shaper_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ShaperAmount(level)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_wave2_shaper_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave2_shaper_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ShaperAmount(level)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_wave3_shaper_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave3_shaper_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ShaperAmount(level)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_sub_shaper_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_sub_shaper_amount_changed(move |level| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShaperAmount(level)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+    
     fn on_wave_mod1_speed_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -858,4 +906,5 @@ impl UI {
             }
         });
     }
+
 }

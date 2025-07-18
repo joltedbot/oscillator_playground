@@ -6,7 +6,7 @@ export global Theme {
     out property <length> window-width: 1000px;
     out property <length> window-height: 750px;
     out property <length> window-border-width: 2px;
-    out property <color> window-background: #000010;
+    out property <color> window-background: #101010;
     out property <color> border-colour: #404040;
     out property <length> border-width: 2px;
     out property <length> border-radius: 15px;
@@ -15,8 +15,11 @@ export global Theme {
     out property <string> tab-synth-title: "Synth Engine";
     out property <string> tab-effects-title: "Effects";
     out property <string> tab-arpeggiator-title: "Arpeggiator";
-    out property <color> panel-box-background:#000018;
+    out property <color> panel-box-background:#202020;
 
+    // Panel Sized
+    out property <length> envelope-panel-width: 300px;
+    out property <length> lfo-panel-width: 173px;
 
     // Fonts
     out property <color> text-color: #AAAAAA;
@@ -255,11 +258,12 @@ export global Theme {
     out property <string> oscillator2-heading-text: "Oscillator 2";
     out property <string> oscillator3-heading-text: "Oscillator 3";
     out property <string> sub-oscillator-heading-text: "Sub";
-    out property <string> sub-oscillator-level-text: "Relative Level";
-    out property <string> oscillator-level-text: "Relative Level";
-    out property <string> oscillator-mod-speed-text: "Mod Speed: ";
+    out property <string> oscillator-level-text: "Level";
+    out property <string> oscillator-shape-text: "Shape";
+    out property <string> oscillator-mod-text: "Modulation";
+    out property <string> oscillator-mod-speed-text: "Speed: ";
     out property <string> oscillator-mod-speed-suffix: " Hz";
-    out property <string> oscillator-mod-amount-text: "Mod Amount: ";
+    out property <string> oscillator-mod-amount-text: "Amount: ";
     out property <string> oscillator-mod-amount-suffix: "%";
     out property <string> detune-heading-text: "Detune";
     out property <string> detune-amount-label-suffix: "%";

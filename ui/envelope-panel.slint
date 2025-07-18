@@ -1,8 +1,7 @@
 import { Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
-export component EnvelopePanel inherits VerticalLayout {
-    alignment: center;
+export component EnvelopePanel inherits HorizontalLayout {
 
     callback envelope_attack_updated(float);
     callback envelope_decay_updated(float);
@@ -20,18 +19,15 @@ export component EnvelopePanel inherits VerticalLayout {
         border-radius: Theme.border-radius;
         background: Theme.panel-box-background;
         height: Theme.top-panel-row-height;
+        width: Theme.envelope-panel-width;
 
         VerticalLayout {
-            vertical-stretch: 1;
             alignment: center;
             spacing: 20px;
             padding: 10px;
 
             HorizontalLayout {
-                alignment: center;
                 spacing: 5px;
-                width: 200px;
-
                 Heading {
                     horizontal-alignment: center;
                     heading: Theme.envelope-header-text;
@@ -42,6 +38,7 @@ export component EnvelopePanel inherits VerticalLayout {
                 spacing: 5px;
 
                 Label {
+                    horizontal-alignment: center;
                     label: Theme.envelope-mode-text;
                 }
 

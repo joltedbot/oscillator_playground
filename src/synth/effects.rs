@@ -1,11 +1,15 @@
 use std::sync::MutexGuard;
 use crate::synth::lfo::LFO;
-use crate::synth::{LFOParameters, SynthParameters};
+use crate::synth::LFOParameters;
 
 const PHASER_MAX_WIDTH_VALUE: usize = 126;
 const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 
 pub fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
+
+    if amount == 0.0 {
+        return sample
+    }
 
     if amount >= WAVE_SHAPER_MAX_AMOUNT {
         amount = WAVE_SHAPER_MAX_AMOUNT;

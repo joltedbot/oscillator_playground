@@ -28,6 +28,10 @@ export component AppWindow inherits Window {
     callback wave_level2_selected(float);
     callback wave_level3_selected(float);
     callback sub_level_selected(float);
+    callback wave1_shaper_amount_changed(float);
+    callback wave2_shaper_amount_changed(float);
+    callback wave3_shaper_amount_changed(float);
+    callback sub_shaper_amount_changed(float);    
     callback wave_mod1_speed_changed(float);
     callback wave_mod2_speed_changed(float);
     callback wave_mod3_speed_changed(float);
@@ -106,14 +110,13 @@ export component AppWindow inherits Window {
             Tab {
                 title: Theme.tab-synth-title;
 
-
-
                     HorizontalLayout {
                         alignment: center;
                         spacing: 10px;
 
                         VerticalLayout {
                             spacing: 5px;
+                            padding: 5px;
                             alignment: start;
 
                             HorizontalLayout {
@@ -150,6 +153,22 @@ export component AppWindow inherits Window {
 
                                     sub_shape_selected(shape) => {
                                         root.sub_shape_selected(shape);
+                                    }
+
+                                    wave1_shaper_amount_changed(shape) => {
+                                        root.wave1_shaper_amount_changed(shape);
+                                    }
+
+                                    wave2_shaper_amount_changed(shape) => {
+                                        root.wave2_shaper_amount_changed(shape);
+                                    }
+
+                                    wave3_shaper_amount_changed(shape) => {
+                                        root.wave3_shaper_amount_changed(shape);
+                                    }
+
+                                    sub_shaper_amount_changed(shape) => {
+                                        root. sub_shaper_amount_changed(shape);
                                     }
 
                                     wave_mod1_speed_changed(speed_hz) => {

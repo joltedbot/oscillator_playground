@@ -101,18 +101,16 @@ impl Synth {
 
         // Initialize the modulation module and define your ADSR Envelope
         let envelope = Arc::new(Mutex::new(Envelope::new(sample_rate as u32)));
-        
-        let lfo1 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo2 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo3 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo4 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo5 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo6 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo7 = LFO::new(Box::new(Sine::new(sample_rate)));
-        let lfo8 = LFO::new(Box::new(Sine::new(sample_rate)));
 
         let lfos_arc = Arc::new(Mutex::new(vec![
-            lfo1, lfo2, lfo3, lfo4, lfo5, lfo6, lfo7, lfo8,
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),
+            LFO::new(Box::new(Sine::new(sample_rate))),   
         ]));
 
         let filter = Filter::new(sample_rate);
@@ -136,6 +134,13 @@ impl Synth {
         let filter_mod = LFOParameters {
             center_value: DEFAULT_CENTER_VALUE,
             frequency: DEFAULT_LFO_FREQUENCY,
+            ..Default::default()
+        };
+
+        let phaser = LFOParameters {
+            center_value: DEFAULT_PHASER_CENTER_VALUE,
+            frequency: DEFAULT_LFO_FREQUENCY,
+            width: DEFAULT_PHASER_WIDTH,
             ..Default::default()
         };
 
@@ -163,10 +168,11 @@ impl Synth {
             ..Default::default()
         };
 
-        let phaser = LFOParameters {
-            center_value: DEFAULT_PHASER_CENTER_VALUE,
-            frequency: DEFAULT_LFO_FREQUENCY,
-            width: DEFAULT_PHASER_WIDTH,
+        let oscillator_mod_lfos = vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod];
+
+        let dynamics = DynamicsParameters {
+            compressor_ratio: DEFAULT_COMPRESSOR_RATIO,
+            compressor_threshold: DEFAULT_COMPRESSOR_THRESHOLD,
             ..Default::default()
         };
 
@@ -174,14 +180,6 @@ impl Synth {
             phaser,
             bitcrusher_depth: DEFAULT_BITCRUSHER_DEPTH,
             wave_shaper: DEFAULT_WAVE_SHAPER_AMOUNT,
-            ..Default::default()
-        };
-
-        let oscillator_mod_lfos = vec![sub_osc_mod, osc1_mod, osc2_mod, osc3_mod];
-
-        let dynamics = DynamicsParameters {
-            compressor_ratio: DEFAULT_COMPRESSOR_RATIO,
-            compressor_threshold: DEFAULT_COMPRESSOR_THRESHOLD,
             ..Default::default()
         };
 
@@ -259,6 +257,22 @@ impl Synth {
                     EventType::UpdateSubOscillatorLevel(level) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         oscillators.set_sub_oscillator_level(level);
+                    }
+                    EventType::UpdateOscillator1ShaperAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator1_shaper_amount(amount);
+                    }
+                    EventType::UpdateOscillator2ShaperAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator2_shaper_amount(amount);
+                    }
+                    EventType::UpdateOscillator3ShaperAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator3_shaper_amount(amount);
+                    }
+                    EventType::UpdateSubOscillatorShaperAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_sub_oscillator_shaper_amount(amount);
                     }
                     EventType::UpdateSubOscillatorModFreq(speed) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -564,6 +578,7 @@ impl Synth {
             .build_output_stream(
                 stream_config,
                 move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
+
                     let mut oscillators = oscillators_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
@@ -625,7 +640,7 @@ impl Synth {
                             &mut parameters,
                         );
 
-                        let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
+                        let mut sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
                             parameters.current_note_frequency,
                             sub_oscillator_level,
                             sub_oscillator_mod,

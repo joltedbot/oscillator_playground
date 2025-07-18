@@ -17,6 +17,8 @@ use sub::Sub;
 use super_saw::SuperSaw;
 use triangle::Triangle;
 
+const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
+
 pub trait GenerateSamples {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
     fn reset(&mut self);
@@ -43,6 +45,10 @@ pub struct Oscillators {
     oscillator2_level: f32,
     oscillator3_level: f32,
     sub_oscillator_level: f32,
+    oscillator1_shaper_amount: f32,
+    oscillator2_shaper_amount: f32,
+    oscillator3_shaper_amount: f32,
+    sub_oscillator_shaper_amount: f32,
     is_unison: bool,
     unison_frequency_offset: f32,
 }
@@ -57,6 +63,11 @@ impl Oscillators {
         let oscillator2_level = 1.0;
         let oscillator3_level = 1.0;
         let sub_oscillator_level = 0.0;
+        let oscillator1_shaper_amount = 0.0;
+        let oscillator2_shaper_amount = 0.0;
+        let oscillator3_shaper_amount = 0.0;
+        let sub_oscillator_shaper_amount = 0.0;
+
 
         Self {
             sample_rate,
@@ -68,6 +79,10 @@ impl Oscillators {
             oscillator2_level,
             oscillator3_level,
             sub_oscillator_level,
+            oscillator1_shaper_amount,
+            oscillator2_shaper_amount,
+            oscillator3_shaper_amount,
+            sub_oscillator_shaper_amount,
             is_unison: false,
             unison_frequency_offset: 0.0,
         }
@@ -104,6 +119,24 @@ impl Oscillators {
     pub fn set_sub_oscillator_level(&mut self, level: f32) {
         self.sub_oscillator_level = level;
     }
+
+    pub fn set_oscillator1_shaper_amount(&mut self, amount: f32) {
+        self.oscillator1_shaper_amount = amount;
+    }
+
+    pub fn set_oscillator2_shaper_amount(&mut self, amount: f32) {
+        self.oscillator2_shaper_amount = amount;
+    }
+
+    pub fn set_oscillator3_shaper_amount(&mut self, amount: f32) {
+        self.oscillator3_shaper_amount = amount;
+    }
+
+    pub fn set_sub_oscillator_shaper_amount(&mut self, amount: f32) {
+        self.sub_oscillator_shaper_amount = amount;
+    }
+
+
 
     pub fn get_oscillator1_level(&mut self) -> f32 {
         self.oscillator1_level
@@ -144,7 +177,8 @@ impl Oscillators {
             note_frequency - (note_frequency * self.unison_frequency_offset)
         };
 
-        self.oscillator1.next_sample(frequency, modulation) * relative_level
+        let sample = self.oscillator1.next_sample(frequency, modulation) * relative_level;
+        get_wave_shaped_sample(sample, self.oscillator1_shaper_amount)
     }
 
     pub fn get_oscillator2_next_sample(
@@ -157,7 +191,8 @@ impl Oscillators {
             return 0.0;
         }
 
-        self.oscillator2.next_sample(note_frequency, modulation) * relative_level
+        let sample = self.oscillator2.next_sample(note_frequency, modulation) * relative_level;
+        get_wave_shaped_sample(sample, self.oscillator2_shaper_amount)
     }
 
     pub fn get_oscillator3_next_sample(
@@ -176,7 +211,8 @@ impl Oscillators {
             note_frequency - (note_frequency * self.unison_frequency_offset)
         };
 
-        self.oscillator3.next_sample(frequency, modulation) * relative_level
+        let sample = self.oscillator3.next_sample(frequency, modulation) * relative_level;
+        get_wave_shaped_sample(sample, self.oscillator3_shaper_amount)
     }
 
     pub fn get_sub_oscillator_next_sample(
@@ -189,7 +225,8 @@ impl Oscillators {
             return 0.0;
         }
 
-        self.sub_oscillator.next_sample(note_frequency, modulation) * relative_level
+        let sample = self.sub_oscillator.next_sample(note_frequency, modulation) * relative_level;
+        get_wave_shaped_sample(sample, self.sub_oscillator_shaper_amount)
     }
 
     pub fn enable_unison(&mut self, unison_spread_percentage_of_note: f32) {
@@ -229,4 +266,21 @@ impl Oscillators {
             _ => WaveShape::Sine,
         }
     }
+}
+
+
+
+fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
+
+    if amount == 0.0 {
+        return sample
+    }
+
+    if amount >= WAVE_SHAPER_MAX_AMOUNT {
+        amount = WAVE_SHAPER_MAX_AMOUNT;
+    }
+
+    let shape = (2.0 * amount) / (1.0 - amount);
+    ((1.0+ shape) * sample) / (1.0 + (shape * sample.abs()))
+
 }
