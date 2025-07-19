@@ -1,14 +1,13 @@
-use std::sync::MutexGuard;
-use crate::synth::lfo::LFO;
 use crate::synth::LFOParameters;
+use crate::synth::lfo::LFO;
+use std::sync::MutexGuard;
 
 const PHASER_MAX_WIDTH_VALUE: usize = 126;
 const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 
 pub fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
-
     if amount == 0.0 {
-        return sample
+        return sample;
     }
 
     if amount >= WAVE_SHAPER_MAX_AMOUNT {
@@ -16,8 +15,7 @@ pub fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
     }
 
     let shape = (2.0 * amount) / (1.0 - amount);
-    ((1.0+ shape) * sample) / (1.0 + (shape * sample.abs()))
-
+    ((1.0 + shape) * sample) / (1.0 + (shape * sample.abs()))
 }
 
 pub fn get_phased_sample(
@@ -30,11 +28,7 @@ pub fn get_phased_sample(
 
     let _trash = delay_buffer.pop();
 
-    let phase_shift = lfo.get_next_value(
-        phaser.frequency,
-        phaser.center_value,
-        phaser.width,
-    );
+    let phase_shift = lfo.get_next_value(phaser.frequency, phaser.center_value, phaser.width);
     (original_sample + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)]) / 2.0
 }
 
@@ -43,8 +37,7 @@ pub fn get_phaser_lfo_center_value_from_amount(amount: f32) -> f32 {
 }
 
 pub fn get_bitcrush_sample(original_sample: f32, new_bit_depth: u32) -> f32 {
-
-    let bits = (2_u32.pow(new_bit_depth)/2) as f32;
+    let bits = (2_u32.pow(new_bit_depth) / 2) as f32;
     let quantized = (original_sample.abs() * bits).ceil();
     let mut bitcrushed_sample = quantized / bits;
 
@@ -53,7 +46,6 @@ pub fn get_bitcrush_sample(original_sample: f32, new_bit_depth: u32) -> f32 {
     }
 
     bitcrushed_sample
-
 }
 
 pub fn get_auto_pan_value(
@@ -62,11 +54,7 @@ pub fn get_auto_pan_value(
     mut left_sample: f32,
     mut right_sample: f32,
 ) -> (f32, f32) {
-    let pan_value = lfo.get_next_value(
-        auto_pan.frequency,
-        auto_pan.center_value,
-        auto_pan.width,
-    );
+    let pan_value = lfo.get_next_value(auto_pan.frequency, auto_pan.center_value, auto_pan.width);
 
     left_sample *= pan_value;
     right_sample *= 2.0 - pan_value;
@@ -80,11 +68,7 @@ pub fn get_tremolo_value(
     mut left_sample: f32,
     mut right_sample: f32,
 ) -> (f32, f32) {
-    let tremolo_value = lfo.get_next_value(
-        tremolo.frequency,
-        tremolo.center_value,
-        tremolo.width,
-    );
+    let tremolo_value = lfo.get_next_value(tremolo.frequency, tremolo.center_value, tremolo.width);
     left_sample *= tremolo_value;
     right_sample *= tremolo_value;
 

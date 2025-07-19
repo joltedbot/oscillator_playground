@@ -1,101 +1,165 @@
-import { Heading, Label, FilterSlider, LevelSlider  } from "../ui/components.slint";
+import { Panel, Heading, Label, FilterSlider, LevelSlider, LFOSlider, ActivationSwitch  } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
-export component FilterPanel inherits VerticalLayout {
+export component FilterPanel inherits HorizontalLayout {
     alignment: start;
 
     callback number_of_poles_selected(int);
     callback filter_cutoff_value_changed(float);
     callback filter_resonance_value_changed(float);
+    callback filter_mod_activated(bool);
+    callback filter_mod_speed_changed(float);
+    callback filter_mod_amount_changed(float);
 
-    Rectangle {
-        border-width: Theme.window-border-width;
-        border-color: Theme.border-colour;
-        border-radius: Theme.border-radius;
-        background: Theme.panel-box-background;
+    Panel {
 
-        VerticalLayout {
-            alignment: start;
-            spacing: 10px;
-            padding: 20px;
+        width: Theme.oscillator-panel-width;
 
-            Heading {
-                heading: Theme.filter-header-text;
-            }
+        HorizontalLayout {
 
-            HorizontalLayout {
+            VerticalLayout {
                 alignment: start;
                 spacing: 10px;
                 padding: 20px;
 
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Label {
-                        label: Theme.filter-poles-label-text;
-                    }
-
-                    Label {
-                        label: Theme.filter-cutoff-text;
-                    }
-
-                    Label {
-                        label: Theme.filter-resonance-text;
-                    }
+                Heading {
+                    heading: Theme.filter-header-text;
                 }
 
-                VerticalLayout {
+                HorizontalLayout {
+                    alignment: start;
                     spacing: 10px;
+                    padding: 20px;
 
-                    Label {
-                        horizontal-alignment: center;
-                        label: filter_poles.number_of_poles;
-                    }
+                    VerticalLayout {
+                        spacing: 10px;
 
-                    Label {
-                        horizontal-alignment: center;
-                        width: Theme.filter-cutoff-value-width;
-                        label: round(filter_cutoff.level);
-                    }
+                        Label {
+                            label: Theme.filter-poles-label-text;
+                        }
 
-                    Label {
-                        horizontal-alignment: center;
-                        label: 100 - filter_resonance.level;
-                    }
-                }
+                        Label {
+                            label: Theme.filter-cutoff-text;
+                        }
 
-                VerticalLayout {
-                    spacing: 10px;
-
-                    filter_poles := FilterSlider {
-                        number_of_poles_selected(number_of_poles) => {
-                            root.number_of_poles_selected(number_of_poles);
+                        Label {
+                            label: Theme.filter-resonance-text;
                         }
                     }
 
-                    filter_cutoff := LevelSlider {
-                        width: 200px;
-                        orientation: horizontal;
+                    VerticalLayout {
+                        spacing: 10px;
 
-                        level: Theme.filter-cutoff-slider-default;
-                        level-step: self.level * Theme.filter-cutoff-slider-step-factor;
-                        minimum-level: Theme.filter-cutoff-slider-minimum;
-                        maximum-level: Theme.filter-cutoff-slider-maximum;
-                        level_selected(level) => {
-                            filter_cutoff_value_changed(level);
+                        Label {
+                            horizontal-alignment: center;
+                            label: filter_poles.number_of_poles;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            width: Theme.filter-cutoff-value-width;
+                            label: round(filter_cutoff.level);
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: 100 - filter_resonance.level;
                         }
                     }
 
-                    filter_resonance := LevelSlider {
-                        width: 200px;
-                        orientation: horizontal;
+                    VerticalLayout {
+                        spacing: 10px;
 
-                        level: Theme.filter-resonance-slider-default;
-                        level-step: Theme.filter-resonance-slider-step;
-                        minimum-level: Theme.filter-resonance-slider-minimum;
-                        maximum-level: Theme.filter-resonance-slider-maximum;
-                        level_selected(level) => {
-                            filter_resonance_value_changed((100 - level) / 100);
+                        filter_poles := FilterSlider {
+                            number_of_poles_selected(number_of_poles) => {
+                                root.number_of_poles_selected(number_of_poles);
+                            }
+                        }
+
+                        filter_cutoff := LevelSlider {
+                            width: 200px;
+                            orientation: horizontal;
+
+                            level: Theme.filter-cutoff-slider-default;
+                            level-step: self.level * Theme.filter-cutoff-slider-step-factor;
+                            minimum-level: Theme.filter-cutoff-slider-minimum;
+                            maximum-level: Theme.filter-cutoff-slider-maximum;
+                            level_selected(level) => {
+                                filter_cutoff_value_changed(level);
+                            }
+                        }
+
+                        filter_resonance := LevelSlider {
+                            width: 200px;
+                            orientation: horizontal;
+
+                            level: Theme.filter-resonance-slider-default;
+                            level-step: Theme.filter-resonance-slider-step;
+                            minimum-level: Theme.filter-resonance-slider-minimum;
+                            maximum-level: Theme.filter-resonance-slider-maximum;
+                            level_selected(level) => {
+                                filter_resonance_value_changed((100 - level) / 100);
+                            }
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.filter-modulation-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                filter_mod_speed.enabled = self.activated;
+                                filter_mod_amount.enabled = self.activated;
+                                filter_mod_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.filter-mod-speed-text + (round(filter_mod_speed.value * 100) / 100) + Theme.filter-mod-speed-suffix;
+                        }
+
+                        filter_mod_speed := LFOSlider {
+                            slider_value: Theme.filter-mod-speed-slider-default;
+                            step: self.slider_value * Theme.lfo-slider-step-ratio;
+                            minimum: Theme.filter-mod-speed-slider-minimum;
+                            maximum: Theme.filter-mod-speed-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                filter_mod_speed_changed(level);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.filter-mod-amount-text + round(filter_mod_amount.value * 100) + Theme.filter-mod-amount-suffix;
+                        }
+
+                        filter_mod_amount := LFOSlider {
+                            slider_value: Theme.filter-mod-amount-slider-default;
+                            step: Theme.filter-mod-amount-slider-step;
+                            minimum: Theme.filter-mod-amount-slider-minimum;
+                            maximum: Theme.filter-mod-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                filter_mod_amount_changed(level);
+                            }
                         }
                     }
                 }

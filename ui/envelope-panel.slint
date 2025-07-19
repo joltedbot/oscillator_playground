@@ -1,4 +1,4 @@
-import { Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
+import { Panel, Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component EnvelopePanel inherits HorizontalLayout {
@@ -12,12 +12,7 @@ export component EnvelopePanel inherits HorizontalLayout {
     callback gate_length_changed(int);
     callback gate_duty_cycle_changed(float);
 
-    Rectangle {
-        horizontal-stretch: 1;
-        border-width: Theme.window-border-width;
-        border-color: Theme.border-colour;
-        border-radius: Theme.border-radius;
-        background: Theme.panel-box-background;
+    Panel {
         height: Theme.top-panel-row-height;
         width: Theme.envelope-panel-width;
 

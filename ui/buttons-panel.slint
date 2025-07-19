@@ -1,0 +1,51 @@
+import { Panel, StartButton, ActionButton, Panel } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component ButtonsPanel inherits HorizontalLayout {
+
+    in-out property <bool> start_button_active: true;
+
+    callback resync_oscillators();
+    callback resync_oscillator_lfos();
+    callback start_button_pressed(bool);
+
+    Panel {
+        width: Theme.envelope-panel-width;
+
+        HorizontalLayout {
+            alignment: center;
+            VerticalLayout {
+                spacing: 20px;
+                padding: 20px;
+                alignment: center;
+
+                start_button := StartButton {
+                    active: start_button_active;
+                    tone_start_button_pressed(active) => {
+                        root.start_button_pressed(active);
+                    }
+                }
+
+                reset_button := ActionButton {
+                    text: Theme.resync-button-text;
+                    width: Theme.resync-button-width;
+                    height: Theme.resync-button-height;
+
+                    take_action() => {
+                        root.resync_oscillators();
+                    }
+                }
+
+                lfo_reset_button := ActionButton {
+                    text: Theme.resync-lfo-button-text;
+                    width: Theme.resync-button-width;
+                    height: Theme.resync-button-height;
+
+                    take_action() => {
+                        root.resync_oscillator_lfos();
+                    }
+                }
+            }
+        }
+    }
+}

@@ -68,7 +68,6 @@ impl Oscillators {
         let oscillator3_shaper_amount = 0.0;
         let sub_oscillator_shaper_amount = 0.0;
 
-
         Self {
             sample_rate,
             oscillator1,
@@ -135,8 +134,6 @@ impl Oscillators {
     pub fn set_sub_oscillator_shaper_amount(&mut self, amount: f32) {
         self.sub_oscillator_shaper_amount = amount;
     }
-
-
 
     pub fn get_oscillator1_level(&mut self) -> f32 {
         self.oscillator1_level
@@ -268,12 +265,9 @@ impl Oscillators {
     }
 }
 
-
-
 fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
-
     if amount == 0.0 {
-        return sample
+        return sample;
     }
 
     if amount >= WAVE_SHAPER_MAX_AMOUNT {
@@ -281,6 +275,5 @@ fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
     }
 
     let shape = (2.0 * amount) / (1.0 - amount);
-    ((1.0+ shape) * sample) / (1.0 + (shape * sample.abs()))
-
+    ((1.0 + shape) * sample) / (1.0 + (shape * sample.abs()))
 }

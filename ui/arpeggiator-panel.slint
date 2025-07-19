@@ -1,21 +1,14 @@
-import { Heading, Label, StartButton, ActivationSwitch, ArpTableRow, ArpTableFirstRow, ArpTableLastRow, ActionButton } from "../ui/components.slint";
+import { Panel, Heading, Label, StartButton, ActivationSwitch, ArpTableRow, ArpTableFirstRow, ArpTableLastRow, ActionButton } from "../ui/components.slint";
 import { CheckBox,  } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component ArpeggiatorPanel inherits HorizontalLayout {
 
-    in-out property <bool> start_button_active: false;
-
-    callback start_button_pressed(bool);
     callback note_activated(int);
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);
 
-    Rectangle {
-        border-width: Theme.window-border-width;
-        border-color: Theme.border-colour;
-        border-radius: Theme.border-radius;
-        background: Theme.panel-box-background;
+        Panel {
 
         VerticalLayout {
             alignment: start;
@@ -187,19 +180,6 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
 
                     note_deactivated(note_number) => {
                         root.note_deactivated(note_number);
-                    }
-                }
-
-                HorizontalLayout {
-                    spacing: 10px;
-                    padding: 10px;
-
-                    alignment: center;
-                    start_button := StartButton {
-                        active: start_button_active;
-                        tone_start_button_pressed(active) => {
-                            root.start_button_pressed(active);
-                        }
                     }
                 }
 

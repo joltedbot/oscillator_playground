@@ -17,6 +17,17 @@ export component Label inherits Text {
     font-size: Theme.label-text-size;
 }
 
+export component Panel inherits Rectangle {
+    border-width: Theme.window-border-width;
+    border-color: Theme.border-colour;
+    border-radius: Theme.border-radius;
+    background: Theme.panel-box-background;
+
+
+
+}
+
+
 export component StartButton inherits Button {
     in-out property <bool> active;
     callback tone_start_button_pressed(bool);

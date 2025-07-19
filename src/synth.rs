@@ -4,6 +4,7 @@ use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
 use crate::synth::oscillators::sine::Sine;
 use arpeggiator::Arpeggiator;
+use constants::*;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
 use crossbeam_channel::Receiver;
@@ -11,19 +12,16 @@ use device::AudioDevice;
 use filter::Filter;
 use oscillators::Oscillators;
 use std::sync::{Arc, Mutex, MutexGuard};
-use constants::*;
-
 
 pub mod arpeggiator;
+mod constants;
 pub mod device;
 pub mod dynamics;
+mod effects;
 pub mod envelope;
 pub mod filter;
 pub mod lfo;
 pub mod oscillators;
-mod effects;
-mod constants;
-
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub enum AmpMode {
@@ -110,7 +108,7 @@ impl Synth {
             LFO::new(Box::new(Sine::new(sample_rate))),
             LFO::new(Box::new(Sine::new(sample_rate))),
             LFO::new(Box::new(Sine::new(sample_rate))),
-            LFO::new(Box::new(Sine::new(sample_rate))),   
+            LFO::new(Box::new(Sine::new(sample_rate))),
         ]));
 
         let filter = Filter::new(sample_rate);
@@ -437,7 +435,8 @@ impl Synth {
                     EventType::UpdatePhaserAmount(amount) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.effects.phaser.width = amount;
-                        parameters.effects.phaser.center_value = effects::get_phaser_lfo_center_value_from_amount(amount);
+                        parameters.effects.phaser.center_value =
+                            effects::get_phaser_lfo_center_value_from_amount(amount);
                     }
                     EventType::UpdateBitCrusherEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -578,7 +577,6 @@ impl Synth {
             .build_output_stream(
                 stream_config,
                 move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
-
                     let mut oscillators = oscillators_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
@@ -640,7 +638,7 @@ impl Synth {
                             &mut parameters,
                         );
 
-                        let mut sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
+                        let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
                             parameters.current_note_frequency,
                             sub_oscillator_level,
                             sub_oscillator_mod,
@@ -677,7 +675,10 @@ impl Synth {
                             );
                         }
 
-                        let oscillator_level_sum = oscillator1_level + oscillator2_level + oscillator3_level + sub_oscillator_level;
+                        let oscillator_level_sum = oscillator1_level
+                            + oscillator2_level
+                            + oscillator3_level
+                            + sub_oscillator_level;
                         let mut balanced_oscillator_level_sum = get_balanced_oscillator_sum(
                             oscillator_level_sum,
                             parameters.output_level_constant,
@@ -698,8 +699,10 @@ impl Synth {
                             );
                         }
 
-
-                        let filter_mod_value = get_filter_mod_value(&mut lfos[LFO_INDEX_FOR_FILTER_MOD], &mut parameters);
+                        let filter_mod_value = get_filter_mod_value(
+                            &mut lfos[LFO_INDEX_FOR_FILTER_MOD],
+                            &mut parameters,
+                        );
                         let filtered_sample =
                             filter.filter_sample(balanced_oscillator_level_sum, filter_mod_value);
 
@@ -933,4 +936,3 @@ fn get_clipped_samples(
 
     (left_sample, right_sample)
 }
-

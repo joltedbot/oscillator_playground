@@ -18,8 +18,9 @@ export global Theme {
     out property <color> panel-box-background:#202020;
 
     // Panel Sized
-    out property <length> envelope-panel-width: 300px;
+    out property <length> envelope-panel-width: 330px;
     out property <length> lfo-panel-width: 173px;
+    out property <length> oscillator-panel-width: 670px;
 
     // Fonts
     out property <color> text-color: #AAAAAA;
@@ -86,10 +87,14 @@ export global Theme {
     out property <int> detune-amount-slider-default: 0;
 
     // Oscillator Modulation Slider
-    out property <float> osc-mod-speed-slider-step: 0.01;
-    out property <float> osc-mod-speed-slider-minimum: 0.01;
-    out property <float> osc-mod-speed-slider-maximum: 20.0;
-    out property <float> osc-mod-speed-slider-default: 0.1;
+    out property <float> osc-mod-course-speed-slider-step: 1;
+    out property <float> osc-mod-course-speed-slider-minimum: 0;
+    out property <float> osc-mod-course-speed-slider-maximum: 100;
+    out property <float> osc-mod-course-speed-slider-default: 0;
+    out property <float> osc-mod-fine-speed-slider-step: 0.01;
+    out property <float> osc-mod-fine-speed-slider-minimum: 0.0;
+    out property <float> osc-mod-fine-speed-slider-default: 0.01;
+    out property <float> osc-mod-fine-speed-slider-maximum: 0.99;
     out property <float> osc-mod-amount-slider-step: 0.01;
     out property <float> osc-mod-amount-slider-minimum: 0.0;
     out property <float> osc-mod-amount-slider-maximum: 1.0;
@@ -150,10 +155,14 @@ export global Theme {
     out property <int> envelope-release-default: 300;
 
     // Auto Pan Sliders
-    out property <float> auto-pan-speed-slider-step: 0.01;
-    out property <float> auto-pan-speed-slider-minimum: 0.01;
-    out property <float> auto-pan-speed-slider-maximum: 20;
-    out property <float> auto-pan-speed-slider-default: 1.0;
+    out property <float> auto-pan-course-speed-slider-step: 1;
+    out property <float> auto-pan-course-speed-slider-minimum: 0;
+    out property <float> auto-pan-course-speed-slider-maximum: 100;
+    out property <float> auto-pan-course-speed-slider-default: 0;
+    out property <float> auto-pan-fine-speed-slider-step: 0.01;
+    out property <float> auto-pan-fine-speed-slider-minimum: 0.0;
+    out property <float> auto-pan-fine-speed-slider-default: 0.01;
+    out property <float> auto-pan-fine-speed-slider-maximum: 0.99;
     out property <float> auto-pan-width-slider-step: 0.1;
     out property <float> auto-pan-width-slider-minimum: 0.0;
     out property <float> auto-pan-width-slider-maximum: 2.0;
@@ -161,10 +170,14 @@ export global Theme {
 
 
     // Tremolo Sliders
-    out property <float> tremolo-speed-slider-step: 0.01;
-    out property <float> tremolo-speed-slider-minimum: 0.01;
-    out property <float> tremolo-speed-slider-maximum: 20;
-    out property <float> tremolo-speed-slider-default: 1.0;
+    out property <float> tremolo-course-speed-slider-step: 1;
+    out property <float> tremolo-course-speed-slider-minimum: 0;
+    out property <float> tremolo-course-speed-slider-maximum: 100;
+    out property <float> tremolo-course-speed-slider-default: 0;
+    out property <float> tremolo-fine-speed-slider-step: 0.01;
+    out property <float> tremolo-fine-speed-slider-minimum: 0.0;
+    out property <float> tremolo-fine-speed-slider-default: 0.01;
+    out property <float> tremolo-fine-speed-slider-maximum: 0.99;
     out property <float> tremolo-depth-slider-step: 0.01;
     out property <float> tremolo-depth-slider-minimum: 0.0;
     out property <float> tremolo-depth-slider-maximum: 1.0;
@@ -182,10 +195,14 @@ export global Theme {
     out property <float> filter-mod-amount-slider-default: 0.0;
 
     // Phaser  Sliders
-    out property <float> phaser-speed-slider-step: 0.01;
-    out property <float> phaser-speed-slider-minimum: 0.01;
-    out property <float> phaser-speed-slider-maximum: 20;
-    out property <float> phaser-speed-slider-default: 1.0;
+    out property <float> phaser-course-speed-slider-step: 1;
+    out property <float> phaser-course-speed-slider-minimum: 0;
+    out property <float> phaser-course-speed-slider-maximum: 100;
+    out property <float> phaser-course-speed-slider-default: 0;
+    out property <float> phaser-fine-speed-slider-step: 0.01;
+    out property <float> phaser-fine-speed-slider-minimum: 0.0;
+    out property <float> phaser-fine-speed-slider-default: 0.01;
+    out property <float> phaser-fine-speed-slider-maximum: 0.99;
     out property <float> phaser-amount-slider-step: 1.0;
     out property <float> phaser-amount-slider-minimum: 0.0;
     out property <float> phaser-amount-slider-maximum: 128;
@@ -302,7 +319,7 @@ export global Theme {
     out property <string> filter-mod-amount-suffix: "%";
     out property <string> phaser-speed-text: "Speed: ";
     out property <string> phaser-speed-suffix: " Hz";
-    out property <string> phaser-amount-text: "Samples: ";
+    out property <string> phaser-amount-text: "Shift: ";
     out property <string> phaser-heading-text: "Phaser";
     out property <string> bitcrush-amount-text: "Samples: ";
     out property <string> bitcrush-heading-text: "BitShift";
@@ -323,4 +340,7 @@ export global Theme {
     out property <string> limiter-threshold-text: "Threshold: ";
     out property <string> clipper-heading-text: "Clipper";
     out property <string> clipper-threshold-text: "Threshold: ";
+    out property <string> slider-fine-text: "Fine: ";
+    out property <string> slider-course-text: "Course: ";
+
 }

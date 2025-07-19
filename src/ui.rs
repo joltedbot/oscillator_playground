@@ -234,12 +234,13 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_sub_shaper_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShaperAmount(level)) {
+            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShaperAmount(level))
+            {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
-    
+
     fn on_wave_mod1_speed_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -701,20 +702,21 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_bitcrusher_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateBitCrusherEnabled(is_active).clone())
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateBitCrusherEnabled(is_active).clone())
             {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
-    
 
     fn on_bitcrusher_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
         ui.on_bitcrusher_amount_changed(move |amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateBitCrusherAmount(amount).clone()) {
+            if let Err(error) = synth_sender.send(EventType::UpdateBitCrusherAmount(amount).clone())
+            {
                 eprintln!("Error sending event: {error}",);
             }
         });
@@ -725,25 +727,26 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_wave_shaper_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperEnabled(is_active).clone())
+            if let Err(error) =
+                synth_sender.send(EventType::UpdateWaveShaperEnabled(is_active).clone())
             {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-
     fn on_wave_shaper_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
         ui.on_wave_shaper_amount_changed(move |amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperAmount(amount).clone()) {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperAmount(amount).clone())
+            {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
-    
+
     fn on_compressor_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
@@ -906,5 +909,4 @@ impl UI {
             }
         });
     }
-
 }
