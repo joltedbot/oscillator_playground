@@ -22,9 +22,11 @@ impl Triangle {
 
 impl GenerateSamples for Triangle {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
+
+        let new_frequency = tone_frequency * modulation.unwrap_or(1.0);
+
         let y_coordinate: f32 = 2.0 / PI
-            * modulation.unwrap_or(1.0)
-            * (tone_frequency * (2.0 * PI) * (self.x_coordinate / self.sample_rate))
+            * (new_frequency * (2.0 * PI) * (self.x_coordinate / self.sample_rate))
                 .sin()
                 .asin();
 

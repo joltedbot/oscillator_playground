@@ -148,26 +148,26 @@ impl Synth {
         };
 
         let sub_osc_mod = LFOParameters {
-            center_value: DEFAULT_CENTER_VALUE,
-            frequency: DEFAULT_LFO_FREQUENCY,
+            center_value: DEFAULT_OSC_MOD_CENTER_VALUE,
+            frequency: DEFAULT_OSC_MOD_FREQUENCY,
             ..Default::default()
         };
 
         let osc1_mod = LFOParameters {
-            center_value: DEFAULT_CENTER_VALUE,
-            frequency: DEFAULT_LFO_FREQUENCY,
+            center_value: DEFAULT_OSC_MOD_CENTER_VALUE,
+            frequency: DEFAULT_OSC_MOD_FREQUENCY,
             ..Default::default()
         };
 
         let osc2_mod = LFOParameters {
-            center_value: DEFAULT_CENTER_VALUE,
-            frequency: DEFAULT_LFO_FREQUENCY,
+            center_value: DEFAULT_OSC_MOD_CENTER_VALUE,
+            frequency: DEFAULT_OSC_MOD_FREQUENCY,
             ..Default::default()
         };
 
         let osc3_mod = LFOParameters {
-            center_value: DEFAULT_CENTER_VALUE,
-            frequency: DEFAULT_LFO_FREQUENCY,
+            center_value: DEFAULT_OSC_MOD_CENTER_VALUE,
+            frequency: DEFAULT_OSC_MOD_FREQUENCY,
             ..Default::default()
         };
 

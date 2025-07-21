@@ -96,14 +96,10 @@ export global Theme {
 
 
     // Oscillator Modulation Slider
-    out property <float> osc-mod-course-speed-slider-step: 1;
-    out property <float> osc-mod-course-speed-slider-minimum: 0;
-    out property <float> osc-mod-course-speed-slider-maximum: 100;
-    out property <float> osc-mod-course-speed-slider-default: 0;
     out property <float> osc-mod-fine-speed-slider-step: 0.01;
     out property <float> osc-mod-fine-speed-slider-minimum: 0.0;
     out property <float> osc-mod-fine-speed-slider-default: 0.01;
-    out property <float> osc-mod-fine-speed-slider-maximum: 0.99;
+    out property <float> osc-mod-fine-speed-slider-maximum: 10.0;
     out property <float> osc-mod-amount-slider-step: 0.01;
     out property <float> osc-mod-amount-slider-minimum: 0.0;
     out property <float> osc-mod-amount-slider-maximum: 1.0;
@@ -286,12 +282,13 @@ export global Theme {
     out property <string> oscillator1-heading-text: "Oscillator 1";
     out property <string> oscillator2-heading-text: "Oscillator 2";
     out property <string> oscillator3-heading-text: "Oscillator 3";
-    out property <string> oscillator-tune-text: "Tuning:  ";
+    out property <string> oscillator-tune-text: "Tuning";
     out property <string> oscillator-tune-value-text: "Unison";
+    out property <string> oscillator-tune-value-suffix: " semitones";
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator-level-text: "Level";
     out property <string> oscillator-shape-text: "Shape";
-    out property <string> oscillator-mod-text: "Modulation";
+    out property <string> oscillator-mod-text: "Pitch Modulation";
     out property <string> oscillator-mod-speed-text: "Speed: ";
     out property <string> oscillator-mod-speed-suffix: " Hz";
     out property <string> oscillator-mod-amount-text: "Amount: ";

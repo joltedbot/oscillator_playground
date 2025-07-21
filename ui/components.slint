@@ -214,18 +214,20 @@ export component OscilatorControls inherits VerticalLayout {
             }
         }
 
-           HorizontalLayout {
-                alignment: start;
+
+
                Label {
+                   horizontal-alignment: center;
                    font-weight: Theme.text-weight-bold;
                    label: Theme.oscillator-tune-text;
                }
 
               tuning-interval := Label {
+                  horizontal-alignment: center;
                   font-weight: Theme.text-weight-bold;
                   label: Theme.osc-tuning-slider-unison;
               }
-           }
+
 
            osc_tuning := LevelSlider {
                level: Theme.osc-tuning-slider-default;
@@ -237,9 +239,9 @@ export component OscilatorControls inherits VerticalLayout {
                    if (round(level) == 0) {
                     tuning-interval.label = Theme.osc-tuning-slider-unison;
                    } else if (round(level) > 0) {
-                    tuning-interval.label = "+" + round(level);
+                    tuning-interval.label = "+" + round(level) + Theme.oscillator-tune-value-suffix;
                    }  else {
-                    tuning-interval.label = round(level);
+                    tuning-interval.label = round(level) + Theme.oscillator-tune-value-suffix;
                    }
                    wave_tuning_changed(round(level));
                }
@@ -303,29 +305,11 @@ export component OscilatorControls inherits VerticalLayout {
 
       Label {
           horizontal-alignment: center;
-          label: Theme.oscillator-mod-speed-text + (round(osc_course_speed.value) + (round(osc_fine_speed.value*100)/100)) +
-          Theme.oscillator-mod-speed-suffix;
+          label: Theme.oscillator-mod-speed-text + (round(osc_fine_speed.value*100)/100) + Theme.oscillator-mod-speed-suffix;
       }
 
-      HorizontalLayout {
-          Label {
-              label: Theme.slider-course-text;
-          }
-          osc_course_speed := LFOSlider {
-              slider_value: Theme.osc-mod-course-speed-slider-default;
-              step: self.slider_value;
-              minimum: Theme.osc-mod-course-speed-slider-minimum;
-              maximum: Theme.osc-mod-course-speed-slider-maximum;
-              level_selected(level) => {
-                  wave_mod_speed_changed (level + osc_fine_speed.value);
-              }
-          }
-      }
 
       HorizontalLayout {
-          Label {
-              label: Theme.slider-fine-text;
-          }
 
           osc_fine_speed := LFOSlider {
               slider_value: Theme.osc-mod-fine-speed-slider-default;
@@ -333,7 +317,7 @@ export component OscilatorControls inherits VerticalLayout {
               minimum: Theme.osc-mod-fine-speed-slider-minimum;
               maximum: Theme.osc-mod-fine-speed-slider-maximum;
               level_selected(level) => {
-                 wave_mod_speed_changed(level + osc_course_speed.value);
+                 wave_mod_speed_changed(level);
               }
           }
 
