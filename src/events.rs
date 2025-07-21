@@ -51,6 +51,7 @@ pub enum EventType {
     UpdateFilterModEnabled(bool),
     UpdateFilterModSpeed(f32),
     UpdateFilterModAmount(f32),
+    UpdateFilterModShape(SharedString),
     UpdatePhaserEnabled(bool),
     UpdatePhaserSpeed(f32),
     UpdatePhaserAmount(f32),

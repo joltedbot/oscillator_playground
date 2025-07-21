@@ -54,7 +54,6 @@ impl SuperSaw {
         x_coordinate: f32,
         modulation: Option<f32>,
     ) -> f32 {
-
         let new_frequency = tone_frequency * modulation.unwrap_or(1.0);
 
         let y_coordinate: f32 = (-2.0 / PI)

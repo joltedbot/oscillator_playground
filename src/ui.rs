@@ -80,6 +80,7 @@ impl UI {
         self.on_filter_mod_activated();
         self.on_filter_mod_speed_changed();
         self.on_filter_mod_depth_changed();
+        self.on_filter_mod_shape_selected();
         self.on_phaser_activated();
         self.on_phaser_speed_changed();
         self.on_phaser_depth_changed();
@@ -706,6 +707,18 @@ impl UI {
 
         ui.on_filter_mod_amount_changed(move |amount| {
             if let Err(error) = synth_sender.send(EventType::UpdateFilterModAmount(amount).clone())
+            {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_filter_mod_shape_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_filter_mod_shape_selected(move |shape| {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterModShape(shape).clone())
             {
                 eprintln!("Error sending event: {error}",);
             }

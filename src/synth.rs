@@ -10,9 +10,8 @@ use cpal::traits::{DeviceTrait, StreamTrait};
 use crossbeam_channel::Receiver;
 use device::AudioDevice;
 use filter::Filter;
-use oscillators::Oscillators;
+use oscillators::{Oscillators, WaveShape};
 use std::sync::{Arc, Mutex, MutexGuard};
-
 
 pub mod arpeggiator;
 mod constants;
@@ -70,6 +69,7 @@ pub struct SynthParameters {
     auto_pan: LFOParameters,
     tremolo: LFOParameters,
     filter_mod: LFOParameters,
+    filter_mod_shape: WaveShape,
     oscillator_mod_lfos: Vec<LFOParameters>,
     current_midi_note: u16,
     osc1_interval: i8,
@@ -197,6 +197,7 @@ impl Synth {
             auto_pan,
             tremolo,
             filter_mod,
+            filter_mod_shape: Default::default(),
             oscillator_mod_lfos,
             current_midi_note,
             osc1_interval: DEFAULT_OSC_INTERVAL,
@@ -448,6 +449,19 @@ impl Synth {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.filter_mod.width = amount;
                         parameters.filter_mod.center_value = 1.0 - (amount / 2.0);
+                    }
+                    EventType::UpdateFilterModShape(shape) => {
+                        let oscillators_arc = self.oscillators.clone();
+                        let lfo_arc = self.lfos.clone();
+                        let paramaters_arc = self.parameters.clone();
+
+                        let oscillators = oscillators_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let mut parameters = paramaters_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let mut lfos = lfo_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+
+                        parameters.filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
+                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(oscillators.get_oscillator_for_wave_shape(parameters.filter_mod_shape))
+
                     }
                     EventType::UpdatePhaserEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -983,13 +997,12 @@ fn get_frequency_from_midi_note_and_osc_interval(
     midi_note: u16,
     interval: i8,
 ) -> f32 {
-
     if midi_note >= FIRST_REST_NOTE {
-        return 0.0
+        return 0.0;
     }
 
     if interval.is_positive() {
-        return arpeggiator.get_frequency_from_midi_note(midi_note + interval as u16)
+        return arpeggiator.get_frequency_from_midi_note(midi_note + interval as u16);
     }
 
     let new_midi_note = (midi_note as i16).saturating_add(interval as i16) as u16;

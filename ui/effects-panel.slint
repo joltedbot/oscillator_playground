@@ -343,91 +343,90 @@ export component EffectsPanel inherits GridLayout {
 
         Panel {
 
-                VerticalLayout {
-                    alignment: start;
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
                     spacing: 20px;
-                    padding: 10px;
 
-                    HorizontalLayout {
-                        alignment: center;
-                        spacing: 20px;
+                    VerticalLayout {
+                        spacing: 10px;
 
-                        VerticalLayout {
-                            spacing: 10px;
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.phaser-heading-text;
+                        }
 
-                            Heading {
-                                horizontal-alignment: center;
-                                heading: Theme.phaser-heading-text;
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                phaser_course_speed.enabled = self.activated;
+                                phaser_fine_speed.enabled = self.activated;
+                                phaser_amount.enabled = self.activated;
+                                phaser_activated(self.checked);
                             }
+                        }
 
-                            ActivationSwitch {
-                                activated-text: Theme.activation-switch-active-text;
-                                not-activated-text: Theme.activation-switch-not-active-text;
-                                activation_toggled => {
-                                    phaser_course_speed.enabled = self.activated;
-                                    phaser_fine_speed   .enabled = self.activated;
-                                    phaser_amount.enabled = self.activated;
-                                    phaser_activated(self.checked);
-                                }
-                            }
+                        Label {
+                            label: Theme.phaser-speed-text + (round(phaser_course_speed.value) + (round(phaser_fine_speed.value * 100) / 100)) + Theme.phaser-speed-suffix;
+                        }
 
-                          Label {
-                              label: Theme.phaser-speed-text + (round(phaser_course_speed.value) + (round(phaser_fine_speed.value*100)/100)) +
-                              Theme.phaser-speed-suffix;
-                          }
-  
-                          HorizontalLayout {
-                              Label {
-                                  label: Theme.slider-course-text;
-                              }
-                              phaser_course_speed := LFOSlider {
-                                  slider_value: Theme.phaser-course-speed-slider-default;
-                                  step: self.slider_value;
-                                  minimum: Theme.phaser-course-speed-slider-minimum;
-                                  maximum: Theme.phaser-course-speed-slider-maximum;
-                                  enabled: false;
-                                  level_selected(level) => {
-                                      phaser_speed_changed(level + phaser_fine_speed.value);
-                                  }
-                              }
-                          }
-  
-                          HorizontalLayout {
-                              Label {
-                                  label: Theme.slider-fine-text;
-                              }
-  
-                              phaser_fine_speed := LFOSlider {
-                                  slider_value: Theme.phaser-fine-speed-slider-default;
-                                  step: self.slider_value;
-                                  minimum: Theme.phaser-fine-speed-slider-minimum;
-                                  maximum: Theme.phaser-fine-speed-slider-maximum;
-                                  enabled: false;
-                                  level_selected(level) => {
-                                      phaser_speed_changed(level + phaser_course_speed.value);
-                                  }
-                              }
-  
-                          }
-
+                        HorizontalLayout {
                             Label {
-                                label: Theme.phaser-amount-text + round(phaser_amount.value);
+                                label: Theme.slider-course-text;
                             }
 
-                            phaser_amount := LFOSlider {
-                                slider_value: Theme.phaser-amount-slider-default;
-                                step: Theme.phaser-amount-slider-step;
-                                minimum: Theme.phaser-amount-slider-minimum;
-                                maximum: Theme.phaser-amount-slider-maximum;
+                            phaser_course_speed := LFOSlider {
+                                slider_value: Theme.phaser-course-speed-slider-default;
+                                step: self.slider_value;
+                                minimum: Theme.phaser-course-speed-slider-minimum;
+                                maximum: Theme.phaser-course-speed-slider-maximum;
                                 enabled: false;
                                 level_selected(level) => {
-                                    phaser_amount_changed(round(level));
+                                    phaser_speed_changed(level + phaser_fine_speed.value);
                                 }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            Label {
+                                label: Theme.slider-fine-text;
+                            }
+
+                            phaser_fine_speed := LFOSlider {
+                                slider_value: Theme.phaser-fine-speed-slider-default;
+                                step: self.slider_value;
+                                minimum: Theme.phaser-fine-speed-slider-minimum;
+                                maximum: Theme.phaser-fine-speed-slider-maximum;
+                                enabled: false;
+                                level_selected(level) => {
+                                    phaser_speed_changed(level + phaser_course_speed.value);
+                                }
+                            }
+                        }
+
+                        Label {
+                            label: Theme.phaser-amount-text + round(phaser_amount.value);
+                        }
+
+                        phaser_amount := LFOSlider {
+                            slider_value: Theme.phaser-amount-slider-default;
+                            step: Theme.phaser-amount-slider-step;
+                            minimum: Theme.phaser-amount-slider-minimum;
+                            maximum: Theme.phaser-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                phaser_amount_changed(round(level));
                             }
                         }
                     }
                 }
             }
+        }
 
         Panel {
 
@@ -461,14 +460,14 @@ export component EffectsPanel inherits GridLayout {
                         }
 
                         Label {
-                            label: Theme.auto_pan-speed-text + (round(auto_pan_course_speed.value) + (round(auto_pan_fine_speed.value*100)/100)) +
-                            Theme.auto_pan-speed-suffix;
+                            label: Theme.auto_pan-speed-text + (round(auto_pan_course_speed.value) + (round(auto_pan_fine_speed.value * 100) / 100)) + Theme.auto_pan-speed-suffix;
                         }
 
                         HorizontalLayout {
                             Label {
                                 label: Theme.slider-course-text;
                             }
+
                             auto_pan_course_speed := LFOSlider {
                                 slider_value: Theme.auto_pan-course-speed-slider-default;
                                 step: self.slider_value;
@@ -496,7 +495,6 @@ export component EffectsPanel inherits GridLayout {
                                     auto_pan_speed_changed(level + auto_pan_course_speed.value);
                                 }
                             }
-
                         }
 
                         Label {
@@ -550,14 +548,14 @@ export component EffectsPanel inherits GridLayout {
                         }
 
                         Label {
-                            label: Theme.tremolo-speed-text + (round(tremolo_course_speed.value) + (round(tremolo_fine_speed.value*100)/100)) +
-                            Theme.tremolo-speed-suffix;
+                            label: Theme.tremolo-speed-text + (round(tremolo_course_speed.value) + (round(tremolo_fine_speed.value * 100) / 100)) + Theme.tremolo-speed-suffix;
                         }
 
                         HorizontalLayout {
                             Label {
                                 label: Theme.slider-course-text;
                             }
+
                             tremolo_course_speed := LFOSlider {
                                 slider_value: Theme.tremolo-course-speed-slider-default;
                                 step: self.slider_value;
@@ -585,7 +583,6 @@ export component EffectsPanel inherits GridLayout {
                                     tremolo_speed_changed(level + tremolo_course_speed.value);
                                 }
                             }
-
                         }
 
                         Label {

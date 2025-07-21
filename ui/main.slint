@@ -54,6 +54,7 @@ export component AppWindow inherits Window {
     callback adsr_note_length_updated(int);
     callback filter_cutoff_value_changed(int);
     callback filter_resonance_value_changed(float);
+    callback filter_mod_shape_selected(string);
     callback number_of_poles_selected(int);
     callback resync_oscillators();
     callback resync_oscillator_lfos();
@@ -300,6 +301,9 @@ export component AppWindow inherits Window {
                                     }
                                     filter_mod_amount_changed(amount) => {
                                         root.filter_mod_amount_changed(amount);
+                                    }
+                                    filter_mod_shape_selected(shape) => {
+                                        root.filter_mod_shape_selected(shape);
                                     }
                                 }
 

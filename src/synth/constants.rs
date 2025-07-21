@@ -5,7 +5,6 @@ pub const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 // Oscillator Constants
 pub const DEFAULT_OSC_INTERVAL: i8 = 0;
 
-
 // Arpeggiator Constants
 pub const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
 pub const DEFAULT_SEQUENCER_NOTE: u16 = 60;

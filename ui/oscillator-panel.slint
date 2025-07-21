@@ -2,11 +2,6 @@ import { Panel, Heading, Label, LevelSlider, LFOSlider, OscilatorControls, WaveS
 import { Theme } from "../ui/theme.slint";
 
 
-
-
-
-
-
 export component OscillatorPanel inherits HorizontalLayout {
 
     callback wave1_level_selected(float);
@@ -50,124 +45,101 @@ export component OscillatorPanel inherits HorizontalLayout {
                 alignment: center;
                 spacing: 10px;
 
+                osc1 := OscilatorControls {
+                    heading: Theme.oscillator1-heading-text;
+                    wave_shape_selected(shape) => {
+                        root.wave1_shape_selected(shape);
+                    }
 
-                osc1 := OscilatorControls  {
-                
-                        heading: Theme.oscillator1-heading-text;
-                        
-                        wave_shape_selected(shape) => {
-                            root.wave1_shape_selected(shape);
-                        }
-
-                        wave_tuning_changed(interval) => {
-                            root.wave1_tuning_changed(interval);
-                        }
-                        
-                        wave_level_selected(level) => {
-                            root.wave1_level_selected(level);
-                        }
-                        
-                        wave_shaper_amount_changed(amount) => {
-                            root.wave1_shaper_amount_changed(amount);
-                        }
-                        
-                        wave_mod_amount_changed(amount) => {
-                            root.wave1_mod_amount_changed(amount);
-                        }
-                        
-                        wave_mod_speed_changed(speed_hz) => {
-                            root.wave1_mod_speed_changed(speed_hz);
-                        }
+                    wave_tuning_changed(interval) => {
+                        root.wave1_tuning_changed(interval);
+                    }
+                    wave_level_selected(level) => {
+                        root.wave1_level_selected(level);
+                    }
+                    wave_shaper_amount_changed(amount) => {
+                        root.wave1_shaper_amount_changed(amount);
+                    }
+                    wave_mod_amount_changed(amount) => {
+                        root.wave1_mod_amount_changed(amount);
+                    }
+                    wave_mod_speed_changed(speed_hz) => {
+                        root.wave1_mod_speed_changed(speed_hz);
+                    }
                 }
 
-                osc2 := OscilatorControls  {
-                
-                        heading: Theme.oscillator2-heading-text;
-                        
-                        wave_shape_selected(shape) => {
-                            root.wave2_shape_selected(shape);
-                        }
+                osc2 := OscilatorControls {
+                    heading: Theme.oscillator2-heading-text;
+                    wave_shape_selected(shape) => {
+                        root.wave2_shape_selected(shape);
+                    }
 
-                        wave_tuning_changed(interval) => {
-                            root.wave2_tuning_changed(interval);
-                        }
-                        
-                        wave_level_selected(level) => {
-                            root.wave2_level_selected(level);
-                        }
-                        
-                        wave_shaper_amount_changed(amount) => {
-                            root.wave2_shaper_amount_changed(amount);
-                        }
-                        
-                        wave_mod_amount_changed(amount) => {
-                            root.wave2_mod_amount_changed(amount);
-                        }
-                        
-                        wave_mod_speed_changed(speed_hz) => {
-                            root.wave2_mod_speed_changed(speed_hz);
-                        }
+                    wave_tuning_changed(interval) => {
+                        root.wave2_tuning_changed(interval);
+                    }
+                    wave_level_selected(level) => {
+                        root.wave2_level_selected(level);
+                    }
+                    wave_shaper_amount_changed(amount) => {
+                        root.wave2_shaper_amount_changed(amount);
+                    }
+                    wave_mod_amount_changed(amount) => {
+                        root.wave2_mod_amount_changed(amount);
+                    }
+                    wave_mod_speed_changed(speed_hz) => {
+                        root.wave2_mod_speed_changed(speed_hz);
+                    }
                 }
 
-                osc3 := OscilatorControls  {
-                
-                        heading: Theme.oscillator3-heading-text;
-                        
-                        wave_shape_selected(shape) => {
-                            root.wave3_shape_selected(shape);
-                        }
+                osc3 := OscilatorControls {
+                    heading: Theme.oscillator3-heading-text;
+                    wave_shape_selected(shape) => {
+                        root.wave3_shape_selected(shape);
+                    }
 
-                        wave_tuning_changed(interval) => {
-                            root.wave3_tuning_changed(interval);
-                        }
+                    wave_tuning_changed(interval) => {
+                        root.wave3_tuning_changed(interval);
+                    }
 
-                        wave_level_selected(level) => {
-                            root.wave3_level_selected(level);
-                        }
-                        
-                        wave_shaper_amount_changed(amount) => {
-                            root.wave3_shaper_amount_changed(amount);
-                        }
-                        
-                        wave_mod_amount_changed(amount) => {
-                            root.wave3_mod_amount_changed(amount);
-                        }
-                        
-                        wave_mod_speed_changed(speed_hz) => {
-                            root.wave3_mod_speed_changed(speed_hz);
-                        }
+                    wave_level_selected(level) => {
+                        root.wave3_level_selected(level);
+                    }
+                    wave_shaper_amount_changed(amount) => {
+                        root.wave3_shaper_amount_changed(amount);
+                    }
+                    wave_mod_amount_changed(amount) => {
+                        root.wave3_mod_amount_changed(amount);
+                    }
+                    wave_mod_speed_changed(speed_hz) => {
+                        root.wave3_mod_speed_changed(speed_hz);
+                    }
                 }
-                
-                sub := OscilatorControls  {
-                                
-                        heading: Theme.sub-oscillator-heading-text;
-                        is_sub: true;
 
-                        wave_shape_selected(shape) => {
-                            root.sub_shape_selected(shape);
-                        }
+                sub := OscilatorControls {
+                    heading: Theme.sub-oscillator-heading-text;
+                    is_sub: true;
 
-                        wave_tuning_changed(interval) => {
-                            root.sub_tuning_changed(interval);
-                        }
+                    wave_shape_selected(shape) => {
+                        root.sub_shape_selected(shape);
+                    }
 
-                        wave_level_selected(level) => {
-                            root.sub_level_selected(level);
-                        }
-                        
-                        wave_shaper_amount_changed(amount) => {
-                            root.sub_shaper_amount_changed(amount);
-                        }
-                        
-                        wave_mod_amount_changed(amount) => {
-                            root.sub_mod_amount_changed(amount);
-                        }
-                        
-                        wave_mod_speed_changed(speed_hz) => {
-                            root.sub_mod_speed_changed(speed_hz);
-                        }
-                }              
+                    wave_tuning_changed(interval) => {
+                        root.sub_tuning_changed(interval);
+                    }
 
+                    wave_level_selected(level) => {
+                        root.sub_level_selected(level);
+                    }
+                    wave_shaper_amount_changed(amount) => {
+                        root.sub_shaper_amount_changed(amount);
+                    }
+                    wave_mod_amount_changed(amount) => {
+                        root.sub_mod_amount_changed(amount);
+                    }
+                    wave_mod_speed_changed(speed_hz) => {
+                        root.sub_mod_speed_changed(speed_hz);
+                    }
+                }
             }
 
             HorizontalLayout {
@@ -181,7 +153,6 @@ export component OscillatorPanel inherits HorizontalLayout {
                         horizontal-alignment: center;
                         heading: Theme.detune-heading-text;
                     }
-
 
                     ActivationSwitch {
                         activated-text: Theme.activation-switch-active-text;
@@ -208,7 +179,6 @@ export component OscillatorPanel inherits HorizontalLayout {
                             wave_detune_value_changed(level / 100);
                         }
                     }
-
                 }
 
                 VerticalLayout {
@@ -243,8 +213,6 @@ export component OscillatorPanel inherits HorizontalLayout {
                             root.output_level_value_changed(level - 100);
                         }
                     }
-
-
                 }
             }
         }

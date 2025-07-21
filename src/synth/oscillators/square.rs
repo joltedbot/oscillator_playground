@@ -22,8 +22,7 @@ impl Square {
 
 impl GenerateSamples for Square {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
-
-    let pwm_adjusted_modulation = modulation.unwrap_or(1.0) - 0.5;
+        let pwm_adjusted_modulation = modulation.unwrap_or(1.0) - 0.5;
 
         let mut y_coordinate: f32 =
             (tone_frequency * (2.0 * PI) * (self.x_coordinate / self.sample_rate)).sin();

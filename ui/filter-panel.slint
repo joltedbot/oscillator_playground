@@ -1,4 +1,4 @@
-import { Panel, Heading, Label, FilterSlider, LevelSlider, LFOSlider, ActivationSwitch  } from "../ui/components.slint";
+import { Panel, Heading, Label, FilterSlider, LevelSlider, WaveSelector, LFOSlider, ActivationSwitch  } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component FilterPanel inherits HorizontalLayout {
@@ -10,6 +10,7 @@ export component FilterPanel inherits HorizontalLayout {
     callback filter_mod_activated(bool);
     callback filter_mod_speed_changed(float);
     callback filter_mod_amount_changed(float);
+    callback filter_mod_shape_selected(string);
 
     Panel {
 
@@ -129,6 +130,12 @@ export component FilterPanel inherits HorizontalLayout {
                                 filter_mod_speed.enabled = self.activated;
                                 filter_mod_amount.enabled = self.activated;
                                 filter_mod_activated(self.checked);
+                            }
+                        }
+
+                        mod_lfo_shape := WaveSelector {
+                            wave_shape_selected(shape) => {
+                                filter_mod_shape_selected(shape);
                             }
                         }
 

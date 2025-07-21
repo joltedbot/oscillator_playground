@@ -24,11 +24,12 @@ pub trait GenerateSamples {
     fn reset(&mut self);
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum WaveShape {
     Noise,
     Ramp,
     Saw,
+    #[default]
     Sine,
     Square,
     SuperSaw,
@@ -236,7 +237,7 @@ impl Oscillators {
         self.unison_frequency_offset = 0.0;
     }
 
-    fn get_oscillator_for_wave_shape(
+    pub fn get_oscillator_for_wave_shape(
         &self,
         wave_shape: WaveShape,
     ) -> Box<dyn GenerateSamples + Send + Sync> {
