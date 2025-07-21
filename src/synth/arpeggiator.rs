@@ -2,8 +2,8 @@ use rand::prelude::*;
 
 const REST_FREQUENCY: f32 = 0.0;
 const NUMBER_OF_MIDI_NOTES: usize = 128;
-const FIRST_REST_NOTE: u32 = 128;
-const MIDI_NOTE_FREQUENCIES: [(&str, f32, u8); NUMBER_OF_MIDI_NOTES] = [
+pub const FIRST_REST_NOTE: u16 = 128;
+const MIDI_NOTE_FREQUENCIES: [(&str, f32, u16); NUMBER_OF_MIDI_NOTES] = [
     ("C-1", 8.175, 0),
     ("C#-1/Db-1", 8.662, 1),
     ("D-1", 9.177, 2),
@@ -136,19 +136,19 @@ const MIDI_NOTE_FREQUENCIES: [(&str, f32, u8); NUMBER_OF_MIDI_NOTES] = [
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Arpeggiator {
-    sequence: Vec<u32>,
+    sequence: Vec<u16>,
     sequence_index: usize,
 }
 
 impl Arpeggiator {
-    pub fn new(sequence: Vec<u32>) -> Arpeggiator {
+    pub fn new(sequence: Vec<u16>) -> Arpeggiator {
         Arpeggiator {
             sequence,
             sequence_index: 0,
         }
     }
 
-    pub fn add_note(&mut self, note_number: u32) {
+    pub fn add_note(&mut self, note_number: u16) {
         if self.sequence.len() == 1 && self.sequence[0] == FIRST_REST_NOTE {
             self.sequence.push(note_number);
             self.sequence.remove(0);
@@ -159,7 +159,7 @@ impl Arpeggiator {
         }
     }
 
-    pub fn remove_note(&mut self, note_number: u32) {
+    pub fn remove_note(&mut self, note_number: u16) {
         if self.sequence.len() == 1 {
             self.sequence.push(FIRST_REST_NOTE);
             self.sequence.remove(0);
@@ -170,22 +170,24 @@ impl Arpeggiator {
         }
     }
 
-    pub fn next_note_frequency(&mut self, randomize: bool) -> f32 {
+    pub fn next_midi_note(&mut self, randomize: bool) -> u16 {
         if self.sequence_index < self.sequence.len() - 1 {
             self.sequence_index += 1;
         } else {
             self.sequence_index = 0;
         }
 
-        let midi_note = match randomize {
+        match randomize {
             false => self.sequence[self.sequence_index],
             true => {
                 let index = rand::rng().random_range(0..self.sequence.len());
                 self.sequence[index]
             }
-        };
+        }
+    }
 
-        if midi_note >= NUMBER_OF_MIDI_NOTES as u32 {
+    pub fn get_frequency_from_midi_note(&self, midi_note: u16) -> f32 {
+        if midi_note >= NUMBER_OF_MIDI_NOTES as u16 {
             return REST_FREQUENCY;
         }
 

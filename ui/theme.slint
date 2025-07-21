@@ -11,7 +11,7 @@ export global Theme {
     out property <length> border-width: 2px;
     out property <length> border-radius: 15px;
     out property <color> header-background: #252525;
-    out property <length> top-panel-row-height: 500px;
+    out property <length> top-panel-row-height: 550px;
     out property <string> tab-synth-title: "Synth Engine";
     out property <string> tab-effects-title: "Effects";
     out property <string> tab-arpeggiator-title: "Arpeggiator";
@@ -86,6 +86,15 @@ export global Theme {
     out property <int> sub-level-slider-default: 0;
     out property <int> detune-amount-slider-default: 0;
 
+    // Oscillator Tuning Slider
+    out property <int> osc-tuning-slider-step: 1;
+    out property <int> osc-tuning-slider-minimum: -12;
+    out property <int> osc-tuning-slider-maximum: 12;
+    out property <int> osc-tuning-slider-default: 0;
+    out property <string> osc-tuning-slider-unison: "Unison";
+
+
+
     // Oscillator Modulation Slider
     out property <float> osc-mod-course-speed-slider-step: 1;
     out property <float> osc-mod-course-speed-slider-minimum: 0;
@@ -126,6 +135,9 @@ export global Theme {
     out property <int> output-level-slider-minimum: 40;
     out property <int> output-level-slider-maximum: 100;
     out property <int> output-level-slider-default: 90;
+    out property <length> output-level-slider-width: 150px;
+    out property <length> output-level-slider-text-width: 75px;
+
 
     // Output Level Balanced Switch
     out property <string> output-level-constant-active-text: "Constant Level";
@@ -269,11 +281,13 @@ export global Theme {
     //
     // Label Text
     //
-    out property <string> output-level-heading-text: "Sustain";
+    out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
     out property <string> oscillator1-heading-text: "Oscillator 1";
     out property <string> oscillator2-heading-text: "Oscillator 2";
     out property <string> oscillator3-heading-text: "Oscillator 3";
+    out property <string> oscillator-tune-text: "Tuning:  ";
+    out property <string> oscillator-tune-value-text: "Unison";
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator-level-text: "Level";
     out property <string> oscillator-shape-text: "Shape";

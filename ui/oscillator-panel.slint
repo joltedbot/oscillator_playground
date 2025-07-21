@@ -1,27 +1,37 @@
-import { Panel, Heading, Label, LevelSlider, LFOSlider, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
+import { Panel, Heading, Label, LevelSlider, LFOSlider, OscilatorControls, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
+
+
+
+
+
+
 
 export component OscillatorPanel inherits HorizontalLayout {
 
-    callback wave_level1_selected(float);
-    callback wave_shape1_selected(string);
-    callback wave_level2_selected(float);
-    callback wave_shape2_selected(string);
-    callback wave_level3_selected(float);
-    callback wave_shape3_selected(string);
-    callback sub_level_selected(int);
+    callback wave1_level_selected(float);
+    callback wave1_shape_selected(string);
+    callback wave2_level_selected(float);
+    callback wave2_shape_selected(string);
+    callback wave3_level_selected(float);
+    callback wave3_shape_selected(string);
+    callback sub_level_selected(float);
     callback sub_shape_selected(string);
+    callback wave1_tuning_changed(int);
+    callback wave2_tuning_changed(int);
+    callback wave3_tuning_changed(int);
+    callback sub_tuning_changed(int);
     callback wave1_shaper_amount_changed(float);
     callback wave2_shaper_amount_changed(float);
     callback wave3_shaper_amount_changed(float);
     callback sub_shaper_amount_changed(float);
-    callback wave_mod1_speed_changed(float);
-    callback wave_mod2_speed_changed(float);
-    callback wave_mod3_speed_changed(float);
+    callback wave1_mod_speed_changed(float);
+    callback wave2_mod_speed_changed(float);
+    callback wave3_mod_speed_changed(float);
     callback sub_mod_speed_changed(float);
-    callback wave_mod1_amount_changed(float);
-    callback wave_mod2_amount_changed(float);
-    callback wave_mod3_amount_changed(float);
+    callback wave1_mod_amount_changed(float);
+    callback wave2_mod_amount_changed(float);
+    callback wave3_mod_amount_changed(float);
     callback sub_mod_amount_changed(float);
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
@@ -40,442 +50,124 @@ export component OscillatorPanel inherits HorizontalLayout {
                 alignment: center;
                 spacing: 10px;
 
-                VerticalLayout {
-                    spacing: 10px;
 
-                    Heading {
-                        horizontal-alignment: center;
+                osc1 := OscilatorControls  {
+                
                         heading: Theme.oscillator1-heading-text;
-                    }
-
-                    osc1_selector := WaveSelector {
+                        
                         wave_shape_selected(shape) => {
-                            root.wave_shape1_selected(shape);
+                            root.wave1_shape_selected(shape);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-level-text;
-                    }
-
-                    osc1_level := LevelSlider {
-                        level: Theme.osc-level-slider-default;
-                        level-step: Theme.osc-level-slider-step;
-                        minimum-level: Theme.osc-level-slider-minimum;
-                        maximum-level: Theme.osc-level-slider-maximum;
-
-                        level_selected(level) => {
-                            root.wave_level1_selected(level / 100);
+                        wave_tuning_changed(interval) => {
+                            root.wave1_tuning_changed(interval);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-shape-text;
-                    }
-
-                    osc1_shape := LFOSlider {
-                        slider_value: Theme.wave_shaper-amount-slider-default;
-                        step: Theme.wave_shaper-amount-slider-step;
-                        minimum: Theme.wave_shaper-amount-slider-minimum;
-                        maximum: Theme.wave_shaper-amount-slider-maximum;
-
-                        level_selected(amount) => {
-                            wave1_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                        
+                        wave_level_selected(level) => {
+                            root.wave1_level_selected(level);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-mod-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text + (round(osc1_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
-                    }
-
-                    osc1_mod_amount := LFOSlider {
-                        slider_value: Theme.osc-mod-amount-slider-default;
-                        step: Theme.osc-mod-amount-slider-step;
-                        minimum: Theme.osc-mod-amount-slider-minimum;
-                        maximum: Theme.osc-mod-amount-slider-maximum;
-
-                        level_selected(amount) => {
-                            root.wave_mod1_amount_changed(amount);
+                        
+                        wave_shaper_amount_changed(amount) => {
+                            root.wave1_shaper_amount_changed(amount);
                         }
-                    }
-
-                  Label {
-                      horizontal-alignment: center;
-                      label: Theme.oscillator-mod-speed-text + (round(osc1_course_speed.value) + (round(osc1_fine_speed.value*100)/100)) +
-                      Theme.oscillator-mod-speed-suffix;
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-course-text;
-                      }
-                      osc1_course_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-course-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-course-speed-slider-minimum;
-                          maximum: Theme.osc-mod-course-speed-slider-maximum;
-                          level_selected(level) => {
-                              wave_mod1_speed_changed (level + osc1_fine_speed.value);
-                          }
-                      }
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-fine-text;
-                      }
-
-                      osc1_fine_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-fine-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-fine-speed-slider-minimum;
-                          maximum: Theme.osc-mod-fine-speed-slider-maximum;
-                          level_selected(level) => {
-                             wave_mod1_speed_changed(level + osc1_course_speed.value);
-                          }
-                      }
-
-                  }
+                        
+                        wave_mod_amount_changed(amount) => {
+                            root.wave1_mod_amount_changed(amount);
+                        }
+                        
+                        wave_mod_speed_changed(speed_hz) => {
+                            root.wave1_mod_speed_changed(speed_hz);
+                        }
                 }
 
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Heading {
-                        horizontal-alignment: center;
+                osc2 := OscilatorControls  {
+                
                         heading: Theme.oscillator2-heading-text;
-                    }
-
-                    osc2_selector := WaveSelector {
+                        
                         wave_shape_selected(shape) => {
-                            root.wave_shape2_selected(shape);
+                            root.wave2_shape_selected(shape);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-level-text;
-                    }
-
-                    osc2_level := LevelSlider {
-                        level: Theme.osc-level-slider-default;
-                        level-step: Theme.osc-level-slider-step;
-                        minimum-level: Theme.osc-level-slider-minimum;
-                        maximum-level: Theme.osc-level-slider-maximum;
-
-                        level_selected(level) => {
-                            root.wave_level2_selected(level / 100);
+                        wave_tuning_changed(interval) => {
+                            root.wave2_tuning_changed(interval);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-shape-text;
-                    }
-
-                    osc2_shape := LFOSlider {
-                        slider_value: Theme.wave_shaper-amount-slider-default;
-                        step: Theme.wave_shaper-amount-slider-step;
-                        minimum: Theme.wave_shaper-amount-slider-minimum;
-                        maximum: Theme.wave_shaper-amount-slider-maximum;
-
-                        level_selected(amount) => {
-                            wave2_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                        
+                        wave_level_selected(level) => {
+                            root.wave2_level_selected(level);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-mod-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text + (round(osc2_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
-                    }
-
-                    osc2_mod_amount := LFOSlider {
-                        slider_value: Theme.osc-mod-amount-slider-default;
-                        step: Theme.osc-mod-amount-slider-step;
-                        minimum: Theme.osc-mod-amount-slider-minimum;
-                        maximum: Theme.osc-mod-amount-slider-maximum;
-
-                        level_selected(speed_hz) => {
-                            root.wave_mod2_amount_changed(speed_hz);
+                        
+                        wave_shaper_amount_changed(amount) => {
+                            root.wave2_shaper_amount_changed(amount);
                         }
-                    }
-
-                  Label {
-                      horizontal-alignment: center;
-                      label: Theme.oscillator-mod-speed-text + (round(osc2_course_speed.value) + (round(osc2_fine_speed.value*100)/100)) +
-                      Theme.oscillator-mod-speed-suffix;
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-course-text;
-                      }
-                      osc2_course_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-course-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-course-speed-slider-minimum;
-                          maximum: Theme.osc-mod-course-speed-slider-maximum;
-                          level_selected(level) => {
-                              wave_mod2_speed_changed (level + osc2_fine_speed.value);
-                          }
-                      }
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-fine-text;
-                      }
-
-                      osc2_fine_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-fine-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-fine-speed-slider-minimum;
-                          maximum: Theme.osc-mod-fine-speed-slider-maximum;
-                          level_selected(level) => {
-                             wave_mod2_speed_changed(level + osc2_course_speed.value);
-                          }
-                      }
-
-                  }
+                        
+                        wave_mod_amount_changed(amount) => {
+                            root.wave2_mod_amount_changed(amount);
+                        }
+                        
+                        wave_mod_speed_changed(speed_hz) => {
+                            root.wave2_mod_speed_changed(speed_hz);
+                        }
                 }
 
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Heading {
-                        horizontal-alignment: center;
+                osc3 := OscilatorControls  {
+                
                         heading: Theme.oscillator3-heading-text;
-                    }
-
-                    osc3_selector := WaveSelector {
+                        
                         wave_shape_selected(shape) => {
-                            root.wave_shape3_selected(shape);
+                            root.wave3_shape_selected(shape);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-level-text;
-                    }
-
-                    osc3_level := LevelSlider {
-                        level: Theme.osc-level-slider-default;
-                        level-step: Theme.osc-level-slider-step;
-                        minimum-level: Theme.osc-level-slider-minimum;
-                        maximum-level: Theme.osc-level-slider-maximum;
-
-                        level_selected(level) => {
-                            root.wave_level3_selected(level / 100);
+                        wave_tuning_changed(interval) => {
+                            root.wave3_tuning_changed(interval);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-shape-text;
-                    }
-
-                    osc3_shape := LFOSlider {
-                        slider_value: Theme.wave_shaper-amount-slider-default;
-                        step: Theme.wave_shaper-amount-slider-step;
-                        minimum: Theme.wave_shaper-amount-slider-minimum;
-                        maximum: Theme.wave_shaper-amount-slider-maximum;
-
-                        level_selected(amount) => {
-                            wave3_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                        wave_level_selected(level) => {
+                            root.wave3_level_selected(level);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-mod-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text + (round(osc3_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
-                    }
-
-                    osc3_mod_amount := LFOSlider {
-                        slider_value: Theme.osc-mod-amount-slider-default;
-                        step: Theme.osc-mod-amount-slider-step;
-                        minimum: Theme.osc-mod-amount-slider-minimum;
-                        maximum: Theme.osc-mod-amount-slider-maximum;
-
-                        level_selected(speed_hz) => {
-                            root.wave_mod3_amount_changed(speed_hz);
+                        
+                        wave_shaper_amount_changed(amount) => {
+                            root.wave3_shaper_amount_changed(amount);
                         }
-                    }
-
-
-                  Label {
-                      horizontal-alignment: center;
-                      label: Theme.oscillator-mod-speed-text + (round(osc3_course_speed.value) + (round(osc3_fine_speed.value*100)/100)) +
-                      Theme.oscillator-mod-speed-suffix;
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-course-text;
-                      }
-                      osc3_course_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-course-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-course-speed-slider-minimum;
-                          maximum: Theme.osc-mod-course-speed-slider-maximum;
-                          level_selected(level) => {
-                              wave_mod3_speed_changed (level + osc3_fine_speed.value);
-                          }
-                      }
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-fine-text;
-                      }
-
-                      osc3_fine_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-fine-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-fine-speed-slider-minimum;
-                          maximum: Theme.osc-mod-fine-speed-slider-maximum;
-                          level_selected(level) => {
-                             wave_mod3_speed_changed(level + osc3_course_speed.value);
-                          }
-                      }
-
-                  }
+                        
+                        wave_mod_amount_changed(amount) => {
+                            root.wave3_mod_amount_changed(amount);
+                        }
+                        
+                        wave_mod_speed_changed(speed_hz) => {
+                            root.wave3_mod_speed_changed(speed_hz);
+                        }
                 }
-
-                VerticalLayout {
-                    spacing: 10px;
-
-                    Heading {
-                        horizontal-alignment: center;
+                
+                sub := OscilatorControls  {
+                                
                         heading: Theme.sub-oscillator-heading-text;
-                    }
+                        is_sub: true;
 
-                    sub_selector := WaveSelector {
                         wave_shape_selected(shape) => {
                             root.sub_shape_selected(shape);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-level-text;
-                    }
-
-                    sub_level := LevelSlider {
-                        level: Theme.sub-level-slider-default;
-                        level-step: Theme.osc-level-slider-step;
-                        minimum-level: Theme.osc-level-slider-minimum;
-                        maximum-level: Theme.osc-level-slider-maximum;
-
-                        level_selected(level) => {
-                            root.sub_level_selected(level / 100);
+                        wave_tuning_changed(interval) => {
+                            root.sub_tuning_changed(interval);
                         }
-                    }
 
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-shape-text;
-                    }
-
-                    sub_shape := LFOSlider {
-                        slider_value: Theme.wave_shaper-amount-slider-default;
-                        step: Theme.wave_shaper-amount-slider-step;
-                        minimum: Theme.wave_shaper-amount-slider-minimum;
-                        maximum: Theme.wave_shaper-amount-slider-maximum;
-
-                        level_selected(amount) => {
-                            sub_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                        wave_level_selected(level) => {
+                            root.sub_level_selected(level);
                         }
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        font-weight: Theme.text-weight-bold;
-                        label: Theme.oscillator-mod-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.oscillator-mod-amount-text + (round(sub_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
-                    }
-
-                    sub_mod_amount := LFOSlider {
-                        slider_value: Theme.osc-mod-amount-slider-default;
-                        step: Theme.osc-mod-amount-slider-step;
-                        minimum: Theme.osc-mod-amount-slider-minimum;
-                        maximum: Theme.osc-mod-amount-slider-maximum;
-
-                        level_selected(speed_hz) => {
-                            root.sub_mod_amount_changed(speed_hz);
+                        
+                        wave_shaper_amount_changed(amount) => {
+                            root.sub_shaper_amount_changed(amount);
                         }
-                    }
+                        
+                        wave_mod_amount_changed(amount) => {
+                            root.sub_mod_amount_changed(amount);
+                        }
+                        
+                        wave_mod_speed_changed(speed_hz) => {
+                            root.sub_mod_speed_changed(speed_hz);
+                        }
+                }              
 
-                  Label {
-                      horizontal-alignment: center;
-                      label: Theme.oscillator-mod-speed-text + (round(sub_course_speed.value) + (round(sub_fine_speed.value*100)/100)) +
-                      Theme.oscillator-mod-speed-suffix;
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-course-text;
-                      }
-                      sub_course_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-course-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-course-speed-slider-minimum;
-                          maximum: Theme.osc-mod-course-speed-slider-maximum;
-                          level_selected(level) => {
-                              sub_mod_speed_changed(level + osc2_fine_speed.value);
-                          }
-                      }
-                  }
-
-                  HorizontalLayout {
-                      Label {
-                          label: Theme.slider-fine-text;
-                      }
-
-                      sub_fine_speed := LFOSlider {
-                          slider_value: Theme.osc-mod-fine-speed-slider-default;
-                          step: self.slider_value;
-                          minimum: Theme.osc-mod-fine-speed-slider-minimum;
-                          maximum: Theme.osc-mod-fine-speed-slider-maximum;
-                          level_selected(level) => {
-                             sub_mod_speed_changed(level + sub_course_speed.value);
-                          }
-                      }
-
-                  }
-                }
             }
 
             HorizontalLayout {
@@ -488,6 +180,17 @@ export component OscillatorPanel inherits HorizontalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.detune-heading-text;
+                    }
+
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+
+                        activation_toggled => {
+                            detune_amount.enabled = self.activated;
+                            wave_detune_state_changed(self.activated, round(detune_amount.level) / 100);
+                        }
                     }
 
                     Label {
@@ -506,15 +209,6 @@ export component OscillatorPanel inherits HorizontalLayout {
                         }
                     }
 
-                    ActivationSwitch {
-                        activated-text: Theme.activation-switch-active-text;
-                        not-activated-text: Theme.activation-switch-not-active-text;
-
-                        activation_toggled => {
-                            detune_amount.enabled = self.activated;
-                            wave_detune_state_changed(self.activated, round(detune_amount.level) / 100);
-                        }
-                    }
                 }
 
                 VerticalLayout {
@@ -523,6 +217,16 @@ export component OscillatorPanel inherits HorizontalLayout {
                     Heading {
                         horizontal-alignment: center;
                         heading: Theme.output-level-heading-text;
+                    }
+
+                    output_level_constant := ActivationSwitch {
+                        activated-text: Theme.output-level-constant-active-text;
+                        not-activated-text: Theme.output-level-constant-not-active-text;
+                        checked: true;
+
+                        activation_toggled => {
+                            root.output_level_constant_activated(self.checked);
+                        }
                     }
 
                     Label {
@@ -540,15 +244,7 @@ export component OscillatorPanel inherits HorizontalLayout {
                         }
                     }
 
-                    output_level_constant := ActivationSwitch {
-                        activated-text: Theme.output-level-constant-active-text;
-                        not-activated-text: Theme.output-level-constant-not-active-text;
-                        checked: true;
 
-                        activation_toggled => {
-                            root.output_level_constant_activated(self.checked);
-                        }
-                    }
                 }
             }
         }

@@ -3,7 +3,7 @@ use crate::synth::dynamics::Dynamics;
 use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
 use crate::synth::oscillators::sine::Sine;
-use arpeggiator::Arpeggiator;
+use arpeggiator::{Arpeggiator, FIRST_REST_NOTE};
 use constants::*;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
@@ -12,6 +12,7 @@ use device::AudioDevice;
 use filter::Filter;
 use oscillators::Oscillators;
 use std::sync::{Arc, Mutex, MutexGuard};
+
 
 pub mod arpeggiator;
 mod constants;
@@ -70,11 +71,15 @@ pub struct SynthParameters {
     tremolo: LFOParameters,
     filter_mod: LFOParameters,
     oscillator_mod_lfos: Vec<LFOParameters>,
+    current_midi_note: u16,
+    osc1_interval: i8,
+    osc2_interval: i8,
+    osc3_interval: i8,
+    sub_interval: i8,
     dynamics: DynamicsParameters,
     effects: EffectsParameters,
     arpeggiator: Arpeggiator,
     randomize_arp: bool,
-    current_note_frequency: f32,
 }
 
 pub struct Synth {
@@ -184,7 +189,7 @@ impl Synth {
         let mut arpeggiator = Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
         let randomize_arp = ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE;
 
-        let current_note_frequency = arpeggiator.next_note_frequency(randomize_arp);
+        let current_midi_note = arpeggiator.next_midi_note(randomize_arp);
 
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
@@ -193,11 +198,15 @@ impl Synth {
             tremolo,
             filter_mod,
             oscillator_mod_lfos,
+            current_midi_note,
+            osc1_interval: DEFAULT_OSC_INTERVAL,
+            osc2_interval: DEFAULT_OSC_INTERVAL,
+            osc3_interval: DEFAULT_OSC_INTERVAL,
+            sub_interval: DEFAULT_OSC_INTERVAL,
             output_level_constant: true,
             dynamics,
             effects,
             arpeggiator,
-            current_note_frequency,
             randomize_arp,
         };
 
@@ -239,6 +248,22 @@ impl Synth {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
                         oscillators.set_sub_oscillator_type(wave_shape);
+                    }
+                    EventType::UpdateOscillator1Tuning(interval) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.osc1_interval = interval as i8;
+                    }
+                    EventType::UpdateOscillator2Tuning(interval) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.osc2_interval = interval as i8;
+                    }
+                    EventType::UpdateOscillator3Tuning(interval) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.osc3_interval = interval as i8;
+                    }
+                    EventType::UpdateSubOscillatorTuning(interval) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.sub_interval = interval as i8;
                     }
                     EventType::UpdateOscillator1Level(level) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
@@ -496,11 +521,11 @@ impl Synth {
                     }
                     EventType::ArpeggiatorAddNote(note_number) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.arpeggiator.add_note(note_number as u32);
+                        parameters.arpeggiator.add_note(note_number as u16);
                     }
                     EventType::ArpeggiatorRemoveNote(note_number) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.arpeggiator.remove_note(note_number as u32);
+                        parameters.arpeggiator.remove_note(note_number as u16);
                     }
                     EventType::ArpeggiatorRandomEnabled(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -639,24 +664,40 @@ impl Synth {
                         );
 
                         let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
-                            parameters.current_note_frequency,
+                            get_frequency_from_midi_note_and_osc_interval(
+                                &parameters.arpeggiator,
+                                parameters.current_midi_note,
+                                parameters.sub_interval,
+                            ),
                             sub_oscillator_level,
                             sub_oscillator_mod,
                         );
 
                         let oscillator1_sample = oscillators.get_oscillator1_next_sample(
-                            parameters.current_note_frequency,
+                            get_frequency_from_midi_note_and_osc_interval(
+                                &parameters.arpeggiator,
+                                parameters.current_midi_note,
+                                parameters.osc1_interval,
+                            ),
                             oscillator1_level,
                             oscillator1_mod,
                         );
 
                         let oscillator2_sample = oscillators.get_oscillator2_next_sample(
-                            parameters.current_note_frequency,
+                            get_frequency_from_midi_note_and_osc_interval(
+                                &parameters.arpeggiator,
+                                parameters.current_midi_note,
+                                parameters.osc2_interval,
+                            ),
                             oscillator2_level,
                             oscillator2_mod,
                         );
                         let oscillator3_sample = oscillators.get_oscillator3_next_sample(
-                            parameters.current_note_frequency,
+                            get_frequency_from_midi_note_and_osc_interval(
+                                &parameters.arpeggiator,
+                                parameters.current_midi_note,
+                                parameters.osc3_interval,
+                            ),
                             oscillator3_level,
                             oscillator3_mod,
                         );
@@ -741,8 +782,8 @@ impl Synth {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
                                     let randomize = parameters.randomize_arp;
-                                    parameters.current_note_frequency =
-                                        parameters.arpeggiator.next_note_frequency(randomize);
+                                    parameters.current_midi_note =
+                                        parameters.arpeggiator.next_midi_note(randomize);
                                 }
                             }
                         } else {
@@ -755,8 +796,8 @@ impl Synth {
                                     left_sample *= 0.0;
                                     right_sample *= 0.0;
                                     let randomize = parameters.randomize_arp;
-                                    parameters.current_note_frequency =
-                                        parameters.arpeggiator.next_note_frequency(randomize);
+                                    parameters.current_midi_note =
+                                        parameters.arpeggiator.next_midi_note(randomize);
                                 }
                             }
                         }
@@ -935,4 +976,23 @@ fn get_clipped_samples(
     );
 
     (left_sample, right_sample)
+}
+
+fn get_frequency_from_midi_note_and_osc_interval(
+    arpeggiator: &Arpeggiator,
+    midi_note: u16,
+    interval: i8,
+) -> f32 {
+
+    if midi_note >= FIRST_REST_NOTE {
+        return 0.0
+    }
+
+    if interval.is_positive() {
+        return arpeggiator.get_frequency_from_midi_note(midi_note + interval as u16)
+    }
+
+    let new_midi_note = (midi_note as i16).saturating_add(interval as i16) as u16;
+
+    arpeggiator.get_frequency_from_midi_note(new_midi_note)
 }

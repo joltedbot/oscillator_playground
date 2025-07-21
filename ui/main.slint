@@ -19,26 +19,30 @@ export component AppWindow inherits Window {
     in-out property <bool> start_button_active: false;
 
     callback start_button_pressed(bool);
-    callback wave_shape1_selected(string);
-    callback wave_shape2_selected(string);
-    callback wave_shape3_selected(string);
+    callback wave1_shape_selected(string);
+    callback wave2_shape_selected(string);
+    callback wave3_shape_selected(string);
     callback sub_shape_selected(string);
-    callback wave_level1_selected(float);
-    callback wave_level2_selected(float);
-    callback wave_level3_selected(float);
+    callback wave1_level_selected(float);
+    callback wave2_level_selected(float);
+    callback wave3_level_selected(float);
     callback sub_level_selected(float);
     callback wave1_shaper_amount_changed(float);
     callback wave2_shaper_amount_changed(float);
     callback wave3_shaper_amount_changed(float);
     callback sub_shaper_amount_changed(float);
-    callback wave_mod1_speed_changed(float);
-    callback wave_mod2_speed_changed(float);
-    callback wave_mod3_speed_changed(float);
+    callback wave1_mod_speed_changed(float);
+    callback wave2_mod_speed_changed(float);
+    callback wave3_mod_speed_changed(float);
     callback sub_mod_speed_changed(float);
-    callback wave_mod1_amount_changed(float);
-    callback wave_mod2_amount_changed(float);
-    callback wave_mod3_amount_changed(float);
+    callback wave1_mod_amount_changed(float);
+    callback wave2_mod_amount_changed(float);
+    callback wave3_mod_amount_changed(float);
     callback sub_mod_amount_changed(float);
+    callback wave1_tuning_changed(int);
+    callback wave2_tuning_changed(int);
+    callback wave3_tuning_changed(int);
+    callback sub_tuning_changed(int);
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
@@ -123,34 +127,52 @@ export component AppWindow inherits Window {
 
                                 OscillatorPanel {
 
-                                    wave_level1_selected(level) => {
-                                        root.wave_level1_selected(level);
-                                    }
-                                    wave_shape1_selected(shape) => {
-                                        root.wave_shape1_selected(shape);
+                                    wave1_level_selected(level) => {
+                                        root.wave1_level_selected(level);
                                     }
 
-                                    wave_level2_selected(level) => {
-                                        root.wave_level2_selected(level);
+                                    wave1_shape_selected(shape) => {
+                                        root.wave1_shape_selected(shape);
                                     }
 
-                                    wave_shape2_selected(shape) => {
-                                        root.wave_shape2_selected(shape);
+                                    wave1_tuning_changed(interval) => {
+                                        root.wave1_tuning_changed(interval);
                                     }
 
-                                    wave_level3_selected(level) => {
-                                        root.wave_level3_selected(level);
+                                    wave2_level_selected(level) => {
+                                        root.wave2_level_selected(level);
                                     }
 
-                                    wave_shape3_selected(shape) => {
-                                        root.wave_shape3_selected(shape);
+                                    wave2_shape_selected(shape) => {
+                                        root.wave2_shape_selected(shape);
                                     }
+
+                                    wave2_tuning_changed(interval) => {
+                                        root.wave2_tuning_changed(interval);
+                                    }
+
+                                    wave3_level_selected(level) => {
+                                        root.wave3_level_selected(level);
+                                    }
+
+                                    wave3_shape_selected(shape) => {
+                                        root.wave3_shape_selected(shape);
+                                    }
+
+                                    wave3_tuning_changed(interval) => {
+                                        root.wave3_tuning_changed(interval);
+                                    }
+
                                     sub_level_selected(level) => {
                                         root.sub_level_selected(level);
                                     }
 
                                     sub_shape_selected(shape) => {
                                         root.sub_shape_selected(shape);
+                                    }
+
+                                    sub_tuning_changed(interval) => {
+                                        root.sub_tuning_changed(interval);
                                     }
 
                                     wave1_shaper_amount_changed(shape) => {
@@ -169,32 +191,32 @@ export component AppWindow inherits Window {
                                         root.sub_shaper_amount_changed(shape);
                                     }
 
-                                    wave_mod1_speed_changed(speed_hz) => {
-                                        root.wave_mod1_speed_changed(speed_hz);
+                                    wave1_mod_speed_changed(speed_hz) => {
+                                        root.wave1_mod_speed_changed(speed_hz);
                                     }
 
-                                    wave_mod2_speed_changed(speed_hz) => {
-                                        root.wave_mod2_speed_changed(speed_hz);
+                                    wave2_mod_speed_changed(speed_hz) => {
+                                        root.wave2_mod_speed_changed(speed_hz);
                                     }
 
-                                    wave_mod3_speed_changed(speed_hz) => {
-                                        root.wave_mod3_speed_changed(speed_hz);
+                                    wave3_mod_speed_changed(speed_hz) => {
+                                        root.wave3_mod_speed_changed(speed_hz);
                                     }
 
                                     sub_mod_speed_changed(speed_hz) => {
                                         root.sub_mod_speed_changed(speed_hz);
                                     }
 
-                                    wave_mod1_amount_changed(amount) => {
-                                        root.wave_mod1_amount_changed(amount);
+                                    wave1_mod_amount_changed(amount) => {
+                                        root.wave1_mod_amount_changed(amount);
                                     }
 
-                                    wave_mod2_amount_changed(amount) => {
-                                        root.wave_mod2_amount_changed(amount);
+                                    wave2_mod_amount_changed(amount) => {
+                                        root.wave2_mod_amount_changed(amount);
                                     }
 
-                                    wave_mod3_amount_changed(amount) => {
-                                        root.wave_mod3_amount_changed(amount);
+                                    wave3_mod_amount_changed(amount) => {
+                                        root.wave3_mod_amount_changed(amount);
                                     }
 
                                     sub_mod_amount_changed(amount) => {
