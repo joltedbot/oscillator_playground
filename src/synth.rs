@@ -91,7 +91,7 @@ pub struct Synth {
     filter: Arc<Mutex<Filter>>,
     dynamics: Arc<Mutex<Dynamics>>,
     parameters: Arc<Mutex<SynthParameters>>,
-    phaser_buffer: Arc<Mutex<Vec<f32>>>,
+    phaser_buffer: Arc<Mutex<Vec<(f32, f32)>>>,
 }
 
 impl Synth {
@@ -181,7 +181,7 @@ impl Synth {
 
         let effects = EffectsParameters {
             phaser,
-            bitcrusher_depth: DEFAULT_BITCRUSHER_DEPTH,
+            bitcrusher_depth: DEFAULT_BIT_CRUSHER_DEPTH,
             wave_shaper: DEFAULT_WAVE_SHAPER_AMOUNT,
             ..Default::default()
         };
@@ -640,13 +640,6 @@ impl Synth {
             .build_output_stream(
                 stream_config,
                 move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
-                    let mut oscillators = oscillators_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-                    let oscillator1_level = oscillators.get_oscillator1_level();
-                    let oscillator2_level = oscillators.get_oscillator2_level();
-                    let oscillator3_level = oscillators.get_oscillator3_level();
-                    let sub_oscillator_level = oscillators.get_sub_oscillator_level();
 
                     let mut lfos = lfo_arc
                         .lock()
@@ -668,116 +661,116 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                    let mut delay_buffer = delay_buffer_arc
+                    let mut phaser_delay_buffer = delay_buffer_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                    if delay_buffer.is_empty() {
-                        *delay_buffer = vec![0.0; buffer.len()];
+                    if phaser_delay_buffer.is_empty() {
+                        *phaser_delay_buffer = vec![(0.0, 0.0); buffer.len()];
                     }
 
+
+                    let sub_oscillator_frequency = get_frequency_from_midi_note_and_osc_interval(
+                        &parameters.arpeggiator,
+                        parameters.current_midi_note,
+                        parameters.sub_interval,
+                    );
+
+                    let oscillator1_frequency = get_frequency_from_midi_note_and_osc_interval(
+                        &parameters.arpeggiator,
+                        parameters.current_midi_note,
+                        parameters.osc1_interval,
+                    );
+
+                    let oscillator2_frequency = get_frequency_from_midi_note_and_osc_interval(
+                        &parameters.arpeggiator,
+                        parameters.current_midi_note,
+                        parameters.osc2_interval,
+                    );
+
+                    let oscillator3_frequency = get_frequency_from_midi_note_and_osc_interval(
+                        &parameters.arpeggiator,
+                        parameters.current_midi_note,
+                        parameters.osc3_interval,
+                    );
+
+
+                    let mut oscillators = oscillators_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+                    let oscillator1_level = oscillators.get_oscillator1_level();
+                    let oscillator2_level = oscillators.get_oscillator2_level();
+                    let oscillator3_level = oscillators.get_oscillator3_level();
+                    let sub_oscillator_level = oscillators.get_sub_oscillator_level();
+
+
                     for frame in buffer.chunks_mut(number_of_channels) {
-                        let sub_oscillator_mod = get_oscillator_mod_value(
+
+                        let sub_oscillator_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],
-                            OSC_MOD_LFO_INDEX_FOR_SUB,
-                            &mut parameters,
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_SUB]
                         );
 
-                        let oscillator1_mod = get_oscillator_mod_value(
+                        let oscillator1_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD],
-                            OSC_MOD_LFO_INDEX_FOR_OSC1,
-                            &mut parameters,
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC1]
                         );
 
-                        let oscillator2_mod = get_oscillator_mod_value(
+                        let oscillator2_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD],
-                            OSC_MOD_LFO_INDEX_FOR_OSC2,
-                            &mut parameters,
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC2]
                         );
 
-                        let oscillator3_mod = get_oscillator_mod_value(
+                        let oscillator3_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD],
-                            OSC_MOD_LFO_INDEX_FOR_OSC3,
-                            &mut parameters,
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC3]
                         );
+
 
                         let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
-                            get_frequency_from_midi_note_and_osc_interval(
-                                &parameters.arpeggiator,
-                                parameters.current_midi_note,
-                                parameters.sub_interval,
-                            ),
+                            sub_oscillator_frequency,
                             sub_oscillator_level,
-                            sub_oscillator_mod,
+                            sub_oscillator_modulation,
                         );
 
                         let oscillator1_sample = oscillators.get_oscillator1_next_sample(
-                            get_frequency_from_midi_note_and_osc_interval(
-                                &parameters.arpeggiator,
-                                parameters.current_midi_note,
-                                parameters.osc1_interval,
-                            ),
+                            oscillator1_frequency,
                             oscillator1_level,
-                            oscillator1_mod,
+                            oscillator1_modulation,
                         );
 
+
                         let oscillator2_sample = oscillators.get_oscillator2_next_sample(
-                            get_frequency_from_midi_note_and_osc_interval(
-                                &parameters.arpeggiator,
-                                parameters.current_midi_note,
-                                parameters.osc2_interval,
-                            ),
+                            oscillator2_frequency,
                             oscillator2_level,
-                            oscillator2_mod,
+                            oscillator2_modulation,
                         );
 
                         let oscillator3_sample = oscillators.get_oscillator3_next_sample(
-                            get_frequency_from_midi_note_and_osc_interval(
-                                &parameters.arpeggiator,
-                                parameters.current_midi_note,
-                                parameters.osc3_interval,
-                            ),
+                            oscillator3_frequency,
                             oscillator3_level,
-                            oscillator3_mod,
+                            oscillator3_modulation,
                         );
 
-                        let mut oscillator_sum = oscillator1_sample
+
+                        let oscillator_sample_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
                             + sub_oscillator_sample;
 
-                        if parameters.effects.phaser.is_enabled {
-                            oscillator_sum = effects::get_phased_sample(
-                                &mut lfos[LFO_INDEX_FOR_PHASE_DELAY],
-                                &mut parameters.effects.phaser,
-                                &mut delay_buffer,
-                                oscillator_sum,
-                            );
-                        }
 
                         let oscillator_level_sum = oscillator1_level
                             + oscillator2_level
                             + oscillator3_level
                             + sub_oscillator_level;
-                        let mut balanced_oscillator_level_sum = get_balanced_oscillator_sum(
+
+                        let balanced_oscillator_level_sum = get_balanced_oscillator_sum(
                             oscillator_level_sum,
                             parameters.output_level_constant,
-                            oscillator_sum,
+                            oscillator_sample_sum,
                         );
 
-                        if parameters.effects.bitcrusher_is_enabled {
-                            balanced_oscillator_level_sum = effects::get_bitcrush_sample(
-                                balanced_oscillator_level_sum,
-                                parameters.effects.bitcrusher_depth,
-                            );
-                        }
-
-                        if parameters.effects.wave_shaper_is_enabled {
-                            balanced_oscillator_level_sum = effects::get_wave_shaped_sample(
-                                balanced_oscillator_level_sum,
-                                parameters.effects.wave_shaper,
-                            );
-                        }
 
                         let filter_mod_value = get_filter_mod_value(
                             &mut lfos[LFO_INDEX_FOR_FILTER_MOD],
@@ -798,6 +791,16 @@ impl Synth {
                             );
                         }
 
+                        if parameters.effects.phaser.is_enabled {
+                            (left_sample, right_sample) = effects::get_phased_sample(
+                                &mut lfos[LFO_INDEX_FOR_PHASE_DELAY],
+                                &mut parameters.effects.phaser,
+                                &mut phaser_delay_buffer,
+                                left_sample,
+                                right_sample,
+                            );
+                        }
+
                         if parameters.tremolo.is_enabled {
                             (left_sample, right_sample) = effects::get_tremolo_value(
                                 &mut lfos[LFO_INDEX_FOR_TREMOLO],
@@ -806,6 +809,23 @@ impl Synth {
                                 right_sample,
                             );
                         }
+
+                        if parameters.effects.bitcrusher_is_enabled {
+                            (left_sample, right_sample) = effects::get_bitcrush_sample(
+                                parameters.effects.bitcrusher_depth,
+                                left_sample,
+                                right_sample,
+                            );
+                        }
+
+                        if parameters.effects.wave_shaper_is_enabled {
+                            (left_sample, right_sample) = effects::get_wave_shaped_sample(
+                                parameters.effects.wave_shaper,
+                                left_sample,
+                                right_sample,
+                            );
+                        }
+
 
                         if parameters.amp_mode == AmpMode::Gate {
                             match envelope.gate(parameters.output_level) {
@@ -913,20 +933,19 @@ fn get_balanced_oscillator_sum(
 ) -> f32 {
     match output_level_is_constant {
         true => oscillator_sum / oscillator_level_sum,
-        false => oscillator_sum / UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT,
+        false => oscillator_sum / UNBALANCED_OUTPUT_LEVEL_ADJUSTMENT,
     }
 }
 
 fn get_oscillator_mod_value(
     lfo: &mut LFO,
-    index: usize,
-    parameters: &mut MutexGuard<SynthParameters>,
+    lfo_parameters: LFOParameters,
 ) -> Option<f32> {
-    if parameters.oscillator_mod_lfos[index].width > 0.0 {
+    if lfo_parameters.width > 0.0 {
         Some(lfo.get_next_value(
-            parameters.oscillator_mod_lfos[index].frequency,
-            parameters.oscillator_mod_lfos[index].center_value,
-            parameters.oscillator_mod_lfos[index].width,
+            lfo_parameters.frequency,
+            lfo_parameters.center_value,
+            lfo_parameters.width,
         ))
     } else {
         None
@@ -945,6 +964,7 @@ fn get_compressed_samples(
         parameters.dynamics.compressor_ratio,
         left_sample,
     );
+
     let right_sample = dynamics.compress(
         parameters.output_level,
         parameters.dynamics.compressor_threshold,

@@ -28,8 +28,7 @@ impl GenerateSamples for FM {
             .modulator
             .next_sample(tone_frequency * self.ratio, modulation);
         let modulated_frequency = tone_frequency + (modulator * self.modulation_amount);
-        let sample = self.carrier.next_sample(modulated_frequency, None);
-        sample
+        self.carrier.next_sample(modulated_frequency, None)
     }
 
     fn set_shape_specific_parameter(&mut self, parameter: f32) {

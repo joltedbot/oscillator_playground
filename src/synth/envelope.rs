@@ -109,8 +109,8 @@ impl Envelope {
         self.envelope.release_milliseconds = milliseconds;
     }
 
-    pub fn set_sustain_milliseconds(&mut self, millliseconds: u32) {
-        self.envelope.sustain_length = millliseconds;
+    pub fn set_sustain_milliseconds(&mut self, milliseconds: u32) {
+        self.envelope.sustain_length = milliseconds;
     }
 
     pub fn set_sustain_level_below_output_level_in_dbfs(&mut self, level: f32) {

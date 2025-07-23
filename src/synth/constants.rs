@@ -1,6 +1,6 @@
 // Level/Volume Constants
 pub const OUTPUT_LEVEL: f32 = -10.0;
-pub const UNBLANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
+pub const UNBALANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 
 // Oscillator Constants
 pub const DEFAULT_OSC_INTERVAL: i8 = 0;
@@ -11,7 +11,7 @@ pub const DEFAULT_SEQUENCER_NOTE: u16 = 60;
 
 // Effects Constants
 pub const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
-pub const DEFAULT_BITCRUSHER_DEPTH: u32 = 8;
+pub const DEFAULT_BIT_CRUSHER_DEPTH: u32 = 8;
 pub const DEFAULT_WAVE_SHAPER_AMOUNT: f32 = 0.0;
 pub const DEFAULT_AUTO_PAN_CENTER_VALUE: f32 = 1.0;
 pub const DEFAULT_PHASER_CENTER_VALUE: f32 = 87.0;

@@ -6,6 +6,7 @@ impl Dynamics {
     pub fn new() -> Self {
         Self {}
     }
+
     pub fn compress(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
