@@ -706,6 +706,7 @@ impl Synth {
                             oscillator2_level,
                             oscillator2_mod,
                         );
+
                         let oscillator3_sample = oscillators.get_oscillator3_next_sample(
                             get_frequency_from_midi_note_and_osc_interval(
                                 &parameters.arpeggiator,

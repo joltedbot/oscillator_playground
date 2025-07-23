@@ -6,6 +6,7 @@ pub mod square;
 pub mod sub;
 pub mod super_saw;
 pub mod triangle;
+pub mod fm;
 
 use noise::Noise;
 use ramp::Ramp;
@@ -16,6 +17,7 @@ use square::Square;
 use sub::Sub;
 use super_saw::SuperSaw;
 use triangle::Triangle;
+use fm::FM;
 
 const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 
@@ -34,6 +36,7 @@ pub enum WaveShape {
     Square,
     SuperSaw,
     Triangle,
+    FM,
 }
 
 pub struct Oscillators {
@@ -249,6 +252,7 @@ impl Oscillators {
             WaveShape::Square => Box::new(Square::new(self.sample_rate)),
             WaveShape::SuperSaw => Box::new(SuperSaw::new(self.sample_rate)),
             WaveShape::Triangle => Box::new(Triangle::new(self.sample_rate)),
+            WaveShape::FM => Box::new(FM::new(self.sample_rate)),
         }
     }
 
@@ -261,6 +265,7 @@ impl Oscillators {
             "Square" => WaveShape::Square,
             "SuperSaw" => WaveShape::SuperSaw,
             "Triangle" => WaveShape::Triangle,
+            "FM" => WaveShape::FM,
             _ => WaveShape::Sine,
         }
     }
