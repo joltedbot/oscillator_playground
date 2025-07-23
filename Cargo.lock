@@ -2446,11 +2446,12 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
 name = "kurbo"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1077d333efea6170d9ccb96d3c3026f300ca0773da4938cc4c811daa6df68b0c"
+checksum = "c62026ae44756f8a599ba21140f350303d4f08dcdcc71b5ad9c9bb8128c13c62"
 dependencies = [
  "arrayvec",
+ "euclid",
  "smallvec",
 ]
 
@@ -2506,7 +2507,7 @@ checksum = "4488594b9328dee448adb906d8b126d9b7deb7cf5c22161ee591610bb1be83c0"
 dependencies = [
  "bitflags 2.9.1",
  "libc",
- "redox_syscall 0.5.14",
+ "redox_syscall 0.5.15",
 ]
 
 [[package]]
@@ -3246,7 +3247,7 @@ dependencies = [
 
 [[package]]
 name = "oscillator_playground"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "cpal",
  "crossbeam-channel",
@@ -3671,9 +3672,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.14"
+version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de3a5d9f0aba1dbcec1cc47f0ff94a4b778fe55bca98a6dfa92e4e094e57b1c4"
+checksum = "7e8af0dde094006011e6a740d4879319439489813bd0bcdc7d821beaeeff48ec"
 dependencies = [
  "bitflags 2.9.1",
 ]
@@ -4139,7 +4140,7 @@ dependencies = [
  "objc2-foundation 0.2.2",
  "objc2-quartz-core 0.2.2",
  "raw-window-handle",
- "redox_syscall 0.5.14",
+ "redox_syscall 0.5.15",
  "rustix 0.38.44",
  "tiny-xlib",
  "wasm-bindgen",
