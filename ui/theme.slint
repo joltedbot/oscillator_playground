@@ -26,9 +26,9 @@ export global Theme {
     out property <color> text-color: #AAAAAA;
     out property <color> greyed-out: #444444;
     out property <int> text-weight-bold: 800;
-    out property <length> text-size: 14px;
-    out property <length> label-text-size: 14px;
-    out property <length> heading-text-size: 16px;
+    out property <length> text-size: 13px;
+    out property <length> label-text-size: 13px;
+    out property <length> heading-text-size: 15px;
 
 
     // Arpeggiator
@@ -48,8 +48,6 @@ export global Theme {
 
     // Slider Adjustment Ratios
     out property <float> lfo-slider-step-ratio: 0.01;
-
-
 
     // Start Button
     out property <string> start-button-running-text: "Stop";
@@ -75,7 +73,7 @@ export global Theme {
 
     // Wave Selector
     out property <length> wave-shape-switch-width: 150px;
-    out property <[string]> wave-shape-list: ["Sine", "FM","Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
+    out property <[string]> wave-shape-list: ["Sine", "FM", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
     out property <string> wave-shape-default: "Sine";
 
     // Oscillator Level Slider
@@ -93,6 +91,13 @@ export global Theme {
     out property <int> osc-tuning-slider-default: 0;
     out property <string> osc-tuning-slider-unison: "Unison";
 
+    // Oscillator FM Amount Slider
+    out property <int> osc-fm-amount-slider-step: 1;
+    out property <int> osc-fm-amount-slider-minimum: 1;
+    out property <int> osc-fm-amount-slider-maximum: 100;
+    out property <int> osc-fm-amount-slider-default: 1;
+    out property <int> osc-fm-amount-slider-adjustment-factor: 100;
+    out property <string> osc-fm-amount-wave-shape: "FM";
 
 
     // Oscillator Modulation Slider
@@ -287,6 +292,7 @@ export global Theme {
     out property <string> oscillator-tune-value-suffix: " semitones";
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator-level-text: "Level";
+    out property <string> oscillator-fm-amount-text: "FM Amount";
     out property <string> oscillator-shape-text: "Shape";
     out property <string> oscillator-mod-text: "Pitch Modulation";
     out property <string> oscillator-mod-speed-text: "Speed: ";

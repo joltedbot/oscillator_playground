@@ -197,6 +197,7 @@ export component OscilatorControls inherits VerticalLayout {
     callback wave_mod_amount_changed(float);
     callback wave_mod_speed_changed(float);
     callback wave_tuning_changed(int);
+    callback fm_amount_selected(int);
 
     spacing: 10px;
 
@@ -207,6 +208,12 @@ export component OscilatorControls inherits VerticalLayout {
 
     osc_selector := WaveSelector {
         wave_shape_selected(shape) => {
+            if (shape == Theme.osc-fm-amount-wave-shape) {
+                osc_fm_amount.enabled = true;
+            } else {
+                osc_fm_amount.enabled = false;
+            }
+
             wave_shape_selected(shape);
         }
     }
@@ -255,6 +262,24 @@ export component OscilatorControls inherits VerticalLayout {
 
         level_selected(level) => {
             wave_level_selected(level / 100);
+        }
+    }
+
+    Label {
+        horizontal-alignment: center;
+        font-weight: Theme.text-weight-bold;
+        label: Theme.oscillator-fm-amount-text;
+    }
+
+    osc_fm_amount := LevelSlider {
+        level: Theme.osc-fm-amount-slider-default;
+        level-step: Theme.osc-fm-amount-slider-step;
+        minimum-level: Theme.osc-fm-amount-slider-minimum;
+        maximum-level: Theme.osc-fm-amount-slider-maximum;
+        enabled: false;
+
+        level_selected(level) => {
+            fm_amount_selected(level * Theme.osc-fm-amount-slider-adjustment-factor);
         }
     }
 

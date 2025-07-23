@@ -41,6 +41,8 @@ impl GenerateSamples for SuperSaw {
         voice_samples.iter().sum::<f32>() / 2.0
     }
 
+    fn set_shape_specific_parameter(&mut self, _parameter: f32) {}
+
     fn reset(&mut self) {
         self.x_coordinate = DEFAULT_X_COORDINATE;
         self.x_increment = DEFAULT_X_INCREMENT;

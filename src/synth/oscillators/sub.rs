@@ -20,6 +20,10 @@ impl GenerateSamples for Sub {
         self.oscillator.next_sample(tone_frequency, modulation)
     }
 
+    fn set_shape_specific_parameter(&mut self, parameter: f32) {
+        self.oscillator.set_shape_specific_parameter(parameter);
+    }
+
     fn reset(&mut self) {
         self.oscillator.reset();
     }

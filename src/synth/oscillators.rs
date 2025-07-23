@@ -1,3 +1,4 @@
+pub mod fm;
 pub mod noise;
 pub mod ramp;
 pub mod saw;
@@ -6,8 +7,8 @@ pub mod square;
 pub mod sub;
 pub mod super_saw;
 pub mod triangle;
-pub mod fm;
 
+use fm::FM;
 use noise::Noise;
 use ramp::Ramp;
 use saw::Saw;
@@ -17,12 +18,14 @@ use square::Square;
 use sub::Sub;
 use super_saw::SuperSaw;
 use triangle::Triangle;
-use fm::FM;
 
 const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 
 pub trait GenerateSamples {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
+
+    fn set_shape_specific_parameter(&mut self, parameter: f32);
+
     fn reset(&mut self);
 }
 
@@ -45,6 +48,10 @@ pub struct Oscillators {
     oscillator2: Box<dyn GenerateSamples + Send + Sync>,
     oscillator3: Box<dyn GenerateSamples + Send + Sync>,
     sub_oscillator: Box<dyn GenerateSamples + Send + Sync>,
+    oscillator1_shape: WaveShape,
+    oscillator2_shape: WaveShape,
+    oscillator3_shape: WaveShape,
+    sub_oscillator_shape: WaveShape,
     oscillator1_level: f32,
     oscillator2_level: f32,
     oscillator3_level: f32,
@@ -63,6 +70,10 @@ impl Oscillators {
         let oscillator2 = Box::new(Sine::new(sample_rate));
         let oscillator3 = Box::new(Sine::new(sample_rate));
         let sub_oscillator = Box::new(Sub::new(Box::new(Sine::new(sample_rate))));
+        let oscillator1_shape = WaveShape::Sine;
+        let oscillator2_shape = WaveShape::Sine;
+        let oscillator3_shape = WaveShape::Sine;
+        let sub_oscillator_shape = WaveShape::Sine;
         let oscillator1_level = 1.0;
         let oscillator2_level = 1.0;
         let oscillator3_level = 1.0;
@@ -82,6 +93,10 @@ impl Oscillators {
             oscillator2_level,
             oscillator3_level,
             sub_oscillator_level,
+            oscillator1_shape,
+            oscillator2_shape,
+            oscillator3_shape,
+            sub_oscillator_shape,
             oscillator1_shaper_amount,
             oscillator2_shaper_amount,
             oscillator3_shaper_amount,
@@ -92,18 +107,22 @@ impl Oscillators {
     }
 
     pub fn set_oscillator1_type(&mut self, wave_shape: WaveShape) {
+        self.oscillator1_shape = wave_shape;
         self.oscillator1 = self.get_oscillator_for_wave_shape(wave_shape);
     }
 
     pub fn set_oscillator2_type(&mut self, wave_shape: WaveShape) {
+        self.oscillator2_shape = wave_shape;
         self.oscillator2 = self.get_oscillator_for_wave_shape(wave_shape);
     }
 
     pub fn set_oscillator3_type(&mut self, wave_shape: WaveShape) {
+        self.oscillator3_shape = wave_shape;
         self.oscillator3 = self.get_oscillator_for_wave_shape(wave_shape);
     }
 
     pub fn set_sub_oscillator_type(&mut self, wave_shape: WaveShape) {
+        self.sub_oscillator_shape = wave_shape;
         self.sub_oscillator = Box::new(Sub::new(self.get_oscillator_for_wave_shape(wave_shape)));
     }
 
@@ -121,6 +140,34 @@ impl Oscillators {
 
     pub fn set_sub_oscillator_level(&mut self, level: f32) {
         self.sub_oscillator_level = level;
+    }
+
+    pub fn set_oscillator1_fm_amount(&mut self, fm_amount: i32) {
+        if self.oscillator1_shape == WaveShape::FM {
+            self.oscillator1
+                .set_shape_specific_parameter(fm_amount as f32);
+        }
+    }
+
+    pub fn set_oscillator2_fm_amount(&mut self, fm_amount: i32) {
+        if self.oscillator2_shape == WaveShape::FM {
+            self.oscillator2
+                .set_shape_specific_parameter(fm_amount as f32);
+        }
+    }
+
+    pub fn set_oscillator3_fm_amount(&mut self, fm_amount: i32) {
+        if self.oscillator3_shape == WaveShape::FM {
+            self.oscillator3
+                .set_shape_specific_parameter(fm_amount as f32);
+        }
+    }
+
+    pub fn set_sub_oscillator_fm_amount(&mut self, fm_amount: i32) {
+        if self.sub_oscillator_shape == WaveShape::FM {
+            self.sub_oscillator
+                .set_shape_specific_parameter(fm_amount as f32);
+        }
     }
 
     pub fn set_oscillator1_shaper_amount(&mut self, amount: f32) {

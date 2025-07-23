@@ -282,6 +282,22 @@ impl Synth {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         oscillators.set_sub_oscillator_level(level);
                     }
+                    EventType::UpdateOscillator1FMAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator1_fm_amount(amount);
+                    }
+                    EventType::UpdateOscillator2FMAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator2_fm_amount(amount);
+                    }
+                    EventType::UpdateOscillator3FMAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator3_fm_amount(amount);
+                    }
+                    EventType::UpdateSubOscillatorFMAmount(amount) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_sub_oscillator_fm_amount(amount);
+                    }
                     EventType::UpdateOscillator1ShaperAmount(amount) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         oscillators.set_oscillator1_shaper_amount(amount);
@@ -455,13 +471,21 @@ impl Synth {
                         let lfo_arc = self.lfos.clone();
                         let paramaters_arc = self.parameters.clone();
 
-                        let oscillators = oscillators_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-                        let mut parameters = paramaters_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-                        let mut lfos = lfo_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let oscillators = oscillators_arc
+                            .lock()
+                            .unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let mut parameters = paramaters_arc
+                            .lock()
+                            .unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let mut lfos = lfo_arc
+                            .lock()
+                            .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                        parameters.filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(oscillators.get_oscillator_for_wave_shape(parameters.filter_mod_shape))
-
+                        parameters.filter_mod_shape =
+                            oscillators.get_wave_shape_from_shape_name(shape);
+                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(
+                            oscillators.get_oscillator_for_wave_shape(parameters.filter_mod_shape),
+                        )
                     }
                     EventType::UpdatePhaserEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();

@@ -29,15 +29,19 @@ impl UI {
     }
 
     pub fn create_ui_callbacks(&mut self) {
-        self.on_start_button_pressed_callback();
-        self.on_wave1_shape_selected_callback();
-        self.on_wave2_shape_selected_callback();
-        self.on_wave3_shape_selected_callback();
-        self.on_sub_shape_selected_callback();
-        self.on_wave1_level_selected_callback();
-        self.on_wave2_level_selected_callback();
-        self.on_wave3_level_selected_callback();
-        self.on_sub_level_selected_callback();
+        self.on_start_button_pressed();
+        self.on_wave1_shape_selected();
+        self.on_wave2_shape_selected();
+        self.on_wave3_shape_selected();
+        self.on_sub_shape_selected();
+        self.on_wave1_level_selected();
+        self.on_wave2_level_selected();
+        self.on_wave3_level_selected();
+        self.on_sub_level_selected();
+        self.on_wave1_fm_amount_selected();
+        self.on_wave2_fm_amount_selected();
+        self.on_wave3_fm_amount_selected();
+        self.on_sub_fm_amount_selected();
         self.on_wave1_tuning_changed();
         self.on_wave2_tuning_changed();
         self.on_wave3_tuning_changed();
@@ -115,7 +119,7 @@ impl UI {
         }
     }
 
-    fn on_wave1_shape_selected_callback(&mut self) {
+    fn on_wave1_shape_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -126,7 +130,7 @@ impl UI {
         });
     }
 
-    fn on_wave2_shape_selected_callback(&mut self) {
+    fn on_wave2_shape_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -137,7 +141,7 @@ impl UI {
         });
     }
 
-    fn on_wave3_shape_selected_callback(&mut self) {
+    fn on_wave3_shape_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -148,7 +152,7 @@ impl UI {
         });
     }
 
-    fn on_sub_shape_selected_callback(&mut self) {
+    fn on_sub_shape_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -203,7 +207,7 @@ impl UI {
         });
     }
 
-    fn on_wave1_level_selected_callback(&mut self) {
+    fn on_wave1_level_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -214,7 +218,7 @@ impl UI {
         });
     }
 
-    fn on_wave2_level_selected_callback(&mut self) {
+    fn on_wave2_level_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -224,7 +228,7 @@ impl UI {
             }
         });
     }
-    fn on_wave3_level_selected_callback(&mut self) {
+    fn on_wave3_level_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -235,12 +239,56 @@ impl UI {
         });
     }
 
-    fn on_sub_level_selected_callback(&mut self) {
+    fn on_sub_level_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
         ui.on_sub_level_selected(move |level| {
             if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorLevel(level)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_wave1_fm_amount_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave1_fm_amount_selected(move |fm_amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1FMAmount(fm_amount)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_wave2_fm_amount_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave2_fm_amount_selected(move |fm_amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2FMAmount(fm_amount)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+    fn on_wave3_fm_amount_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_wave3_fm_amount_selected(move |fm_amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3FMAmount(fm_amount)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_sub_fm_amount_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_sub_fm_amount_selected(move |fm_amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorFMAmount(fm_amount))
+            {
                 eprintln!("Error sending event: {error}",);
             }
         });
@@ -375,7 +423,7 @@ impl UI {
         });
     }
 
-    fn on_start_button_pressed_callback(&mut self) {
+    fn on_start_button_pressed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
@@ -718,8 +766,7 @@ impl UI {
         let synth_sender = self.synth_sender.clone();
 
         ui.on_filter_mod_shape_selected(move |shape| {
-            if let Err(error) = synth_sender.send(EventType::UpdateFilterModShape(shape).clone())
-            {
+            if let Err(error) = synth_sender.send(EventType::UpdateFilterModShape(shape).clone()) {
                 eprintln!("Error sending event: {error}",);
             }
         });

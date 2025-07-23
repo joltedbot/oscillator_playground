@@ -2,6 +2,7 @@ import { Button, Slider, Switch, SpinBox, HorizontalBox, TabWidget } from "std-w
 import { Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
+import { OscillatorGlobalPanel } from "../ui/oscillator-global-panel.slint";
 import { FilterPanel } from "../ui/filter-panel.slint";
 import { EnvelopePanel } from "../ui/envelope-panel.slint";
 import { EffectsPanel } from "../ui/effects-panel.slint";
@@ -27,6 +28,10 @@ export component AppWindow inherits Window {
     callback wave2_level_selected(float);
     callback wave3_level_selected(float);
     callback sub_level_selected(float);
+    callback wave1_fm_amount_selected(int);
+    callback wave2_fm_amount_selected(int);
+    callback wave3_fm_amount_selected(int);
+    callback sub_fm_amount_selected(int);
     callback wave1_shaper_amount_changed(float);
     callback wave2_shaper_amount_changed(float);
     callback wave3_shaper_amount_changed(float);
@@ -131,7 +136,9 @@ export component AppWindow inherits Window {
                                     wave1_level_selected(level) => {
                                         root.wave1_level_selected(level);
                                     }
-
+                                    wave1_fm_amount_selected(amount) => {
+                                        root.wave1_fm_amount_selected(amount);
+                                    }
                                     wave1_shape_selected(shape) => {
                                         root.wave1_shape_selected(shape);
                                     }
@@ -143,7 +150,9 @@ export component AppWindow inherits Window {
                                     wave2_level_selected(level) => {
                                         root.wave2_level_selected(level);
                                     }
-
+                                    wave2_fm_amount_selected(amount) => {
+                                        root.wave2_fm_amount_selected(amount);
+                                    }
                                     wave2_shape_selected(shape) => {
                                         root.wave2_shape_selected(shape);
                                     }
@@ -155,7 +164,9 @@ export component AppWindow inherits Window {
                                     wave3_level_selected(level) => {
                                         root.wave3_level_selected(level);
                                     }
-
+                                    wave3_fm_amount_selected(amount) => {
+                                        root.wave3_fm_amount_selected(amount);
+                                    }
                                     wave3_shape_selected(shape) => {
                                         root.wave3_shape_selected(shape);
                                     }
@@ -167,7 +178,9 @@ export component AppWindow inherits Window {
                                     sub_level_selected(level) => {
                                         root.sub_level_selected(level);
                                     }
-
+                                    sub_fm_amount_selected(amount) => {
+                                        root.sub_fm_amount_selected(amount);
+                                    }
                                     sub_shape_selected(shape) => {
                                         root.sub_shape_selected(shape);
                                     }
@@ -223,55 +236,60 @@ export component AppWindow inherits Window {
                                     sub_mod_amount_changed(amount) => {
                                         root.sub_mod_amount_changed(amount);
                                     }
-
-                                    wave_detune_value_changed(int) => {
-                                        root.wave_detune_value_changed(int);
-                                    }
-
-                                    wave_detune_state_changed(active, amount) => {
-                                        root.wave_detune_state_changed(active, amount)
-                                    }
-
-                                    output_level_value_changed(level) => {
-                                        root.output_level_value_changed(level);
-                                    }
-
-                                    output_level_constant_activated(is_active) => {
-                                        root.output_level_constant_activated(is_active);
-                                    }
                                 }
 
-                                EnvelopePanel {
-                                    envelope_attack_updated(milliseconds) => {
-                                        root.envelope_attack_updated(milliseconds);
+                                VerticalLayout {
+
+                                    EnvelopePanel {
+                                        envelope_attack_updated(milliseconds) => {
+                                            root.envelope_attack_updated(milliseconds);
+                                        }
+
+                                        envelope_decay_updated(milliseconds) => {
+                                            root.envelope_decay_updated(milliseconds);
+                                        }
+
+                                        envelope_release_updated(milliseconds) => {
+                                            root.envelope_release_updated(milliseconds);
+                                        }
+
+                                        envelope_sustain_updated(milliseconds) => {
+                                            root.envelope_sustain_updated(milliseconds);
+                                        }
+
+                                        adsr_note_length_updated(milliseconds) => {
+                                            root.adsr_note_length_updated(milliseconds);
+                                        }
+
+                                        enable_amp_envelope(is_enabled) => {
+                                            root.enable_amp_envelope(is_enabled);
+                                        }
+
+                                        gate_length_changed(note_length) => {
+                                            root.gate_length_changed(note_length);
+                                        }
+
+                                        gate_duty_cycle_changed(duty_cycle) => {
+                                            root.gate_duty_cycle_changed(duty_cycle);
+                                        }
                                     }
 
-                                    envelope_decay_updated(milliseconds) => {
-                                        root.envelope_decay_updated(milliseconds);
-                                    }
+                                    OscillatorGlobalPanel {
+                                        wave_detune_value_changed(int) => {
+                                            root.wave_detune_value_changed(int);
+                                        }
 
-                                    envelope_release_updated(milliseconds) => {
-                                        root.envelope_release_updated(milliseconds);
-                                    }
+                                        wave_detune_state_changed(active, amount) => {
+                                            root.wave_detune_state_changed(active, amount)
+                                        }
 
-                                    envelope_sustain_updated(milliseconds) => {
-                                        root.envelope_sustain_updated(milliseconds);
-                                    }
+                                        output_level_value_changed(level) => {
+                                            root.output_level_value_changed(level);
+                                        }
 
-                                    adsr_note_length_updated(milliseconds) => {
-                                        root.adsr_note_length_updated(milliseconds);
-                                    }
-
-                                    enable_amp_envelope(is_enabled) => {
-                                        root.enable_amp_envelope(is_enabled);
-                                    }
-
-                                    gate_length_changed(note_length) => {
-                                        root.gate_length_changed(note_length);
-                                    }
-
-                                    gate_duty_cycle_changed(duty_cycle) => {
-                                        root.gate_duty_cycle_changed(duty_cycle);
+                                        output_level_constant_activated(is_active) => {
+                                            root.output_level_constant_activated(is_active);
+                                        }
                                     }
                                 }
                             }
