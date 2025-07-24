@@ -28,407 +28,8 @@ export component EffectsPanel inherits GridLayout {
     callback clipper_threshold_changed(float);
 
     Row {
-        Panel {
 
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-
-                    VerticalLayout {
-                        spacing: 10px;
-
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.compressor-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-
-                            activation_toggled => {
-                                compressor_threshold.enabled = self.activated;
-                                compressor_ratio.enabled = self.activated;
-                                compressor_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.compressor-threshold-text + round(compressor_threshold.slider_value);
-                        }
-
-                        compressor_threshold := LFOSlider {
-                            slider_value: Theme.compressor-threshold-default;
-                            step: Theme.compressor-threshold-step;
-                            minimum: Theme.compressor-threshold-minimum;
-                            maximum: Theme.compressor-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                compressor_threshold_changed(round(level));
-                            }
-                        }
-
-                        Label {
-                            label: Theme.compressor-ratio-text + round(compressor_ratio.value) + Theme.compressor-ratio-suffix;
-                        }
-
-                        compressor_ratio := LevelSlider {
-                            value: Theme.compressor-ratio-default;
-                            step: Theme.compressor-ratio-step;
-                            minimum: Theme.compressor-ratio-minimum;
-                            maximum: Theme.compressor-ratio-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                compressor_ratio_changed(1 / round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-
-                    VerticalLayout {
-                        spacing: 10px;
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.limiter-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                limiter_threshold.enabled = self.activated;
-                                limiter_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.limiter-threshold-text + round(limiter_threshold.slider_value);
-                        }
-
-                        limiter_threshold := LFOSlider {
-                            slider_value: Theme.limiter-threshold-default;
-                            step: Theme.limiter-threshold-step;
-                            minimum: Theme.limiter-threshold-minimum;
-                            maximum: Theme.limiter-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                limiter_threshold_changed(round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-                    VerticalLayout {
-                        spacing: 10px;
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.clipper-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                clipper_threshold.enabled = self.activated;
-                                clipper_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.clipper-threshold-text + round(clipper_threshold.slider_value);
-                        }
-
-                        clipper_threshold := LFOSlider {
-                            slider_value: Theme.clipper-threshold-default;
-                            step: Theme.clipper-threshold-step;
-                            minimum: Theme.clipper-threshold-minimum;
-                            maximum: Theme.clipper-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                clipper_threshold_changed(round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Row {
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-                    VerticalLayout {
-                        spacing: 10px;
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.wavefolder-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                wavefolder_threshold.enabled = self.activated;
-                                wavefolder_ratio.enabled = self.activated;
-                                wavefolder_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.wavefolder-threshold-text + round(wavefolder_threshold.slider_value);
-                        }
-
-                        wavefolder_threshold := LFOSlider {
-                            slider_value: Theme.wavefolder-threshold-default;
-                            step: Theme.wavefolder-threshold-step;
-                            minimum: Theme.wavefolder-threshold-minimum;
-                            maximum: Theme.wavefolder-threshold-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                wavefolder_threshold_changed(round(level));
-                            }
-                        }
-
-                        Label {
-                            label: Theme.wavefolder-ratio-text + round(wavefolder_ratio.value) + Theme.wavefolder-ratio-suffix;
-                        }
-
-                        wavefolder_ratio := LevelSlider {
-                            value: Theme.wavefolder-ratio-default;
-                            step: Theme.wavefolder-ratio-step;
-                            minimum: Theme.wavefolder-ratio-minimum;
-                            maximum: Theme.wavefolder-ratio-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                wavefolder_ratio_changed(1 / round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-
-                    VerticalLayout {
-                        spacing: 10px;
-
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.bitcrush-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                bitcrush_amount.enabled = self.activated;
-                                bitcrusher_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.bitcrush-amount-text + round(bitcrush_amount.value);
-                        }
-
-                        bitcrush_amount := LFOSlider {
-                            slider_value: Theme.bitcrush-amount-slider-default;
-                            step: Theme.bitcrush-amount-slider-step;
-                            minimum: Theme.bitcrush-amount-slider-minimum;
-                            maximum: Theme.bitcrush-amount-slider-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                bitcrusher_amount_changed(round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-
-                    VerticalLayout {
-                        spacing: 10px;
-
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.wave_shaper-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                wave_shaper_amount.enabled = self.activated;
-                                wave_shaper_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
-                        }
-
-                        wave_shaper_amount := LFOSlider {
-                            slider_value: Theme.wave_shaper-amount-slider-default;
-                            step: Theme.wave_shaper-amount-slider-step;
-                            minimum: Theme.wave_shaper-amount-slider-minimum;
-                            maximum: Theme.wave_shaper-amount-slider-maximum;
-                            enabled: false;
-                            level_selected(amount) => {
-                                wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Row {
-
-        Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
-
-                    VerticalLayout {
-                        spacing: 10px;
-
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.phaser-heading-text;
-                        }
-
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                phaser_course_speed.enabled = self.activated;
-                                phaser_fine_speed.enabled = self.activated;
-                                phaser_amount.enabled = self.activated;
-                                phaser_activated(self.checked);
-                            }
-                        }
-
-                        Label {
-                            label: Theme.phaser-speed-text + (round(phaser_course_speed.value) + (round(phaser_fine_speed.value * 100) / 100)) + Theme.phaser-speed-suffix;
-                        }
-
-                        HorizontalLayout {
-                            Label {
-                                label: Theme.slider-course-text;
-                            }
-
-                            phaser_course_speed := LFOSlider {
-                                slider_value: Theme.phaser-course-speed-slider-default;
-                                step: self.slider_value;
-                                minimum: Theme.phaser-course-speed-slider-minimum;
-                                maximum: Theme.phaser-course-speed-slider-maximum;
-                                enabled: false;
-                                level_selected(level) => {
-                                    phaser_speed_changed(level + phaser_fine_speed.value);
-                                }
-                            }
-                        }
-
-                        HorizontalLayout {
-                            Label {
-                                label: Theme.slider-fine-text;
-                            }
-
-                            phaser_fine_speed := LFOSlider {
-                                slider_value: Theme.phaser-fine-speed-slider-default;
-                                step: self.slider_value;
-                                minimum: Theme.phaser-fine-speed-slider-minimum;
-                                maximum: Theme.phaser-fine-speed-slider-maximum;
-                                enabled: false;
-                                level_selected(level) => {
-                                    phaser_speed_changed(level + phaser_course_speed.value);
-                                }
-                            }
-                        }
-
-                        Label {
-                            label: Theme.phaser-amount-text + round(phaser_amount.value);
-                        }
-
-                        phaser_amount := LFOSlider {
-                            slider_value: Theme.phaser-amount-slider-default;
-                            step: Theme.phaser-amount-slider-step;
-                            minimum: Theme.phaser-amount-slider-minimum;
-                            maximum: Theme.phaser-amount-slider-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                phaser_amount_changed(round(level));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Panel {
+        auto_pan := Panel {
 
             VerticalLayout {
                 alignment: start;
@@ -516,7 +117,94 @@ export component EffectsPanel inherits GridLayout {
             }
         }
 
-        Panel {
+        phaser := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.phaser-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                phaser_course_speed.enabled = self.activated;
+                                phaser_fine_speed.enabled = self.activated;
+                                phaser_amount.enabled = self.activated;
+                                phaser_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.phaser-speed-text + (round(phaser_course_speed.value) + (round(phaser_fine_speed.value * 100) / 100)) + Theme.phaser-speed-suffix;
+                        }
+
+                        HorizontalLayout {
+                            Label {
+                                label: Theme.slider-course-text;
+                            }
+
+                            phaser_course_speed := LFOSlider {
+                                slider_value: Theme.phaser-course-speed-slider-default;
+                                step: self.slider_value;
+                                minimum: Theme.phaser-course-speed-slider-minimum;
+                                maximum: Theme.phaser-course-speed-slider-maximum;
+                                enabled: false;
+                                level_selected(level) => {
+                                    phaser_speed_changed(level + phaser_fine_speed.value);
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            Label {
+                                label: Theme.slider-fine-text;
+                            }
+
+                            phaser_fine_speed := LFOSlider {
+                                slider_value: Theme.phaser-fine-speed-slider-default;
+                                step: self.slider_value;
+                                minimum: Theme.phaser-fine-speed-slider-minimum;
+                                maximum: Theme.phaser-fine-speed-slider-maximum;
+                                enabled: false;
+                                level_selected(level) => {
+                                    phaser_speed_changed(level + phaser_course_speed.value);
+                                }
+                            }
+                        }
+
+                        Label {
+                            label: Theme.phaser-amount-text + round(phaser_amount.value);
+                        }
+
+                        phaser_amount := LFOSlider {
+                            slider_value: Theme.phaser-amount-slider-default;
+                            step: Theme.phaser-amount-slider-step;
+                            minimum: Theme.phaser-amount-slider-minimum;
+                            maximum: Theme.phaser-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                phaser_amount_changed(round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        tremolo := Panel {
 
             VerticalLayout {
                 alignment: start;
@@ -604,4 +292,319 @@ export component EffectsPanel inherits GridLayout {
             }
         }
     }
+
+    Row {
+
+        bitcrusher := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.bitcrush-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                bitcrush_amount.enabled = self.activated;
+                                bitcrusher_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.bitcrush-amount-text + round(bitcrush_amount.value);
+                        }
+
+                        bitcrush_amount := LFOSlider {
+                            slider_value: Theme.bitcrush-amount-slider-default;
+                            step: Theme.bitcrush-amount-slider-step;
+                            minimum: Theme.bitcrush-amount-slider-minimum;
+                            maximum: Theme.bitcrush-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                bitcrusher_amount_changed(round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        wave_shaper := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.wave_shaper-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                wave_shaper_amount.enabled = self.activated;
+                                wave_shaper_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
+                        }
+
+                        wave_shaper_amount := LFOSlider {
+                            slider_value: Theme.wave_shaper-amount-slider-default;
+                            step: Theme.wave_shaper-amount-slider-step;
+                            minimum: Theme.wave_shaper-amount-slider-minimum;
+                            maximum: Theme.wave_shaper-amount-slider-maximum;
+                            enabled: false;
+                            level_selected(amount) => {
+                                wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        wavefolder := Panel {
+
+                    VerticalLayout {
+                        alignment: start;
+                        spacing: 20px;
+                        padding: 10px;
+                        HorizontalLayout {
+                            alignment: center;
+                            spacing: 20px;
+                            VerticalLayout {
+                                spacing: 10px;
+                                Heading {
+                                    horizontal-alignment: center;
+                                    heading: Theme.wavefolder-heading-text;
+                                }
+
+                                ActivationSwitch {
+                                    activated-text: Theme.activation-switch-active-text;
+                                    not-activated-text: Theme.activation-switch-not-active-text;
+                                    activation_toggled => {
+                                        wavefolder_threshold.enabled = self.activated;
+                                        wavefolder_ratio.enabled = self.activated;
+                                        wavefolder_activated(self.checked);
+                                    }
+                                }
+
+                                Label {
+                                    label: Theme.wavefolder-threshold-text + round(wavefolder_threshold.slider_value);
+                                }
+
+                                wavefolder_threshold := LFOSlider {
+                                    slider_value: Theme.wavefolder-threshold-default;
+                                    step: Theme.wavefolder-threshold-step;
+                                    minimum: Theme.wavefolder-threshold-minimum;
+                                    maximum: Theme.wavefolder-threshold-maximum;
+                                    enabled: false;
+                                    level_selected(level) => {
+                                        wavefolder_threshold_changed(round(level));
+                                    }
+                                }
+
+                                Label {
+                                    label: Theme.wavefolder-ratio-text + round(wavefolder_ratio.value) + Theme.wavefolder-ratio-suffix;
+                                }
+
+                                wavefolder_ratio := LevelSlider {
+                                    value: Theme.wavefolder-ratio-default;
+                                    step: Theme.wavefolder-ratio-step;
+                                    minimum: Theme.wavefolder-ratio-minimum;
+                                    maximum: Theme.wavefolder-ratio-maximum;
+                                    enabled: false;
+                                    level_selected(level) => {
+                                        wavefolder_ratio_changed(1 / round(level));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+    }
+
+    Row {
+
+        compressor := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.compressor-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+
+                            activation_toggled => {
+                                compressor_threshold.enabled = self.activated;
+                                compressor_ratio.enabled = self.activated;
+                                compressor_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.compressor-threshold-text + round(compressor_threshold.slider_value);
+                        }
+
+                        compressor_threshold := LFOSlider {
+                            slider_value: Theme.compressor-threshold-default;
+                            step: Theme.compressor-threshold-step;
+                            minimum: Theme.compressor-threshold-minimum;
+                            maximum: Theme.compressor-threshold-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                compressor_threshold_changed(round(level));
+                            }
+                        }
+
+                        Label {
+                            label: Theme.compressor-ratio-text + round(compressor_ratio.value) + Theme.compressor-ratio-suffix;
+                        }
+
+                        compressor_ratio := LevelSlider {
+                            value: Theme.compressor-ratio-default;
+                            step: Theme.compressor-ratio-step;
+                            minimum: Theme.compressor-ratio-minimum;
+                            maximum: Theme.compressor-ratio-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                compressor_ratio_changed(1 / round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        limiter := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+
+                    VerticalLayout {
+                        spacing: 10px;
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.limiter-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                limiter_threshold.enabled = self.activated;
+                                limiter_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.limiter-threshold-text + round(limiter_threshold.slider_value);
+                        }
+
+                        limiter_threshold := LFOSlider {
+                            slider_value: Theme.limiter-threshold-default;
+                            step: Theme.limiter-threshold-step;
+                            minimum: Theme.limiter-threshold-minimum;
+                            maximum: Theme.limiter-threshold-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                limiter_threshold_changed(round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        clipper := Panel {
+
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
+                    VerticalLayout {
+                        spacing: 10px;
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.clipper-heading-text;
+                        }
+
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                clipper_threshold.enabled = self.activated;
+                                clipper_activated(self.checked);
+                            }
+                        }
+
+                        Label {
+                            label: Theme.clipper-threshold-text + round(clipper_threshold.slider_value);
+                        }
+
+                        clipper_threshold := LFOSlider {
+                            slider_value: Theme.clipper-threshold-default;
+                            step: Theme.clipper-threshold-step;
+                            minimum: Theme.clipper-threshold-minimum;
+                            maximum: Theme.clipper-threshold-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                clipper_threshold_changed(round(level));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

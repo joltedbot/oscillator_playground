@@ -72,10 +72,6 @@ pub struct SynthParameters {
     filter_mod_shape: WaveShape,
     oscillator_mod_lfos: Vec<LFOParameters>,
     current_midi_note: u16,
-    osc1_interval: i8,
-    osc2_interval: i8,
-    osc3_interval: i8,
-    sub_interval: i8,
     dynamics: DynamicsParameters,
     effects: EffectsParameters,
     arpeggiator: Arpeggiator,
@@ -200,10 +196,6 @@ impl Synth {
             filter_mod_shape: Default::default(),
             oscillator_mod_lfos,
             current_midi_note,
-            osc1_interval: DEFAULT_OSC_INTERVAL,
-            osc2_interval: DEFAULT_OSC_INTERVAL,
-            osc3_interval: DEFAULT_OSC_INTERVAL,
-            sub_interval: DEFAULT_OSC_INTERVAL,
             output_level_constant: true,
             dynamics,
             effects,
@@ -230,121 +222,39 @@ impl Synth {
         loop {
             if let Ok(event) = ui_receiver.recv() {
                 match event {
-                    EventType::UpdateOscillator1Shape(shape) => {
+                    EventType::UpdateOscillatorShape(shape, oscillator) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
                         let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        oscillators.set_oscillator1_type(wave_shape);
+                        oscillators.set_oscillator_type(wave_shape, oscillator);
                     }
-                    EventType::UpdateOscillator2Shape(shape) => {
+                    EventType::UpdateOscillatorTuning(interval, oscillator) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
-                        let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        oscillators.set_oscillator2_type(wave_shape);
+                        oscillators.set_oscillator_interval(interval, oscillator);
                     }
-                    EventType::UpdateOscillator3Shape(shape) => {
+                    EventType::UpdateOscillatorLevel(level, oscillator) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
-                        let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        oscillators.set_oscillator3_type(wave_shape);
+                        oscillators.set_oscillator_level(level, oscillator);
                     }
-                    EventType::UpdateSubOscillatorShape(shape) => {
+                    EventType::UpdateOscillatorFMAmount(amount, oscillator) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
-                        let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        oscillators.set_sub_oscillator_type(wave_shape);
+                        oscillators.set_oscillator_fm_amount(amount as f32, oscillator);
                     }
-                    EventType::UpdateOscillator1Tuning(interval) => {
+                    EventType::UpdateOscillatorPulseWidth(width, oscillator) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator_pulse_width(width, oscillator);
+                    }
+                    EventType::UpdateOscillatorShaperAmount(amount, oscillator) => {
+                        let mut oscillators = self.get_oscillators_mutex_lock();
+                        oscillators.set_oscillator_shaper_amount(amount, oscillator);
+                    }
+                    EventType::UpdateOscillatorModFreq(speed, oscillator) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.osc1_interval = interval as i8;
+                        parameters.oscillator_mod_lfos[oscillator as usize].frequency = speed;
                     }
-                    EventType::UpdateOscillator2Tuning(interval) => {
+
+                    EventType::UpdateOscillatorModAmount(amount, oscillator) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.osc2_interval = interval as i8;
-                    }
-                    EventType::UpdateOscillator3Tuning(interval) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.osc3_interval = interval as i8;
-                    }
-                    EventType::UpdateSubOscillatorTuning(interval) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.sub_interval = interval as i8;
-                    }
-                    EventType::UpdateOscillator1Level(level) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator1_level(level);
-                    }
-                    EventType::UpdateOscillator2Level(level) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator2_level(level);
-                    }
-                    EventType::UpdateOscillator3Level(level) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator3_level(level);
-                    }
-                    EventType::UpdateSubOscillatorLevel(level) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_sub_oscillator_level(level);
-                    }
-                    EventType::UpdateOscillator1FMAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator1_fm_amount(amount);
-                    }
-                    EventType::UpdateOscillator2FMAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator2_fm_amount(amount);
-                    }
-                    EventType::UpdateOscillator3FMAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator3_fm_amount(amount);
-                    }
-                    EventType::UpdateSubOscillatorFMAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_sub_oscillator_fm_amount(amount);
-                    }
-                    EventType::UpdateOscillator1ShaperAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator1_shaper_amount(amount);
-                    }
-                    EventType::UpdateOscillator2ShaperAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator2_shaper_amount(amount);
-                    }
-                    EventType::UpdateOscillator3ShaperAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator3_shaper_amount(amount);
-                    }
-                    EventType::UpdateSubOscillatorShaperAmount(amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_sub_oscillator_shaper_amount(amount);
-                    }
-                    EventType::UpdateSubOscillatorModFreq(speed) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[0].frequency = speed;
-                    }
-                    EventType::UpdateOscillator1ModFreq(speed) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[1].frequency = speed;
-                    }
-                    EventType::UpdateOscillator2ModFreq(speed) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[2].frequency = speed;
-                    }
-                    EventType::UpdateOscillator3ModFreq(speed) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[3].frequency = speed;
-                    }
-                    EventType::UpdateSubOscillatorModAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[0].width = amount;
-                    }
-                    EventType::UpdateOscillator1ModAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[1].width = amount;
-                    }
-                    EventType::UpdateOscillator2ModAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[2].width = amount;
-                    }
-                    EventType::UpdateOscillator3ModAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[3].width = amount;
+                        parameters.oscillator_mod_lfos[oscillator as usize].width = amount;
                     }
 
                     EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
@@ -471,7 +381,7 @@ impl Synth {
                         let lfo_arc = self.lfos.clone();
                         let paramaters_arc = self.parameters.clone();
 
-                        let oscillators = oscillators_arc
+                        let mut oscillators = oscillators_arc
                             .lock()
                             .unwrap_or_else(|poisoned| poisoned.into_inner());
                         let mut parameters = paramaters_arc
@@ -481,11 +391,13 @@ impl Synth {
                             .lock()
                             .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                        parameters.filter_mod_shape =
-                            oscillators.get_wave_shape_from_shape_name(shape);
-                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(
-                            oscillators.get_oscillator_for_wave_shape(parameters.filter_mod_shape),
-                        )
+
+                        let filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
+
+                        let filter_mod_lfo = oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
+                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
+
+                        parameters.filter_mod_shape = filter_mod_shape;
                     }
                     EventType::UpdatePhaserEnabled(is_enabled) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -669,35 +581,35 @@ impl Synth {
                         *phaser_delay_buffer = vec![(0.0, 0.0); buffer.len()];
                     }
 
+                    let mut oscillators = oscillators_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
 
                     let sub_oscillator_frequency = get_frequency_from_midi_note_and_osc_interval(
                         &parameters.arpeggiator,
                         parameters.current_midi_note,
-                        parameters.sub_interval,
+                        oscillators.get_oscillator_interval(0),
                     );
 
                     let oscillator1_frequency = get_frequency_from_midi_note_and_osc_interval(
                         &parameters.arpeggiator,
                         parameters.current_midi_note,
-                        parameters.osc1_interval,
+                        oscillators.get_oscillator_interval(1),
                     );
 
                     let oscillator2_frequency = get_frequency_from_midi_note_and_osc_interval(
                         &parameters.arpeggiator,
                         parameters.current_midi_note,
-                        parameters.osc2_interval,
+                        oscillators.get_oscillator_interval(2),
                     );
 
                     let oscillator3_frequency = get_frequency_from_midi_note_and_osc_interval(
                         &parameters.arpeggiator,
                         parameters.current_midi_note,
-                        parameters.osc3_interval,
+                        oscillators.get_oscillator_interval(3),
                     );
 
-
-                    let mut oscillators = oscillators_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
 
                     let oscillator1_level = oscillators.get_oscillator1_level();
                     let oscillator2_level = oscillators.get_oscillator2_level();
@@ -861,8 +773,8 @@ impl Synth {
                             }
                         }
 
-                        if parameters.dynamics.compressor_enabled {
-                            (left_sample, right_sample) = get_compressed_samples(
+                        if parameters.dynamics.wavefolder_enabled {
+                            (left_sample, right_sample) = get_wavefolded_samples(
                                 &mut parameters,
                                 &dynamics,
                                 left_sample,
@@ -870,8 +782,8 @@ impl Synth {
                             );
                         }
 
-                        if parameters.dynamics.wavefolder_enabled {
-                            (left_sample, right_sample) = get_wavefolded_samples(
+                        if parameters.dynamics.compressor_enabled {
+                            (left_sample, right_sample) = get_compressed_samples(
                                 &mut parameters,
                                 &dynamics,
                                 left_sample,
@@ -1040,7 +952,7 @@ fn get_clipped_samples(
 fn get_frequency_from_midi_note_and_osc_interval(
     arpeggiator: &Arpeggiator,
     midi_note: u16,
-    interval: i8,
+    interval: i32,
 ) -> f32 {
     if midi_note >= FIRST_REST_NOTE {
         return 0.0;

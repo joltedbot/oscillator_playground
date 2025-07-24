@@ -2,8 +2,6 @@
 pub const OUTPUT_LEVEL: f32 = -10.0;
 pub const UNBALANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 
-// Oscillator Constants
-pub const DEFAULT_OSC_INTERVAL: i8 = 0;
 
 // Arpeggiator Constants
 pub const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;

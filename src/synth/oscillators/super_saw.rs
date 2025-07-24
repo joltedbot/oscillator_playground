@@ -3,7 +3,7 @@ use crate::synth::oscillators::GenerateSamples;
 const PI: f32 = std::f32::consts::PI;
 const DEFAULT_X_COORDINATE: f32 = 0.0;
 const DEFAULT_X_INCREMENT: f32 = 1.0;
-const VOICE_FREQUENCY_SPREAD: [f32; 5] = [0.98, 0.99, 1.0, 1.01, 1.02];
+const VOICE_FREQUENCY_SPREAD: [f32; 7] = [0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03];
 
 pub struct SuperSaw {
     x_coordinate: f32,
@@ -38,7 +38,7 @@ impl GenerateSamples for SuperSaw {
 
         self.x_coordinate += self.x_increment;
 
-        voice_samples.iter().sum::<f32>() / 2.0
+        voice_samples.iter().sum::<f32>() / 7.0
     }
 
     fn set_shape_specific_parameter(&mut self, _parameter: f32) {}

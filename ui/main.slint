@@ -19,39 +19,24 @@ export component AppWindow inherits Window {
 
     in-out property <bool> start_button_active: false;
 
-    callback start_button_pressed(bool);
-    callback wave1_shape_selected(string);
-    callback wave2_shape_selected(string);
-    callback wave3_shape_selected(string);
-    callback sub_shape_selected(string);
-    callback wave1_level_selected(float);
-    callback wave2_level_selected(float);
-    callback wave3_level_selected(float);
-    callback sub_level_selected(float);
-    callback wave1_fm_amount_selected(int);
-    callback wave2_fm_amount_selected(int);
-    callback wave3_fm_amount_selected(int);
-    callback sub_fm_amount_selected(int);
-    callback wave1_shaper_amount_changed(float);
-    callback wave2_shaper_amount_changed(float);
-    callback wave3_shaper_amount_changed(float);
-    callback sub_shaper_amount_changed(float);
-    callback wave1_mod_speed_changed(float);
-    callback wave2_mod_speed_changed(float);
-    callback wave3_mod_speed_changed(float);
-    callback sub_mod_speed_changed(float);
-    callback wave1_mod_amount_changed(float);
-    callback wave2_mod_amount_changed(float);
-    callback wave3_mod_amount_changed(float);
-    callback sub_mod_amount_changed(float);
-    callback wave1_tuning_changed(int);
-    callback wave2_tuning_changed(int);
-    callback wave3_tuning_changed(int);
-    callback sub_tuning_changed(int);
+    callback wave_shape_selected(string, int);
+    callback wave_level_selected(float, int);
+    callback wave_fm_amount_selected(int,int);
+    callback wave_pulse_width_selected(float, int);
+    callback wave_shaper_amount_changed(float, int);
+    callback wave_mod_speed_changed(float, int);
+    callback wave_mod_amount_changed(float, int);
+    callback wave_tuning_changed(int, int);
+
     callback wave_detune_value_changed(float);
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
     callback output_level_constant_activated(bool);
+
+    callback start_button_pressed(bool);
+    callback resync_oscillators();
+    callback resync_oscillator_lfos();
+
     callback envelope_attack_updated(int);
     callback envelope_decay_updated(int);
     callback envelope_release_updated(int);
@@ -61,8 +46,6 @@ export component AppWindow inherits Window {
     callback filter_resonance_value_changed(float);
     callback filter_mod_shape_selected(string);
     callback number_of_poles_selected(int);
-    callback resync_oscillators();
-    callback resync_oscillator_lfos();
     callback enable_amp_envelope(bool);
     callback gate_length_changed(int);
     callback gate_duty_cycle_changed(float);
@@ -80,8 +63,8 @@ export component AppWindow inherits Window {
     callback phaser_amount_changed(float);
     callback bitcrusher_activated(bool);
     callback bitcrusher_amount_changed(int);
-    callback wave_shaper_activated(bool);
-    callback wave_shaper_amount_changed(float);
+    callback global_wave_shaper_activated(bool);
+    callback global_wave_shaper_amount_changed(float);
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
     callback compressor_ratio_changed(float);
@@ -95,6 +78,7 @@ export component AppWindow inherits Window {
     callback note_activated(int);
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);
+
 
     Rectangle {
         padding: 4px;
@@ -133,109 +117,26 @@ export component AppWindow inherits Window {
 
                                 OscillatorPanel {
 
-                                    wave1_level_selected(level) => {
-                                        root.wave1_level_selected(level);
-                                    }
-                                    wave1_fm_amount_selected(amount) => {
-                                        root.wave1_fm_amount_selected(amount);
-                                    }
-                                    wave1_shape_selected(shape) => {
-                                        root.wave1_shape_selected(shape);
+                                    wave_level_selected(level, oscillator) => {
+                                        root.wave_level_selected(level, oscillator);
                                     }
 
-                                    wave1_tuning_changed(interval) => {
-                                        root.wave1_tuning_changed(interval);
+                                    wave_fm_amount_selected(amount, oscillator) => {
+                                        root.wave_fm_amount_selected(amount, oscillator);
                                     }
 
-                                    wave2_level_selected(level) => {
-                                        root.wave2_level_selected(level);
-                                    }
-                                    wave2_fm_amount_selected(amount) => {
-                                        root.wave2_fm_amount_selected(amount);
-                                    }
-                                    wave2_shape_selected(shape) => {
-                                        root.wave2_shape_selected(shape);
+                                    wave_pulse_width_selected(width, oscillator) => {
+                                        root.wave_pulse_width_selected(width, oscillator);
                                     }
 
-                                    wave2_tuning_changed(interval) => {
-                                        root.wave2_tuning_changed(interval);
+                                    wave_shape_selected(shape, oscillator) => {
+                                        root.wave_shape_selected(shape, oscillator);
                                     }
 
-                                    wave3_level_selected(level) => {
-                                        root.wave3_level_selected(level);
-                                    }
-                                    wave3_fm_amount_selected(amount) => {
-                                        root.wave3_fm_amount_selected(amount);
-                                    }
-                                    wave3_shape_selected(shape) => {
-                                        root.wave3_shape_selected(shape);
+                                    wave_tuning_changed(interval, oscillator) => {
+                                        root.wave_tuning_changed(interval, oscillator);
                                     }
 
-                                    wave3_tuning_changed(interval) => {
-                                        root.wave3_tuning_changed(interval);
-                                    }
-
-                                    sub_level_selected(level) => {
-                                        root.sub_level_selected(level);
-                                    }
-                                    sub_fm_amount_selected(amount) => {
-                                        root.sub_fm_amount_selected(amount);
-                                    }
-                                    sub_shape_selected(shape) => {
-                                        root.sub_shape_selected(shape);
-                                    }
-
-                                    sub_tuning_changed(interval) => {
-                                        root.sub_tuning_changed(interval);
-                                    }
-
-                                    wave1_shaper_amount_changed(shape) => {
-                                        root.wave1_shaper_amount_changed(shape);
-                                    }
-
-                                    wave2_shaper_amount_changed(shape) => {
-                                        root.wave2_shaper_amount_changed(shape);
-                                    }
-
-                                    wave3_shaper_amount_changed(shape) => {
-                                        root.wave3_shaper_amount_changed(shape);
-                                    }
-
-                                    sub_shaper_amount_changed(shape) => {
-                                        root.sub_shaper_amount_changed(shape);
-                                    }
-
-                                    wave1_mod_speed_changed(speed_hz) => {
-                                        root.wave1_mod_speed_changed(speed_hz);
-                                    }
-
-                                    wave2_mod_speed_changed(speed_hz) => {
-                                        root.wave2_mod_speed_changed(speed_hz);
-                                    }
-
-                                    wave3_mod_speed_changed(speed_hz) => {
-                                        root.wave3_mod_speed_changed(speed_hz);
-                                    }
-
-                                    sub_mod_speed_changed(speed_hz) => {
-                                        root.sub_mod_speed_changed(speed_hz);
-                                    }
-
-                                    wave1_mod_amount_changed(amount) => {
-                                        root.wave1_mod_amount_changed(amount);
-                                    }
-
-                                    wave2_mod_amount_changed(amount) => {
-                                        root.wave2_mod_amount_changed(amount);
-                                    }
-
-                                    wave3_mod_amount_changed(amount) => {
-                                        root.wave3_mod_amount_changed(amount);
-                                    }
-
-                                    sub_mod_amount_changed(amount) => {
-                                        root.sub_mod_amount_changed(amount);
-                                    }
                                 }
 
                                 VerticalLayout {
@@ -375,11 +276,11 @@ export component AppWindow inherits Window {
                             }
 
                             wave_shaper_activated(is_activated) => {
-                                root.wave_shaper_activated(is_activated);
+                                root.global_wave_shaper_activated(is_activated);
                             }
 
                             wave_shaper_amount_changed(amount) => {
-                                root.wave_shaper_amount_changed(amount);
+                                root.global_wave_shaper_amount_changed(amount);
                             }
 
                             auto_pan_activated(is_actived) => {

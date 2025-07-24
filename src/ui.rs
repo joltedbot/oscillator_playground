@@ -30,34 +30,14 @@ impl UI {
 
     pub fn create_ui_callbacks(&mut self) {
         self.on_start_button_pressed();
-        self.on_wave1_shape_selected();
-        self.on_wave2_shape_selected();
-        self.on_wave3_shape_selected();
-        self.on_sub_shape_selected();
-        self.on_wave1_level_selected();
-        self.on_wave2_level_selected();
-        self.on_wave3_level_selected();
-        self.on_sub_level_selected();
-        self.on_wave1_fm_amount_selected();
-        self.on_wave2_fm_amount_selected();
-        self.on_wave3_fm_amount_selected();
-        self.on_sub_fm_amount_selected();
-        self.on_wave1_tuning_changed();
-        self.on_wave2_tuning_changed();
-        self.on_wave3_tuning_changed();
-        self.on_sub_tuning_changed();
-        self.on_wave1_shaper_amount_changed();
-        self.on_wave2_shaper_amount_changed();
-        self.on_wave3_shaper_amount_changed();
-        self.on_sub_shaper_amount_changed();
-        self.on_wave1_mod_speed_changed();
-        self.on_wave2_mod_speed_changed();
-        self.on_wave3_mod_speed_changed();
-        self.on_wave1_mod_amount_changed();
-        self.on_wave2_mod_amount_changed();
-        self.on_wave3_mod_amount_changed();
-        self.on_sub_mod_speed_changed();
-        self.on_sub_mod_amount_changed();
+        self.on_wave_shape_selected();
+        self.on_wave_level_selected();
+        self.on_wave_fm_amount_selected();
+        self.on_wave_pulse_width_selected();
+        self.on_wave_tuning_changed();
+        self.on_wave_shaper_amount_changed();
+        self.on_wave_mod_speed_changed();
+        self.on_wave_mod_amount_changed();
         self.on_wave_detune_value_changed();
         self.on_wave_detune_state_changed();
         self.on_output_level_value_changed();
@@ -90,8 +70,8 @@ impl UI {
         self.on_phaser_depth_changed();
         self.on_bitcrusher_activated();
         self.on_bitcrusher_amount_changed();
-        self.on_wave_shaper_activated();
-        self.on_wave_shaper_amount_changed();
+        self.on_global_wave_shaper_activated();
+        self.on_global_wave_shaper_amount_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
         self.on_compressor_ratio_changed();
@@ -119,309 +99,98 @@ impl UI {
         }
     }
 
-    fn on_wave1_shape_selected(&mut self) {
+    fn on_wave_shape_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave1_shape_selected(move |shape| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Shape(shape)) {
+        ui.on_wave_shape_selected(move |shape, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorShape(shape, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave2_shape_selected(&mut self) {
+    fn on_wave_tuning_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave2_shape_selected(move |shape| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Shape(shape)) {
+        ui.on_wave_tuning_changed(move |interval, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorTuning(interval, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave3_shape_selected(&mut self) {
+
+
+    fn on_wave_level_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave3_shape_selected(move |shape| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Shape(shape)) {
+        ui.on_wave_level_selected(move |level, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorLevel(level, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_sub_shape_selected(&mut self) {
+    fn on_wave_fm_amount_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_sub_shape_selected(move |shape| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShape(shape)) {
+        ui.on_wave_fm_amount_selected(move |fm_amount, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorFMAmount(fm_amount, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave1_tuning_changed(&mut self) {
+    fn on_wave_pulse_width_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave1_tuning_changed(move |interval| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Tuning(interval)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave2_tuning_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave2_tuning_changed(move |interval| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Tuning(interval)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave3_tuning_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave3_tuning_changed(move |interval| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Tuning(interval)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_sub_tuning_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_tuning_changed(move |interval| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorTuning(interval)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave1_level_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave1_level_selected(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1Level(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave2_level_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave2_level_selected(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2Level(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave3_level_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave3_level_selected(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3Level(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_sub_level_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_level_selected(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorLevel(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave1_fm_amount_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave1_fm_amount_selected(move |fm_amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1FMAmount(fm_amount)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave2_fm_amount_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave2_fm_amount_selected(move |fm_amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2FMAmount(fm_amount)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave3_fm_amount_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave3_fm_amount_selected(move |fm_amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3FMAmount(fm_amount)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_sub_fm_amount_selected(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_fm_amount_selected(move |fm_amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorFMAmount(fm_amount))
+        ui.on_wave_pulse_width_selected(move |pulse_width, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorPulseWidth(pulse_width, oscillator))
             {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave1_shaper_amount_changed(&mut self) {
+    fn on_wave_shaper_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave1_shaper_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ShaperAmount(level)) {
+        ui.on_wave_shaper_amount_changed(move |level, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorShaperAmount(level, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave2_shaper_amount_changed(&mut self) {
+
+    fn on_wave_mod_speed_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave2_shaper_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ShaperAmount(level)) {
+        ui.on_wave_mod_speed_changed(move |level, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorModFreq(level, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wave3_shaper_amount_changed(&mut self) {
+    fn on_wave_mod_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave3_shaper_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ShaperAmount(level)) {
+        ui.on_wave_mod_amount_changed(move |level, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorModAmount(level, oscillator)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_sub_shaper_amount_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_shaper_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorShaperAmount(level))
-            {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave1_mod_speed_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave1_mod_speed_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModFreq(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave2_mod_speed_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave2_mod_speed_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModFreq(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave3_mod_speed_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave3_mod_speed_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModFreq(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_sub_mod_speed_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_mod_speed_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModFreq(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_wave1_mod_amount_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave1_mod_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator1ModAmount(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave2_mod_amount_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave2_mod_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator2ModAmount(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-    fn on_wave3_mod_amount_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_wave3_mod_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateOscillator3ModAmount(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
-
-    fn on_sub_mod_amount_changed(&mut self) {
-        let ui = self.get_ui_reference_from_ui_weak();
-        let synth_sender = self.synth_sender.clone();
-
-        ui.on_sub_mod_amount_changed(move |level| {
-            if let Err(error) = synth_sender.send(EventType::UpdateSubOscillatorModAmount(level)) {
-                eprintln!("Error sending event: {error}",);
-            }
-        });
-    }
 
     fn on_start_button_pressed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
@@ -831,11 +600,11 @@ impl UI {
         });
     }
 
-    fn on_wave_shaper_activated(&mut self) {
+    fn on_global_wave_shaper_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_shaper_activated(move |is_active| {
+        ui.on_global_wave_shaper_activated(move |is_active| {
             if let Err(error) =
                 synth_sender.send(EventType::UpdateWaveShaperEnabled(is_active).clone())
             {
@@ -844,11 +613,11 @@ impl UI {
         });
     }
 
-    fn on_wave_shaper_amount_changed(&mut self) {
+    fn on_global_wave_shaper_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_shaper_amount_changed(move |amount| {
+        ui.on_global_wave_shaper_amount_changed(move |amount| {
             if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperAmount(amount).clone())
             {
                 eprintln!("Error sending event: {error}",);

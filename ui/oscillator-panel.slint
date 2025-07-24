@@ -4,34 +4,14 @@ import { Theme } from "../ui/theme.slint";
 
 export component OscillatorPanel inherits HorizontalLayout {
 
-    callback wave1_level_selected(float);
-    callback wave1_shape_selected(string);
-    callback wave2_level_selected(float);
-    callback wave2_shape_selected(string);
-    callback wave3_level_selected(float);
-    callback wave3_shape_selected(string);
-    callback sub_level_selected(float);
-    callback wave1_fm_amount_selected(int);
-    callback wave2_fm_amount_selected(int);
-    callback wave3_fm_amount_selected(int);
-    callback sub_fm_amount_selected(int);
-    callback sub_shape_selected(string);
-    callback wave1_tuning_changed(int);
-    callback wave2_tuning_changed(int);
-    callback wave3_tuning_changed(int);
-    callback sub_tuning_changed(int);
-    callback wave1_shaper_amount_changed(float);
-    callback wave2_shaper_amount_changed(float);
-    callback wave3_shaper_amount_changed(float);
-    callback sub_shaper_amount_changed(float);
-    callback wave1_mod_speed_changed(float);
-    callback wave2_mod_speed_changed(float);
-    callback wave3_mod_speed_changed(float);
-    callback sub_mod_speed_changed(float);
-    callback wave1_mod_amount_changed(float);
-    callback wave2_mod_amount_changed(float);
-    callback wave3_mod_amount_changed(float);
-    callback sub_mod_amount_changed(float);
+    callback wave_level_selected(float, int);
+    callback wave_fm_amount_selected(int, int);
+    callback wave_pulse_width_selected(float, int);
+    callback wave_shape_selected(string, int);
+    callback wave_tuning_changed(int, int);
+    callback wave_shaper_amount_changed(float, int);
+    callback wave_mod_speed_changed(float, int);
+    callback wave_mod_amount_changed(float, int);
 
     Panel {
         width: Theme.oscillator-panel-width;
@@ -47,106 +27,130 @@ export component OscillatorPanel inherits HorizontalLayout {
 
                 osc1 := OscilatorControls {
                     heading: Theme.oscillator1-heading-text;
-                    wave_shape_selected(shape) => {
-                        root.wave1_shape_selected(shape);
+                    oscillator_number: 1;
+
+                    wave_level_selected(level, oscillator) => {
+                        root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount) => {
-                        root.wave1_fm_amount_selected(amount);
+                    fm_amount_selected(amount, oscillator) => {
+                        root.wave_fm_amount_selected(amount, oscillator);
                     }
-                    wave_tuning_changed(interval) => {
-                        root.wave1_tuning_changed(interval);
+                    pulse_width_selected(width, oscillator) => {
+                        root.wave_pulse_width_selected(width, oscillator);
                     }
-                    wave_level_selected(level) => {
-                        root.wave1_level_selected(level);
+                    wave_shape_selected(shape, oscillator) => {
+                        root.wave_shape_selected(shape, oscillator);
                     }
-                    wave_shaper_amount_changed(amount) => {
-                        root.wave1_shaper_amount_changed(amount);
+                    wave_tuning_changed(interval, oscillator) => {
+                        root.wave_tuning_changed(interval, oscillator);
                     }
-                    wave_mod_amount_changed(amount) => {
-                        root.wave1_mod_amount_changed(amount);
+                    wave_shaper_amount_changed(amount, oscillator) => {
+                        root.wave_shaper_amount_changed(amount, oscillator);
                     }
-                    wave_mod_speed_changed(speed_hz) => {
-                        root.wave1_mod_speed_changed(speed_hz);
+                    wave_mod_amount_changed(amount, oscillator) => {
+                        root.wave_mod_amount_changed(amount, oscillator);
+                    }
+                    wave_mod_speed_changed(speed_hz, oscillator) => {
+                        root.wave_mod_speed_changed(speed_hz, oscillator);
                     }
                 }
 
                 osc2 := OscilatorControls {
                     heading: Theme.oscillator2-heading-text;
-                    wave_shape_selected(shape) => {
-                        root.wave2_shape_selected(shape);
+                    oscillator_number: 2;
+
+                    wave_level_selected(level, oscillator) => {
+                        root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount) => {
-                        root.wave2_fm_amount_selected(amount);
+                    fm_amount_selected(amount, oscillator) => {
+                        root.wave_fm_amount_selected(amount, oscillator);
                     }
-                    wave_tuning_changed(interval) => {
-                        root.wave2_tuning_changed(interval);
+                    pulse_width_selected(width, oscillator) => {
+                        root.wave_pulse_width_selected(width, oscillator);
                     }
-                    wave_level_selected(level) => {
-                        root.wave2_level_selected(level);
+                    wave_shape_selected(shape, oscillator) => {
+                        root.wave_shape_selected(shape, oscillator);
                     }
-                    wave_shaper_amount_changed(amount) => {
-                        root.wave2_shaper_amount_changed(amount);
+                    wave_tuning_changed(interval, oscillator) => {
+                        root.wave_tuning_changed(interval, oscillator);
                     }
-                    wave_mod_amount_changed(amount) => {
-                        root.wave2_mod_amount_changed(amount);
+                    wave_shaper_amount_changed(amount, oscillator) => {
+                        root.wave_shaper_amount_changed(amount, oscillator);
                     }
-                    wave_mod_speed_changed(speed_hz) => {
-                        root.wave2_mod_speed_changed(speed_hz);
+                    wave_mod_amount_changed(amount, oscillator) => {
+                        root.wave_mod_amount_changed(amount, oscillator);
+                    }
+                    wave_mod_speed_changed(speed_hz, oscillator) => {
+                        root.wave_mod_speed_changed(speed_hz, oscillator);
                     }
                 }
 
+
                 osc3 := OscilatorControls {
                     heading: Theme.oscillator3-heading-text;
-                    wave_shape_selected(shape) => {
-                        root.wave3_shape_selected(shape);
+                    oscillator_number: 3;
+
+                    wave_level_selected(level, oscillator) => {
+                        root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount) => {
-                        root.wave3_fm_amount_selected(amount);
+                    fm_amount_selected(amount, oscillator) => {
+                        root.wave_fm_amount_selected(amount, oscillator);
                     }
-                    wave_tuning_changed(interval) => {
-                        root.wave3_tuning_changed(interval);
+                    pulse_width_selected(width, oscillator) => {
+                        root.wave_pulse_width_selected(width, oscillator);
                     }
-                    wave_level_selected(level) => {
-                        root.wave3_level_selected(level);
+                    wave_shape_selected(shape, oscillator) => {
+                        root.wave_shape_selected(shape, oscillator);
                     }
-                    wave_shaper_amount_changed(amount) => {
-                        root.wave3_shaper_amount_changed(amount);
+                    wave_tuning_changed(interval, oscillator) => {
+                        root.wave_tuning_changed(interval, oscillator);
                     }
-                    wave_mod_amount_changed(amount) => {
-                        root.wave3_mod_amount_changed(amount);
+                    wave_shaper_amount_changed(amount, oscillator) => {
+                        root.wave_shaper_amount_changed(amount, oscillator);
                     }
-                    wave_mod_speed_changed(speed_hz) => {
-                        root.wave3_mod_speed_changed(speed_hz);
+                    wave_mod_amount_changed(amount, oscillator) => {
+                        root.wave_mod_amount_changed(amount, oscillator);
+                    }
+                    wave_mod_speed_changed(speed_hz, oscillator) => {
+                        root.wave_mod_speed_changed(speed_hz, oscillator);
                     }
                 }
+
 
                 sub := OscilatorControls {
                     heading: Theme.sub-oscillator-heading-text;
                     is_sub: true;
+                    oscillator_number: 0;
 
-                    wave_shape_selected(shape) => {
-                        root.sub_shape_selected(shape);
+                    wave_level_selected(level, oscillator) => {
+                        root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount) => {
-                        root.sub_fm_amount_selected(amount);
+                    fm_amount_selected(amount, oscillator) => {
+                        root.wave_fm_amount_selected(amount, oscillator);
                     }
-                    wave_tuning_changed(interval) => {
-                        root.sub_tuning_changed(interval);
+                    pulse_width_selected(width, oscillator) => {
+                        root.wave_pulse_width_selected(width, oscillator);
                     }
-                    wave_level_selected(level) => {
-                        root.sub_level_selected(level);
+                    wave_shape_selected(shape, oscillator) => {
+                        root.wave_shape_selected(shape, oscillator);
                     }
-                    wave_shaper_amount_changed(amount) => {
-                        root.sub_shaper_amount_changed(amount);
+                    wave_tuning_changed(interval, oscillator) => {
+                        root.wave_tuning_changed(interval, oscillator);
                     }
-                    wave_mod_amount_changed(amount) => {
-                        root.sub_mod_amount_changed(amount);
+                    wave_shaper_amount_changed(amount, oscillator) => {
+                        root.wave_shaper_amount_changed(amount, oscillator);
                     }
-                    wave_mod_speed_changed(speed_hz) => {
-                        root.sub_mod_speed_changed(speed_hz);
+                    wave_mod_amount_changed(amount, oscillator) => {
+                        root.wave_mod_amount_changed(amount, oscillator);
+                    }
+                    wave_mod_speed_changed(speed_hz, oscillator) => {
+                        root.wave_mod_speed_changed(speed_hz, oscillator);
                     }
                 }
             }
+
         }
-    }
+     }
 }
+
+

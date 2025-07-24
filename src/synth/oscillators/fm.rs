@@ -2,7 +2,7 @@ use crate::synth::oscillators::GenerateSamples;
 use crate::synth::oscillators::sine::Sine;
 
 const DEFAULT_RATIO: f32 = 1.0;
-const DEFAULT_MODULATION_AMOUNT: f32 = 2.0;
+const DEFAULT_MODULATION_AMOUNT: f32 = 3.0;
 
 pub struct FM {
     carrier: Box<dyn GenerateSamples + Send + Sync>,

@@ -190,14 +190,16 @@ export component OscilatorControls inherits VerticalLayout {
 
     in-out property <string> heading;
     in-out property <bool> is_sub: false;
+    in-out property <int> oscillator_number;
 
-    callback wave_shape_selected(string);
-    callback wave_level_selected(float);
-    callback wave_shaper_amount_changed(float);
-    callback wave_mod_amount_changed(float);
-    callback wave_mod_speed_changed(float);
-    callback wave_tuning_changed(int);
-    callback fm_amount_selected(int);
+    callback wave_shape_selected(string, int);
+    callback wave_level_selected(float, int);
+    callback wave_shaper_amount_changed(float, int);
+    callback wave_mod_amount_changed(float, int);
+    callback wave_mod_speed_changed(float, int);
+    callback wave_tuning_changed(int, int);
+    callback fm_amount_selected(int, int);
+    callback pulse_width_selected(float, int);
 
     spacing: 10px;
 
@@ -210,11 +212,16 @@ export component OscilatorControls inherits VerticalLayout {
         wave_shape_selected(shape) => {
             if (shape == Theme.osc-fm-amount-wave-shape) {
                 osc_fm_amount.enabled = true;
+                osc_pulse_width.enabled = false;
+            } else if (shape == Theme.osc-pulse-width-wave-shape) {
+                osc_fm_amount.enabled = false;
+                osc_pulse_width.enabled = true;
             } else {
                 osc_fm_amount.enabled = false;
+                osc_pulse_width.enabled = false;
             }
 
-            wave_shape_selected(shape);
+            wave_shape_selected(shape, oscillator_number);
         }
     }
 
@@ -244,7 +251,7 @@ export component OscilatorControls inherits VerticalLayout {
             } else {
                 tuning-interval.label = round(level) + Theme.oscillator-tune-value-suffix;
             }
-            wave_tuning_changed(round(level));
+            wave_tuning_changed(round(level), oscillator_number);
         }
     }
 
@@ -261,7 +268,7 @@ export component OscilatorControls inherits VerticalLayout {
         maximum-level: Theme.osc-level-slider-maximum;
 
         level_selected(level) => {
-            wave_level_selected(level / 100);
+            wave_level_selected(level / 100, oscillator_number);
         }
     }
 
@@ -279,7 +286,25 @@ export component OscilatorControls inherits VerticalLayout {
         enabled: false;
 
         level_selected(level) => {
-            fm_amount_selected(level * Theme.osc-fm-amount-slider-adjustment-factor);
+            fm_amount_selected(level * Theme.osc-fm-amount-slider-adjustment-factor, oscillator_number);
+        }
+    }
+    
+    Label {
+        horizontal-alignment: center;
+        font-weight: Theme.text-weight-bold;
+        label: Theme.oscillator-pulse-width-text;
+    }
+
+    osc_pulse_width := LFOSlider {
+        value: Theme.osc-pulse-width-slider-default;
+        step: Theme.osc-pulse-width-slider-step;
+        minimum: Theme.osc-pulse-width-slider-minimum;
+        maximum: Theme.osc-pulse-width-slider-maximum;
+        enabled: false;
+
+        level_selected(level) => {
+            pulse_width_selected(level, oscillator_number);
         }
     }
 
@@ -296,7 +321,7 @@ export component OscilatorControls inherits VerticalLayout {
         maximum: Theme.wave_shaper-amount-slider-maximum;
 
         level_selected(amount) => {
-            wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
+            wave_shaper_amount_changed(round(amount * 10.0) / 10.0, oscillator_number);
         }
     }
 
@@ -318,7 +343,7 @@ export component OscilatorControls inherits VerticalLayout {
         maximum: Theme.osc-mod-amount-slider-maximum;
 
         level_selected(amount) => {
-            wave_mod_amount_changed(amount);
+            wave_mod_amount_changed(amount, oscillator_number);
         }
     }
 
@@ -335,7 +360,7 @@ export component OscilatorControls inherits VerticalLayout {
             minimum: Theme.osc-mod-fine-speed-slider-minimum;
             maximum: Theme.osc-mod-fine-speed-slider-maximum;
             level_selected(level) => {
-                wave_mod_speed_changed(level);
+                wave_mod_speed_changed(level, oscillator_number);
             }
         }
     }

@@ -17,6 +17,8 @@ export global Theme {
     out property <string> tab-arpeggiator-title: "Arpeggiator";
     out property <color> panel-box-background:#202020;
 
+
+
     // Panel Sized
     out property <length> envelope-panel-width: 330px;
     out property <length> lfo-panel-width: 173px;
@@ -73,7 +75,7 @@ export global Theme {
 
     // Wave Selector
     out property <length> wave-shape-switch-width: 150px;
-    out property <[string]> wave-shape-list: ["Sine", "FM", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
+    out property <[string]> wave-shape-list: ["Sine", "FM", "Pulse", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
     out property <string> wave-shape-default: "Sine";
 
     // Oscillator Level Slider
@@ -97,7 +99,14 @@ export global Theme {
     out property <int> osc-fm-amount-slider-maximum: 100;
     out property <int> osc-fm-amount-slider-default: 1;
     out property <int> osc-fm-amount-slider-adjustment-factor: 100;
-    out property <string> osc-fm-amount-wave-shape: "FM";
+    out property <string> osc-fm-amount-wave-shape: "FM";    
+
+    // Oscillator Pulse Width Slider
+    out property <float> osc-pulse-width-slider-step: 0.1;
+    out property <float> osc-pulse-width-slider-minimum: 0.0;
+    out property <float> osc-pulse-width-slider-maximum: 1.0;
+    out property <float> osc-pulse-width-slider-default: 0.0;
+    out property <string> osc-pulse-width-wave-shape: "Pulse";
 
 
     // Oscillator Modulation Slider
@@ -284,15 +293,16 @@ export global Theme {
     //
     out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
+    out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator1-heading-text: "Oscillator 1";
     out property <string> oscillator2-heading-text: "Oscillator 2";
     out property <string> oscillator3-heading-text: "Oscillator 3";
     out property <string> oscillator-tune-text: "Tuning";
     out property <string> oscillator-tune-value-text: "Unison";
     out property <string> oscillator-tune-value-suffix: " semitones";
-    out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator-level-text: "Level";
     out property <string> oscillator-fm-amount-text: "FM Amount";
+    out property <string> oscillator-pulse-width-text: "Pulse Width";
     out property <string> oscillator-shape-text: "Shape";
     out property <string> oscillator-mod-text: "Pitch Modulation";
     out property <string> oscillator-mod-speed-text: "Speed: ";
