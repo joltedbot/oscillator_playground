@@ -1,4 +1,5 @@
 mod events;
+mod midi;
 mod synth;
 mod ui;
 
@@ -19,6 +20,9 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let synth_sender = events.get_synth_sender();
     let syn_receiver = events.get_synth_receiver();
+
+    let midi = midi::Midi::new();
+    midi.run(synth_sender.clone());
 
     // Initialize the default audio output device for your system
     let audio_device = AudioDevice::new();

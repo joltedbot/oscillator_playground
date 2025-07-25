@@ -1,4 +1,4 @@
-import { Panel, Heading, Label, StartButton, ActivationSwitch, ArpTableRow, ArpTableFirstRow, ArpTableLastRow, ActionButton } from "../ui/components.slint";
+import { Panel, Heading, Label, StartButton, ADSRSlider,ActivationSwitch, ArpTableRow, ArpTableFirstRow, ArpTableLastRow, ActionButton } from "../ui/components.slint";
 import { CheckBox,  } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
 
@@ -7,8 +7,11 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
     callback note_activated(int);
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);
+    callback adsr_note_length_updated(float);
 
     Panel {
+
+        width: Theme.window-width;
 
         VerticalLayout {
             alignment: start;
@@ -94,7 +97,6 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
                 row5 := ArpTableRow {
                     octave-number: "4";
                     row-number: 5;
-                    is-default-note: true;
 
                     note_activated(note_number) => {
                         root.note_activated(note_number);
@@ -199,6 +201,31 @@ export component ArpeggiatorPanel inherits HorizontalLayout {
 
                         activation_toggled => {
                             arpeggiator_random_activated(self.checked)
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 5px;
+                    alignment: center;
+
+                    VerticalLayout {
+                        Label {
+                            horizontal-alignment: center;
+                            label: Theme.envelope-adsr-note-length-text;
+                        }
+
+                        Label {
+                            horizontal-alignment: center;
+                            label: adsr_note_length.milliseconds + Theme.envelope-time-suffix;
+                        }
+
+                        adsr_note_length := ADSRSlider {
+                            width: Theme.envelope-sustain-width;
+                            milliseconds: Theme.envelope-sustain-default;
+                            milliseconds_selected(milliseconds) => {
+                                root.adsr_note_length_updated(milliseconds);
+                            }
                         }
                     }
                 }

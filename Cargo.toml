@@ -13,6 +13,7 @@ lto = true
 [dependencies]
 cpal = "0.16.0"
 crossbeam-channel = "0.5.15"
+midir = "0.10.1"
 rand = "0.9.1"
 slint = "1.12.1"
 slint-build = "1.12.1"

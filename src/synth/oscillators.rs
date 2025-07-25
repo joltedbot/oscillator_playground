@@ -1,5 +1,6 @@
 pub mod fm;
 pub mod noise;
+pub mod pulse;
 pub mod ramp;
 pub mod saw;
 pub mod sine;
@@ -7,16 +8,15 @@ pub mod square;
 pub mod sub;
 pub mod super_saw;
 pub mod triangle;
-pub mod pulse;
 
 use fm::FM;
 use noise::Noise;
+use pulse::Pulse;
 use ramp::Ramp;
 use saw::Saw;
 use sine::Sine;
 use slint::SharedString;
 use square::Square;
-use pulse::Pulse;
 use sub::Sub;
 use super_saw::SuperSaw;
 use triangle::Triangle;
@@ -26,11 +26,10 @@ const DEFAULT_WAVE_LEVEL: f32 = 1.0;
 const DEFAULT_WAVE_SHAPER_AMOUNT: f32 = 0.0;
 const DEFAULT_WAVE_INTERVAL: i32 = 0;
 
-
 pub trait GenerateSamples {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
 
-    fn  set_shape_specific_parameter(&mut self, parameter: f32);
+    fn set_shape_specific_parameter(&mut self, parameter: f32);
 
     fn reset(&mut self);
 }
@@ -66,7 +65,7 @@ pub struct Oscillators {
 
 impl Oscillators {
     pub fn new(sample_rate: f32) -> Self {
-        let sub_oscillator  = Parameters {
+        let sub_oscillator = Parameters {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
@@ -74,7 +73,7 @@ impl Oscillators {
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
-        let oscillator1  = Parameters {
+        let oscillator1 = Parameters {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
@@ -82,7 +81,7 @@ impl Oscillators {
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
-        let oscillator2  = Parameters {
+        let oscillator2 = Parameters {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
@@ -90,7 +89,7 @@ impl Oscillators {
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
-        let oscillator3  = Parameters {
+        let oscillator3 = Parameters {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
@@ -106,10 +105,7 @@ impl Oscillators {
         }
     }
 
-
     pub fn set_oscillator_type(&mut self, wave_shape: WaveShape, oscillator_number: i32) {
-
-
         let new_oscillator = self.get_oscillator_for_wave_shape(&wave_shape);
         let oscillator = &mut self.oscillators[oscillator_number as usize];
 
@@ -122,7 +118,6 @@ impl Oscillators {
         oscillator.shape = wave_shape;
     }
 
-
     pub fn set_oscillator_level(&mut self, level: f32, oscillator: i32) {
         self.oscillators[oscillator as usize].level = level;
     }
@@ -132,11 +127,15 @@ impl Oscillators {
     }
 
     pub fn set_oscillator_fm_amount(&mut self, fm_amount: f32, oscillator: i32) {
-        self.oscillators[oscillator as usize].wave.set_shape_specific_parameter(fm_amount);
+        self.oscillators[oscillator as usize]
+            .wave
+            .set_shape_specific_parameter(fm_amount);
     }
 
     pub fn set_oscillator_pulse_width(&mut self, width: f32, oscillator: i32) {
-        self.oscillators[oscillator as usize].wave.set_shape_specific_parameter(width);
+        self.oscillators[oscillator as usize]
+            .wave
+            .set_shape_specific_parameter(width);
     }
 
     pub fn set_oscillator_shaper_amount(&mut self, amount: f32, oscillator: i32) {
@@ -164,7 +163,9 @@ impl Oscillators {
     }
 
     pub fn reset(&mut self) {
-        self.oscillators.iter_mut().for_each(|oscillator| oscillator.wave.reset());
+        self.oscillators
+            .iter_mut()
+            .for_each(|oscillator| oscillator.wave.reset());
     }
 
     pub fn get_oscillator1_next_sample(
@@ -197,7 +198,10 @@ impl Oscillators {
             return 0.0;
         }
 
-        let sample = self.oscillators[2].wave.next_sample(note_frequency, modulation) * relative_level;
+        let sample = self.oscillators[2]
+            .wave
+            .next_sample(note_frequency, modulation)
+            * relative_level;
         get_wave_shaped_sample(sample, self.oscillators[2].shaper_amount)
     }
 
@@ -231,7 +235,10 @@ impl Oscillators {
             return 0.0;
         }
 
-        let sample = self.oscillators[0].wave.next_sample(note_frequency, modulation) * relative_level;
+        let sample = self.oscillators[0]
+            .wave
+            .next_sample(note_frequency, modulation)
+            * relative_level;
         get_wave_shaped_sample(sample, self.oscillators[0].shaper_amount)
     }
 

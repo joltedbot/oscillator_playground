@@ -52,8 +52,8 @@ export global Theme {
     out property <float> lfo-slider-step-ratio: 0.01;
 
     // Start Button
-    out property <string> start-button-running-text: "Stop";
-    out property <string> start-button-stopped-text: "Start";
+    out property <string> start-button-running-text: "Arp is On";
+    out property <string> start-button-stopped-text: "Arp is Off";
     out property <length> start-button-width: 150px;
     out property <length> start-button-height: 35px;
 
@@ -75,7 +75,17 @@ export global Theme {
 
     // Wave Selector
     out property <length> wave-shape-switch-width: 150px;
-    out property <[string]> wave-shape-list: ["Sine", "FM", "Pulse", "Ramp", "Saw", "Square", "SuperSaw", "Triangle", "Noise"];
+    out property <[string]> wave-shape-list: [
+        "Sine",
+        "FM",
+        "Pulse",
+        "Ramp",
+        "Saw",
+        "Square",
+        "SuperSaw",
+        "Triangle",
+        "Noise"
+    ];
     out property <string> wave-shape-default: "Sine";
 
     // Oscillator Level Slider
@@ -129,9 +139,9 @@ export global Theme {
 
     // Filter Resonance Slider
     out property <int> filter-resonance-slider-step: 1;
-    out property <int> filter-resonance-slider-minimum: 40;
-    out property <int> filter-resonance-slider-maximum: 100;
-    out property <float> filter-resonance-slider-default: 100;
+    out property <int> filter-resonance-slider-minimum: 0;
+    out property <int> filter-resonance-slider-maximum: 60;
+    out property <float> filter-resonance-slider-default: 0;
 
     // Filter Poles Slider
     out property <int> filter-poles-slider-step: 1;
@@ -170,11 +180,12 @@ export global Theme {
     out property <length> activation-switch-width: 125px;
 
     // Envelope ADRS Defaults
-    out property <int> envelope-attack-default: 50;
+    out property <int> envelope-attack-default: 10;
     out property <int> envelope-decay-default: 300;
     out property <int> envelope-sustain-default: 200;
-    out property <int> envelope-sustain-level-default: 6;
+    out property <int> envelope-sustain-level-default: 0;
     out property <int> envelope-release-default: 300;
+    out property <length> envelope-sustain-width: 300px;
 
     // Auto Pan Sliders
     out property <float> auto-pan-course-speed-slider-step: 1;

@@ -3,7 +3,7 @@ use crate::synth::dynamics::Dynamics;
 use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
 use crate::synth::oscillators::sine::Sine;
-use arpeggiator::{Arpeggiator, FIRST_REST_NOTE};
+use arpeggiator::{Arpeggiator, ArpeggiatorType, FIRST_REST_NOTE};
 use constants::*;
 use cpal::Stream;
 use cpal::traits::{DeviceTrait, StreamTrait};
@@ -24,14 +24,23 @@ pub mod lfo;
 pub mod oscillators;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
-pub enum AmpMode {
+enum AmpMode {
     Gate,
     #[default]
     Envelope,
 }
 
+#[derive(Default, Clone, Debug, PartialEq)]
+pub enum MidiState {
+    #[default]
+    Rest,
+    NoteOn,
+    NoteHold,
+    NoteOff,
+}
+
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
-pub struct LFOParameters {
+struct LFOParameters {
     is_enabled: bool,
     frequency: f32,
     center_value: f32,
@@ -39,7 +48,7 @@ pub struct LFOParameters {
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
-pub struct DynamicsParameters {
+struct DynamicsParameters {
     compressor_enabled: bool,
     compressor_threshold: f32,
     compressor_ratio: f32,
@@ -53,7 +62,7 @@ pub struct DynamicsParameters {
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
-pub struct EffectsParameters {
+struct EffectsParameters {
     phaser: LFOParameters,
     bitcrusher_is_enabled: bool,
     bitcrusher_depth: u32,
@@ -62,7 +71,7 @@ pub struct EffectsParameters {
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
-pub struct SynthParameters {
+struct SynthParameters {
     amp_mode: AmpMode,
     output_level: f32,
     output_level_constant: bool,
@@ -72,10 +81,12 @@ pub struct SynthParameters {
     filter_mod_shape: WaveShape,
     oscillator_mod_lfos: Vec<LFOParameters>,
     current_midi_note: u16,
+    current_midi_state: MidiState,
     dynamics: DynamicsParameters,
     effects: EffectsParameters,
     arpeggiator: Arpeggiator,
-    randomize_arp: bool,
+    arpeggiator_type: ArpeggiatorType,
+    arpeggiator_is_active: bool,
 }
 
 pub struct Synth {
@@ -182,10 +193,8 @@ impl Synth {
             ..Default::default()
         };
 
-        let mut arpeggiator = Arpeggiator::new(vec![DEFAULT_SEQUENCER_NOTE]);
-        let randomize_arp = ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE;
-
-        let current_midi_note = arpeggiator.next_midi_note(randomize_arp);
+        let current_midi_note = DEFAULT_SEQUENCER_NOTE;
+        let arpeggiator = Arpeggiator::new(vec![current_midi_note]);
 
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
@@ -196,11 +205,13 @@ impl Synth {
             filter_mod_shape: Default::default(),
             oscillator_mod_lfos,
             current_midi_note,
+            current_midi_state: Default::default(),
             output_level_constant: true,
             dynamics,
             effects,
             arpeggiator,
-            randomize_arp,
+            arpeggiator_type: Default::default(),
+            arpeggiator_is_active: false,
         };
 
         Self {
@@ -391,10 +402,10 @@ impl Synth {
                             .lock()
                             .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-
                         let filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
 
-                        let filter_mod_lfo = oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
+                        let filter_mod_lfo =
+                            oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
                         lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
 
                         parameters.filter_mod_shape = filter_mod_shape;
@@ -469,6 +480,10 @@ impl Synth {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.dynamics.clipper_threshold = threshold;
                     }
+                    EventType::ArpeggiatorActive(is_active) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.arpeggiator_is_active = is_active;
+                    }
                     EventType::ArpeggiatorAddNote(note_number) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
                         parameters.arpeggiator.add_note(note_number as u16);
@@ -479,9 +494,27 @@ impl Synth {
                     }
                     EventType::ArpeggiatorRandomEnabled(is_active) => {
                         let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.randomize_arp = is_active;
+                        if is_active {
+                            parameters.arpeggiator_type = ArpeggiatorType::Randomize;
+                        } else {
+                            parameters.arpeggiator_type = ArpeggiatorType::NoteOrder;
+                        }
                     }
-
+                    EventType::MidiNoteOn(note_number) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        if !parameters.arpeggiator_is_active {
+                            parameters.current_midi_note = note_number as u16;
+                            parameters.current_midi_state = MidiState::NoteOn;
+                        }
+                    }
+                    EventType::MidiNoteOff(note_number) => {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        if !parameters.arpeggiator_is_active
+                            && parameters.current_midi_note == note_number as u16
+                        {
+                            parameters.current_midi_state = MidiState::NoteOff;
+                        }
+                    }
                     EventType::Start => {
                         self.start();
                     }
@@ -552,7 +585,6 @@ impl Synth {
             .build_output_stream(
                 stream_config,
                 move |buffer: &mut [f32], _: &cpal::OutputCallbackInfo| {
-
                     let mut lfos = lfo_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
@@ -585,7 +617,6 @@ impl Synth {
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-
                     let sub_oscillator_frequency = get_frequency_from_midi_note_and_osc_interval(
                         &parameters.arpeggiator,
                         parameters.current_midi_note,
@@ -610,35 +641,31 @@ impl Synth {
                         oscillators.get_oscillator_interval(3),
                     );
 
-
                     let oscillator1_level = oscillators.get_oscillator1_level();
                     let oscillator2_level = oscillators.get_oscillator2_level();
                     let oscillator3_level = oscillators.get_oscillator3_level();
                     let sub_oscillator_level = oscillators.get_sub_oscillator_level();
 
-
                     for frame in buffer.chunks_mut(number_of_channels) {
-
                         let sub_oscillator_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],
-                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_SUB]
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_SUB],
                         );
 
                         let oscillator1_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD],
-                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC1]
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC1],
                         );
 
                         let oscillator2_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD],
-                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC2]
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC2],
                         );
 
                         let oscillator3_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD],
-                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC3]
+                            parameters.oscillator_mod_lfos[OSC_MOD_LFO_INDEX_FOR_OSC3],
                         );
-
 
                         let sub_oscillator_sample = oscillators.get_sub_oscillator_next_sample(
                             sub_oscillator_frequency,
@@ -652,7 +679,6 @@ impl Synth {
                             oscillator1_modulation,
                         );
 
-
                         let oscillator2_sample = oscillators.get_oscillator2_next_sample(
                             oscillator2_frequency,
                             oscillator2_level,
@@ -665,12 +691,10 @@ impl Synth {
                             oscillator3_modulation,
                         );
 
-
                         let oscillator_sample_sum = oscillator1_sample
                             + oscillator2_sample
                             + oscillator3_sample
                             + sub_oscillator_sample;
-
 
                         let oscillator_level_sum = oscillator1_level
                             + oscillator2_level
@@ -682,7 +706,6 @@ impl Synth {
                             parameters.output_level_constant,
                             oscillator_sample_sum,
                         );
-
 
                         let filter_mod_value = get_filter_mod_value(
                             &mut lfos[LFO_INDEX_FOR_FILTER_MOD],
@@ -737,7 +760,7 @@ impl Synth {
                                 right_sample,
                             );
                         }
-
+                        let arp_is_active = parameters.arpeggiator_is_active;
 
                         if parameters.amp_mode == AmpMode::Gate {
                             match envelope.gate(parameters.output_level) {
@@ -752,13 +775,20 @@ impl Synth {
                                 GateState::End(db_adjustment) => {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
-                                    let randomize = parameters.randomize_arp;
-                                    parameters.current_midi_note =
-                                        parameters.arpeggiator.next_midi_note(randomize);
+                                    if arp_is_active {
+                                        let arpeggiator_type = parameters.arpeggiator_type.clone();
+                                        parameters.current_midi_note =
+                                            parameters.arpeggiator.next_midi_note(arpeggiator_type);
+                                        parameters.current_midi_state = MidiState::NoteOn;
+                                    }
                                 }
                             }
                         } else {
-                            match envelope.adsr(parameters.output_level) {
+                            match envelope.adsr(
+                                parameters.output_level,
+                                &mut parameters.current_midi_state,
+                                arp_is_active,
+                            ) {
                                 ADSRState::Playing(db_adjustment) => {
                                     left_sample *= db_adjustment;
                                     right_sample *= db_adjustment;
@@ -766,9 +796,15 @@ impl Synth {
                                 ADSRState::Stopped => {
                                     left_sample *= 0.0;
                                     right_sample *= 0.0;
-                                    let randomize = parameters.randomize_arp;
-                                    parameters.current_midi_note =
-                                        parameters.arpeggiator.next_midi_note(randomize);
+
+                                    if arp_is_active {
+                                        let arpeggiator_type = parameters.arpeggiator_type.clone();
+                                        parameters.current_midi_note =
+                                            parameters.arpeggiator.next_midi_note(arpeggiator_type);
+                                        parameters.current_midi_state = MidiState::NoteOn;
+                                    } else {
+                                        parameters.current_midi_state = MidiState::Rest;
+                                    }
                                 }
                             }
                         }
@@ -818,7 +854,7 @@ impl Synth {
             )
             .unwrap();
 
-        stream.pause().unwrap();
+        stream.play().expect("Failed to play audio stream");
 
         stream
     }
@@ -849,10 +885,7 @@ fn get_balanced_oscillator_sum(
     }
 }
 
-fn get_oscillator_mod_value(
-    lfo: &mut LFO,
-    lfo_parameters: LFOParameters,
-) -> Option<f32> {
+fn get_oscillator_mod_value(lfo: &mut LFO, lfo_parameters: LFOParameters) -> Option<f32> {
     if lfo_parameters.width > 0.0 {
         Some(lfo.get_next_value(
             lfo_parameters.frequency,

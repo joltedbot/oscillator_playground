@@ -26,7 +26,7 @@ export component Panel inherits Rectangle {
 
 export component StartButton inherits Button {
     in-out property <bool> active;
-    callback tone_start_button_pressed(bool);
+    callback start_button_pressed(bool);
 
     states [
         running when active: {
@@ -43,7 +43,7 @@ export component StartButton inherits Button {
     height: Theme.start-button-height;
     clicked => {
         active = !active;
-        tone_start_button_pressed(active);
+        start_button_pressed(active);
     }
 }
 
@@ -289,7 +289,7 @@ export component OscilatorControls inherits VerticalLayout {
             fm_amount_selected(level * Theme.osc-fm-amount-slider-adjustment-factor, oscillator_number);
         }
     }
-    
+
     Label {
         horizontal-alignment: center;
         font-weight: Theme.text-weight-bold;

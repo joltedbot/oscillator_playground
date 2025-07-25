@@ -17,11 +17,11 @@ export component AppWindow inherits Window {
     default-font-size: Theme.text-size;
     background: transparent;
 
-    in-out property <bool> start_button_active: false;
+    in-out property <bool> arp_button_active: false;
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
-    callback wave_fm_amount_selected(int,int);
+    callback wave_fm_amount_selected(int, int);
     callback wave_pulse_width_selected(float, int);
     callback wave_shaper_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
@@ -33,7 +33,7 @@ export component AppWindow inherits Window {
     callback output_level_value_changed(int);
     callback output_level_constant_activated(bool);
 
-    callback start_button_pressed(bool);
+    callback arp_button_pressed(bool);
     callback resync_oscillators();
     callback resync_oscillator_lfos();
 
@@ -78,7 +78,6 @@ export component AppWindow inherits Window {
     callback note_activated(int);
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);
-
 
     Rectangle {
         padding: 4px;
@@ -137,6 +136,9 @@ export component AppWindow inherits Window {
                                         root.wave_tuning_changed(interval, oscillator);
                                     }
 
+                                    wave_shaper_amount_changed(amount, oscillator) => {
+                                        root.wave_shaper_amount_changed(amount, oscillator);
+                                    }
                                 }
 
                                 VerticalLayout {
@@ -156,10 +158,6 @@ export component AppWindow inherits Window {
 
                                         envelope_sustain_updated(milliseconds) => {
                                             root.envelope_sustain_updated(milliseconds);
-                                        }
-
-                                        adsr_note_length_updated(milliseconds) => {
-                                            root.adsr_note_length_updated(milliseconds);
                                         }
 
                                         enable_amp_envelope(is_enabled) => {
@@ -228,10 +226,10 @@ export component AppWindow inherits Window {
 
                                 ButtonsPanel {
 
-                                    start_button_active: start_button_active;
+                                    arp_button_active: arp_button_active;
 
-                                    start_button_pressed(active) => {
-                                        root.start_button_pressed(active);
+                                    arp_button_pressed(active) => {
+                                        root.arp_button_pressed(active);
                                     }
 
                                     resync_oscillators() => {
@@ -362,6 +360,11 @@ export component AppWindow inherits Window {
                         note_deactivated(note_number) => {
                             root.note_deactivated(note_number);
                         }
+
+                        adsr_note_length_updated(milliseconds) => {
+                            root.adsr_note_length_updated(milliseconds);
+                        }
+
                         arpeggiator_random_activated(is_active) => {
                             root.arpeggiator_random_activated(is_active);
                         }
