@@ -55,9 +55,12 @@ pub enum EventType {
     UpdateClipperThreshold(f32),
     ResyncOscillators,
     ResyncOscillatorLFOs,
+    ArpeggiatorActive(bool),
     ArpeggiatorAddNote(i32),
     ArpeggiatorRemoveNote(i32),
     ArpeggiatorRandomEnabled(bool),
+    MidiNoteOn(u8),
+    MidiNoteOff(u8),
     Start,
     Stop,
 }

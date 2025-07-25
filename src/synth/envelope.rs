@@ -1,3 +1,4 @@
+use super::MidiState;
 const MINIMUM_ENV_LEVEL: f32 = -60.0;
 const DEFAULT_ATTACK_MILLISECONDS: u32 = 50;
 const DEFAULT_DECAY_MILLISECONDS: u32 = 300;
@@ -176,10 +177,27 @@ impl Envelope {
         }
     }
 
-    pub fn adsr(&mut self, output_level: f32) -> ADSRState {
-        if self.envelope.state == ADSRState::Stopped {
-            self.envelope.state = ADSRState::Playing(MINIMUM_ENV_LEVEL);
+    pub fn adsr(
+        &mut self,
+        output_level: f32,
+        midi_state: &mut MidiState,
+        arpeggiator_is_active: bool,
+    ) -> ADSRState {
+        match midi_state {
+            MidiState::NoteOn => {
+                self.envelope.stage = ADSRStage::Attack;
+                self.envelope.state = ADSRState::Playing(MINIMUM_ENV_LEVEL);
+                *midi_state = MidiState::NoteHold;
+            }
+            MidiState::NoteOff => {
+                self.envelope.stage = ADSRStage::Release;
+            }
+            MidiState::Rest => {
+                return ADSRState::Stopped;
+            }
+            MidiState::NoteHold => {}
         }
+
         match self.envelope.stage {
             ADSRStage::Attack => {
                 if self.envelope.current_level < output_level {
@@ -205,19 +223,33 @@ impl Envelope {
                     self.envelope.stage = ADSRStage::Sustain;
                 }
             }
-            ADSRStage::Sustain => {
-                if self.envelope.sustain_count
-                    < get_number_of_samples_from_milliseconds(
-                        self.sample_rate,
-                        self.envelope.sustain_length,
-                    )
-                {
-                    self.envelope.sustain_count += 1;
-                } else {
-                    self.envelope.stage = ADSRStage::Release;
-                    self.envelope.sustain_count = DEFAULT_STATE_COUNT_VALUE;
+            ADSRStage::Sustain => match arpeggiator_is_active {
+                true => {
+                    if self.envelope.sustain_count
+                        < get_number_of_samples_from_milliseconds(
+                            self.sample_rate,
+                            self.envelope.sustain_length,
+                        )
+                    {
+                        self.envelope.sustain_count += 1;
+                    } else {
+                        self.envelope.stage = ADSRStage::Release;
+                        self.envelope.sustain_count = DEFAULT_STATE_COUNT_VALUE;
+                    }
                 }
-            }
+                false => {
+                    if self.envelope.sustain_count > 0
+                        && self.envelope.sustain_count
+                            < get_number_of_samples_from_milliseconds(
+                                self.sample_rate,
+                                self.envelope.sustain_length,
+                            )
+                    {
+                        self.envelope.stage = ADSRStage::Release;
+                        self.envelope.sustain_count = DEFAULT_STATE_COUNT_VALUE;
+                    }
+                }
+            },
             ADSRStage::Release => {
                 if self.envelope.current_level > MINIMUM_ENV_LEVEL {
                     self.envelope.current_level -= self.get_increment_from_milliseconds(

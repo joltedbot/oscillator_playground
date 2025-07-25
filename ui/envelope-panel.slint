@@ -6,7 +6,6 @@ export component EnvelopePanel inherits HorizontalLayout {
     callback envelope_attack_updated(float);
     callback envelope_decay_updated(float);
     callback envelope_release_updated(float);
-    callback adsr_note_length_updated(float);
     callback envelope_sustain_updated(float);
     callback enable_amp_envelope(bool);
     callback gate_length_changed(int);
@@ -50,7 +49,6 @@ export component EnvelopePanel inherits HorizontalLayout {
                         decay_time.enabled = adsr_enabled.checked;
                         sustain_level.enabled = adsr_enabled.checked;
                         release_time.enabled = adsr_enabled.checked;
-                        adsr_note_length.enabled = adsr_enabled.checked;
                     }
                 }
             }
@@ -143,29 +141,6 @@ export component EnvelopePanel inherits HorizontalLayout {
                         milliseconds: Theme.envelope-release-default;
                         milliseconds_selected(milliseconds) => {
                             root.envelope_release_updated(milliseconds);
-                        }
-                    }
-                }
-            }
-
-            HorizontalLayout {
-                spacing: 5px;
-
-                VerticalLayout {
-                    Label {
-                        horizontal-alignment: center;
-                        label: Theme.envelope-adsr-note-length-text;
-                    }
-
-                    Label {
-                        horizontal-alignment: center;
-                        label: adsr_note_length.milliseconds + Theme.envelope-time-suffix;
-                    }
-
-                    adsr_note_length := ADSRSlider {
-                        milliseconds: Theme.envelope-sustain-default;
-                        milliseconds_selected(milliseconds) => {
-                            root.adsr_note_length_updated(milliseconds);
                         }
                     }
                 }

@@ -24,8 +24,6 @@ impl GenerateSamples for Square {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
         let new_frequency = tone_frequency * modulation.unwrap_or(1.0);
 
-        println!("New Frequency: {}", new_frequency);
-
         let mut y_coordinate: f32 =
             (new_frequency * (2.0 * PI) * (self.x_coordinate / self.sample_rate)).sin();
 

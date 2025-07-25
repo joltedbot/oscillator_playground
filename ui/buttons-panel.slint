@@ -3,11 +3,11 @@ import { Theme } from "../ui/theme.slint";
 
 export component ButtonsPanel inherits HorizontalLayout {
 
-    in-out property <bool> start_button_active: true;
+    in-out property <bool> arp_button_active: true;
 
     callback resync_oscillators();
     callback resync_oscillator_lfos();
-    callback start_button_pressed(bool);
+    callback arp_button_pressed(bool);
 
     Panel {
         width: Theme.envelope-panel-width;
@@ -19,10 +19,10 @@ export component ButtonsPanel inherits HorizontalLayout {
                 padding: 20px;
                 alignment: center;
 
-                start_button := StartButton {
-                    active: start_button_active;
-                    tone_start_button_pressed(active) => {
-                        root.start_button_pressed(active);
+                arp_button := StartButton {
+                    active: arp_button_active;
+                    start_button_pressed(active) => {
+                        root.arp_button_pressed(active);
                     }
                 }
 

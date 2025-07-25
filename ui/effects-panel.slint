@@ -391,64 +391,63 @@ export component EffectsPanel inherits GridLayout {
 
         wavefolder := Panel {
 
+            VerticalLayout {
+                alignment: start;
+                spacing: 20px;
+                padding: 10px;
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 20px;
                     VerticalLayout {
-                        alignment: start;
-                        spacing: 20px;
-                        padding: 10px;
-                        HorizontalLayout {
-                            alignment: center;
-                            spacing: 20px;
-                            VerticalLayout {
-                                spacing: 10px;
-                                Heading {
-                                    horizontal-alignment: center;
-                                    heading: Theme.wavefolder-heading-text;
-                                }
+                        spacing: 10px;
+                        Heading {
+                            horizontal-alignment: center;
+                            heading: Theme.wavefolder-heading-text;
+                        }
 
-                                ActivationSwitch {
-                                    activated-text: Theme.activation-switch-active-text;
-                                    not-activated-text: Theme.activation-switch-not-active-text;
-                                    activation_toggled => {
-                                        wavefolder_threshold.enabled = self.activated;
-                                        wavefolder_ratio.enabled = self.activated;
-                                        wavefolder_activated(self.checked);
-                                    }
-                                }
+                        ActivationSwitch {
+                            activated-text: Theme.activation-switch-active-text;
+                            not-activated-text: Theme.activation-switch-not-active-text;
+                            activation_toggled => {
+                                wavefolder_threshold.enabled = self.activated;
+                                wavefolder_ratio.enabled = self.activated;
+                                wavefolder_activated(self.checked);
+                            }
+                        }
 
-                                Label {
-                                    label: Theme.wavefolder-threshold-text + round(wavefolder_threshold.slider_value);
-                                }
+                        Label {
+                            label: Theme.wavefolder-threshold-text + round(wavefolder_threshold.slider_value);
+                        }
 
-                                wavefolder_threshold := LFOSlider {
-                                    slider_value: Theme.wavefolder-threshold-default;
-                                    step: Theme.wavefolder-threshold-step;
-                                    minimum: Theme.wavefolder-threshold-minimum;
-                                    maximum: Theme.wavefolder-threshold-maximum;
-                                    enabled: false;
-                                    level_selected(level) => {
-                                        wavefolder_threshold_changed(round(level));
-                                    }
-                                }
+                        wavefolder_threshold := LFOSlider {
+                            slider_value: Theme.wavefolder-threshold-default;
+                            step: Theme.wavefolder-threshold-step;
+                            minimum: Theme.wavefolder-threshold-minimum;
+                            maximum: Theme.wavefolder-threshold-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                wavefolder_threshold_changed(round(level));
+                            }
+                        }
 
-                                Label {
-                                    label: Theme.wavefolder-ratio-text + round(wavefolder_ratio.value) + Theme.wavefolder-ratio-suffix;
-                                }
+                        Label {
+                            label: Theme.wavefolder-ratio-text + round(wavefolder_ratio.value) + Theme.wavefolder-ratio-suffix;
+                        }
 
-                                wavefolder_ratio := LevelSlider {
-                                    value: Theme.wavefolder-ratio-default;
-                                    step: Theme.wavefolder-ratio-step;
-                                    minimum: Theme.wavefolder-ratio-minimum;
-                                    maximum: Theme.wavefolder-ratio-maximum;
-                                    enabled: false;
-                                    level_selected(level) => {
-                                        wavefolder_ratio_changed(1 / round(level));
-                                    }
-                                }
+                        wavefolder_ratio := LevelSlider {
+                            value: Theme.wavefolder-ratio-default;
+                            step: Theme.wavefolder-ratio-step;
+                            minimum: Theme.wavefolder-ratio-minimum;
+                            maximum: Theme.wavefolder-ratio-maximum;
+                            enabled: false;
+                            level_selected(level) => {
+                                wavefolder_ratio_changed(1 / round(level));
                             }
                         }
                     }
                 }
-
+            }
+        }
     }
 
     Row {
@@ -606,5 +605,4 @@ export component EffectsPanel inherits GridLayout {
             }
         }
     }
-
 }

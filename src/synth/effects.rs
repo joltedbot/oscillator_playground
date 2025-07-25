@@ -33,23 +33,22 @@ pub fn get_phased_sample(
 
     let _trash = delay_buffer.pop();
 
-
     let phase_shift = lfo.get_next_value(phaser.frequency, phaser.center_value, phaser.width);
-    let left_phased_sample = (left_sample + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)].0) / 2.0;
-    let right_phased_sample = (right_sample + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)].1) / 2.0;
+    let left_phased_sample = (left_sample
+        + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)].0)
+        / 2.0;
+    let right_phased_sample = (right_sample
+        + delay_buffer[PHASER_MAX_WIDTH_VALUE - (phase_shift.round() as usize)].1)
+        / 2.0;
 
     (left_phased_sample, right_phased_sample)
-
 }
 
 pub fn get_phaser_lfo_center_value_from_amount(amount: f32) -> f32 {
     (PHASER_MAX_WIDTH_VALUE as f32 - (amount / 2.0)).floor()
 }
 
-
-
 pub fn get_bitcrush_sample(new_bit_depth: u32, left_sample: f32, right_sample: f32) -> (f32, f32) {
-
     let bits = (2_u32.pow(new_bit_depth) / 2) as f32;
 
     let left_quantized_sample = (left_sample.abs() * bits).ceil();
@@ -68,7 +67,6 @@ pub fn get_bitcrush_sample(new_bit_depth: u32, left_sample: f32, right_sample: f
 
     (left_bitcrushed_sample, right_bitcrushed_sample)
 }
-
 
 pub fn get_auto_pan_value(
     lfo: &mut LFO,

@@ -134,6 +134,13 @@ const MIDI_NOTE_FREQUENCIES: [(&str, f32, u16); NUMBER_OF_MIDI_NOTES] = [
     ("G9", 12543.854, 127),
 ];
 
+#[derive(Default, Clone, Debug, PartialEq)]
+pub enum ArpeggiatorType {
+    #[default]
+    NoteOrder,
+    Randomize,
+}
+
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Arpeggiator {
     sequence: Vec<u16>,
@@ -170,16 +177,16 @@ impl Arpeggiator {
         }
     }
 
-    pub fn next_midi_note(&mut self, randomize: bool) -> u16 {
+    pub fn next_midi_note(&mut self, state: ArpeggiatorType) -> u16 {
         if self.sequence_index < self.sequence.len() - 1 {
             self.sequence_index += 1;
         } else {
             self.sequence_index = 0;
         }
 
-        match randomize {
-            false => self.sequence[self.sequence_index],
-            true => {
+        match state {
+            ArpeggiatorType::NoteOrder => self.sequence[self.sequence_index],
+            ArpeggiatorType::Randomize => {
                 let index = rand::rng().random_range(0..self.sequence.len());
                 self.sequence[index]
             }

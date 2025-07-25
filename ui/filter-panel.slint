@@ -64,7 +64,7 @@ export component FilterPanel inherits HorizontalLayout {
 
                         Label {
                             horizontal-alignment: center;
-                            label: 100 - filter_resonance.level;
+                            label: filter_resonance.level;
                         }
                     }
 
@@ -99,7 +99,7 @@ export component FilterPanel inherits HorizontalLayout {
                             minimum-level: Theme.filter-resonance-slider-minimum;
                             maximum-level: Theme.filter-resonance-slider-maximum;
                             level_selected(level) => {
-                                filter_resonance_value_changed((100 - level) / 100);
+                                filter_resonance_value_changed(level / 100);
                             }
                         }
                     }

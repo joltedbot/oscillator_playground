@@ -2,10 +2,8 @@
 pub const OUTPUT_LEVEL: f32 = -10.0;
 pub const UNBALANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 
-
 // Arpeggiator Constants
-pub const ARPEGGIATOR_DEFAULT_RANDOMIZE_STATE: bool = false;
-pub const DEFAULT_SEQUENCER_NOTE: u16 = 60;
+pub const DEFAULT_SEQUENCER_NOTE: u16 = 128;
 
 // Effects Constants
 pub const DEFAULT_COMPRESSOR_THRESHOLD: f32 = 0.0;
