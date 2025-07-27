@@ -8,8 +8,10 @@ pub mod square;
 pub mod sub;
 pub mod super_saw;
 pub mod triangle;
+pub mod am;
 
 use fm::FM;
+use am::AM;
 use noise::Noise;
 use pulse::Pulse;
 use ramp::Ramp;
@@ -23,6 +25,7 @@ use triangle::Triangle;
 
 const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 const DEFAULT_WAVE_LEVEL: f32 = 1.0;
+const DEFAULT_SUB_LEVEL: f32 = 0.0;
 const DEFAULT_WAVE_SHAPER_AMOUNT: f32 = 0.0;
 const DEFAULT_WAVE_INTERVAL: i32 = 0;
 
@@ -46,6 +49,7 @@ pub enum WaveShape {
     SuperSaw,
     Triangle,
     FM,
+    AM,
 }
 
 struct Parameters {
@@ -68,7 +72,7 @@ impl Oscillators {
         let sub_oscillator = Parameters {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
-            level: DEFAULT_WAVE_LEVEL,
+            level: DEFAULT_SUB_LEVEL,
             shaper_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             interval: DEFAULT_WAVE_INTERVAL,
         };
@@ -266,6 +270,7 @@ impl Oscillators {
             WaveShape::SuperSaw => Box::new(SuperSaw::new(self.sample_rate)),
             WaveShape::Triangle => Box::new(Triangle::new(self.sample_rate)),
             WaveShape::FM => Box::new(FM::new(self.sample_rate)),
+            WaveShape::AM => Box::new(AM::new(self.sample_rate)),
         }
     }
 
@@ -280,6 +285,7 @@ impl Oscillators {
             "SuperSaw" => WaveShape::SuperSaw,
             "Triangle" => WaveShape::Triangle,
             "FM" => WaveShape::FM,
+            "AM" => WaveShape::AM,
             _ => WaveShape::Sine,
         }
     }
