@@ -7,7 +7,7 @@ pub enum EventType {
     UpdateOscillatorTuning(i32, i32),
     UpdateOscillatorLevel(f32, i32),
     UpdateOscillatorPulseWidth(f32, i32),
-    UpdateOscillatorFMAmount(i32, i32),
+    UpdateOscillatorSpecificParameter(f32, i32),
     UpdateOscillatorShaperAmount(f32, i32),
     UpdateOscillatorModFreq(f32, i32),
     UpdateOscillatorModAmount(f32, i32),

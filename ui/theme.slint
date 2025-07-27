@@ -111,6 +111,13 @@ export global Theme {
     out property <int> osc-fm-amount-slider-default: 1;
     out property <int> osc-fm-amount-slider-adjustment-factor: 100;
     out property <string> osc-fm-amount-wave-shape: "FM";
+    
+    c
+    // Oscillator AM Amount Slider
+    out property <int> osc-am-amount-slider-step: 1;
+    out property <int> osc-am-amount-slider-minimum: 1;
+    out property <int> osc-am-amount-slider-maximum: 16;
+    out property <int> osc-am-amount-slider-default: 8;
     out property <string> osc-am-amount-wave-shape: "AM";
 
 
@@ -317,7 +324,8 @@ export global Theme {
     out property <string> oscillator-tune-value-text: "Unison";
     out property <string> oscillator-tune-value-suffix: " semitones";
     out property <string> oscillator-level-text: "Level";
-    out property <string> oscillator-fm-amount-text: "FM/AM Amount";
+    out property <string> oscillator-fm-amount-text: "FM Amount";
+    out property <string> oscillator-am-amount-text: "AM Amount";
     out property <string> oscillator-pulse-width-text: "Pulse Width";
     out property <string> oscillator-shape-text: "Shape";
     out property <string> oscillator-mod-text: "Pitch Modulation";

@@ -245,17 +245,13 @@ impl Synth {
                     let mut oscillators = self.get_oscillators_mutex_lock();
                     oscillators.set_oscillator_level(level, oscillator);
                 }
-                EventType::UpdateOscillatorFMAmount(amount, oscillator) => {
+                EventType::UpdateOscillatorSpecificParameter(amount, oscillator) => {
                     let mut oscillators = self.get_oscillators_mutex_lock();
-                    oscillators.set_oscillator_fm_amount(amount as f32, oscillator);
-                }
-                EventType::UpdateOscillatorPulseWidth(width, oscillator) => {
-                    let mut oscillators = self.get_oscillators_mutex_lock();
-                    oscillators.set_oscillator_pulse_width(width, oscillator);
+                    oscillators.set_shape_specific_parameter(amount as f32, oscillator);
                 }
                 EventType::UpdateOscillatorShaperAmount(amount, oscillator) => {
                     let mut oscillators = self.get_oscillators_mutex_lock();
-                    oscillators.set_oscillator_shaper_amount(amount, oscillator);
+                    oscillators.set_shape_specific_parameter(amount, oscillator);
                 }
                 EventType::UpdateOscillatorModFreq(speed, oscillator) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();

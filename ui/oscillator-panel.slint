@@ -5,8 +5,8 @@ import { Theme } from "../ui/theme.slint";
 export component OscillatorPanel inherits HorizontalLayout {
 
     callback wave_level_selected(float, int);
-    callback wave_fm_amount_selected(int, int);
-    callback wave_pulse_width_selected(float, int);
+    callback wave_specific_parameter_selected(float, int);
+    callback wave_am_amount_selected(int, int);
     callback wave_shape_selected(string, int);
     callback wave_tuning_changed(int, int);
     callback wave_shaper_amount_changed(float, int);
@@ -32,11 +32,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                     wave_level_selected(level, oscillator) => {
                         root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount, oscillator) => {
-                        root.wave_fm_amount_selected(amount, oscillator);
-                    }
-                    pulse_width_selected(width, oscillator) => {
-                        root.wave_pulse_width_selected(width, oscillator);
+                    specific_parameter_selected(amount, oscillator) => {
+                        root.wave_specific_parameter_selected(amount, oscillator);
                     }
                     wave_shape_selected(shape, oscillator) => {
                         root.wave_shape_selected(shape, oscillator);
@@ -62,11 +59,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                     wave_level_selected(level, oscillator) => {
                         root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount, oscillator) => {
-                        root.wave_fm_amount_selected(amount, oscillator);
-                    }
-                    pulse_width_selected(width, oscillator) => {
-                        root.wave_pulse_width_selected(width, oscillator);
+                    specific_parameter_selected(amount, oscillator) => {
+                        root.wave_specific_parameter_selected(amount, oscillator);
                     }
                     wave_shape_selected(shape, oscillator) => {
                         root.wave_shape_selected(shape, oscillator);
@@ -92,11 +86,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                     wave_level_selected(level, oscillator) => {
                         root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount, oscillator) => {
-                        root.wave_fm_amount_selected(amount, oscillator);
-                    }
-                    pulse_width_selected(width, oscillator) => {
-                        root.wave_pulse_width_selected(width, oscillator);
+                    specific_parameter_selected(amount, oscillator) => {
+                        root.wave_specific_parameter_selected(amount, oscillator);
                     }
                     wave_shape_selected(shape, oscillator) => {
                         root.wave_shape_selected(shape, oscillator);
@@ -123,11 +114,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                     wave_level_selected(level, oscillator) => {
                         root.wave_level_selected(level, oscillator);
                     }
-                    fm_amount_selected(amount, oscillator) => {
-                        root.wave_fm_amount_selected(amount, oscillator);
-                    }
-                    pulse_width_selected(width, oscillator) => {
-                        root.wave_pulse_width_selected(width, oscillator);
+                    specific_parameter_selected(amount, oscillator) => {
+                        root.wave_specific_parameter_selected(amount, oscillator);
                     }
                     wave_shape_selected(shape, oscillator) => {
                         root.wave_shape_selected(shape, oscillator);

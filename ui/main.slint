@@ -23,8 +23,7 @@ export component AppWindow inherits Window {
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
-    callback wave_fm_amount_selected(int, int);
-    callback wave_pulse_width_selected(float, int);
+    callback wave_specific_parameter_selected(float, int);
     callback wave_shaper_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_mod_amount_changed(float, int);
@@ -126,12 +125,8 @@ export component AppWindow inherits Window {
                                         root.wave_level_selected(level, oscillator);
                                     }
 
-                                    wave_fm_amount_selected(amount, oscillator) => {
-                                        root.wave_fm_amount_selected(amount, oscillator);
-                                    }
-
-                                    wave_pulse_width_selected(width, oscillator) => {
-                                        root.wave_pulse_width_selected(width, oscillator);
+                                    wave_specific_parameter_selected(amount, oscillator) => {
+                                        root.wave_specific_parameter_selected(amount, oscillator);
                                     }
 
                                     wave_shape_selected(shape, oscillator) => {

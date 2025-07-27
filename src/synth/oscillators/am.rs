@@ -4,7 +4,6 @@ use crate::synth::oscillators::saw::Saw;
 
 const DEFAULT_RATIO: f32 = 1.0;
 const DEFAULT_MODULATION_AMOUNT: f32 = 3.0;
-const AM_SLIDER_ADJUSTMENT_FACTOR: f32 = 10.0;
 
 pub struct AM {
     carrier: Box<dyn GenerateSamples + Send + Sync>,
@@ -26,15 +25,14 @@ impl AM {
 
 impl GenerateSamples for AM {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32 {
-        let modulation = modulation.unwrap_or(1.0);
         let modulator = self
             .modulator
-            .next_sample(self.modulation_amount * modulation, None);
-        self.carrier.next_sample(tone_frequency, None) * modulator
+            .next_sample(tone_frequency * self.modulation_amount, None);
+        self.carrier.next_sample(tone_frequency, modulation) * modulator
     }
 
     fn set_shape_specific_parameter(&mut self, parameter: f32) {
-        self.modulation_amount = parameter/AM_SLIDER_ADJUSTMENT_FACTOR;
+        self.modulation_amount = parameter;
     }
 
     fn reset(&mut self) {

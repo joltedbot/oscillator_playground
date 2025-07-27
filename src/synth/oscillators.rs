@@ -130,16 +130,10 @@ impl Oscillators {
         self.oscillators[oscillator as usize].interval = interval;
     }
 
-    pub fn set_oscillator_fm_amount(&mut self, fm_amount: f32, oscillator: i32) {
+    pub fn set_shape_specific_parameter(&mut self, parameter: f32, oscillator: i32) {
         self.oscillators[oscillator as usize]
             .wave
-            .set_shape_specific_parameter(fm_amount);
-    }
-
-    pub fn set_oscillator_pulse_width(&mut self, width: f32, oscillator: i32) {
-        self.oscillators[oscillator as usize]
-            .wave
-            .set_shape_specific_parameter(width);
+            .set_shape_specific_parameter(parameter);
     }
 
     pub fn set_oscillator_shaper_amount(&mut self, amount: f32, oscillator: i32) {
