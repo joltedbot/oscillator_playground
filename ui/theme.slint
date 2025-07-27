@@ -77,13 +77,14 @@ export global Theme {
     out property <length> wave-shape-switch-width: 150px;
     out property <[string]> wave-shape-list: [
         "Sine",
-        "FM",
         "Pulse",
         "Ramp",
         "Saw",
         "Square",
         "SuperSaw",
         "Triangle",
+        "FM",
+        "AM",
         "Noise"
     ];
     out property <string> wave-shape-default: "Sine";
@@ -109,7 +110,9 @@ export global Theme {
     out property <int> osc-fm-amount-slider-maximum: 100;
     out property <int> osc-fm-amount-slider-default: 1;
     out property <int> osc-fm-amount-slider-adjustment-factor: 100;
-    out property <string> osc-fm-amount-wave-shape: "FM";    
+    out property <string> osc-fm-amount-wave-shape: "FM";
+    out property <string> osc-am-amount-wave-shape: "AM";
+
 
     // Oscillator Pulse Width Slider
     out property <float> osc-pulse-width-slider-step: 0.1;
@@ -314,7 +317,7 @@ export global Theme {
     out property <string> oscillator-tune-value-text: "Unison";
     out property <string> oscillator-tune-value-suffix: " semitones";
     out property <string> oscillator-level-text: "Level";
-    out property <string> oscillator-fm-amount-text: "FM Amount";
+    out property <string> oscillator-fm-amount-text: "FM/AM Amount";
     out property <string> oscillator-pulse-width-text: "Pulse Width";
     out property <string> oscillator-shape-text: "Shape";
     out property <string> oscillator-mod-text: "Pitch Modulation";

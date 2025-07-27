@@ -231,7 +231,7 @@ export component OscilatorControls inherits VerticalLayout {
 
     osc_selector := WaveSelector {
         wave_shape_selected(shape) => {
-            if (shape == Theme.osc-fm-amount-wave-shape) {
+            if (shape == Theme.osc-fm-amount-wave-shape || shape == Theme.osc-am-amount-wave-shape) {
                 osc_fm_amount.enabled = true;
                 osc_pulse_width.enabled = false;
             } else if (shape == Theme.osc-pulse-width-wave-shape) {
