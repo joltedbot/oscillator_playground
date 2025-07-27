@@ -1,7 +1,7 @@
 use super::AppWindow;
 use crate::events::EventType;
-use crossbeam_channel::Sender;
-use slint::Weak;
+use crossbeam_channel::{Receiver, Sender};
+use slint::{ModelRc, SharedString, VecModel, Weak};
 use std::error::Error;
 use std::process::exit;
 use std::sync::{Arc, Mutex};
@@ -9,27 +9,57 @@ use std::sync::{Arc, Mutex};
 pub struct UI {
     pub ui: Weak<AppWindow>,
     synth_sender: Sender<EventType>,
+    midi_sender: Sender<EventType>,
 }
 
 impl UI {
     pub fn new(
-        ui_mutex: Arc<Mutex<Weak<AppWindow>>>,
+        ui: Weak<AppWindow>,
         synth_sender: Sender<EventType>,
+        midi_sender: Sender<EventType>,
     ) -> Result<Self, Box<dyn Error>> {
-        let ui_weak = ui_mutex
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
 
         let ui = Self {
-            ui: ui_weak.clone(),
+            ui,
             synth_sender,
+            midi_sender,
         };
 
         Ok(ui)
     }
 
+
+    pub fn run(&mut self, ui_receiver: Receiver<EventType>,) {
+        let ui_weak = self.ui.clone();
+        loop {
+            if let Ok(event) = ui_receiver.recv() {
+                match event {
+                    EventType::UpdateMidiPortList(midi_port_list) => {
+                        let _ = ui_weak.upgrade_in_event_loop(move |ui| {
+                            let midi_input_port_model = get_model_from_string_slice(midi_port_list);
+                            ui.set_midi_input_ports(midi_input_port_model);
+                        });
+                    }
+                    _ => {}
+                }
+
+            }
+        }
+    }
+
+    fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
+        let ui_weak = self.ui.clone();
+
+        match ui_weak.upgrade() {
+            Some(ui) => ui,
+            None => {
+                eprintln!("Could not upgrade ui mutex");
+                exit(1);
+            }
+        }
+    }
+
     pub fn create_ui_callbacks(&mut self) {
-        self.on_arp_button_pressed();
         self.on_wave_shape_selected();
         self.on_wave_level_selected();
         self.on_wave_fm_amount_selected();
@@ -85,18 +115,8 @@ impl UI {
         self.on_note_activated();
         self.on_note_deactivated();
         self.on_arpeggiator_random_activated();
-    }
-
-    fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
-        let ui_weak = self.ui.clone();
-
-        match ui_weak.upgrade() {
-            Some(ui) => ui,
-            None => {
-                eprintln!("Could not upgrade ui mutex");
-                exit(1);
-            }
-        }
+        self.on_arp_button_pressed();
+        self.on_midi_port_selected();
     }
 
     fn on_wave_shape_selected(&mut self) {
@@ -740,4 +760,20 @@ impl UI {
             }
         });
     }
+
+    fn on_midi_port_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let midi_sender = self.midi_sender.clone();
+
+        ui.on_midi_port_selected(move |port_index| {
+            if let Err(error) = midi_sender.send(EventType::UpdateMidiPort(port_index)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+}
+
+fn get_model_from_string_slice(devices: Vec<String>) -> ModelRc<SharedString> {
+    let name_list: Vec<SharedString> = devices.iter().map(SharedString::from).collect();
+    ModelRc::new(VecModel::from_slice(name_list.as_slice()))
 }

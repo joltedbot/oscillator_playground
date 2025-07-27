@@ -227,11 +227,10 @@ impl Synth {
         }
     }
 
-    pub fn run(&mut self, ui_receiver: Receiver<EventType>) {
+    pub fn run(&mut self, synth_receiver: Receiver<EventType>) {
         self.stream = Some(self.create_audio_engine());
 
-        loop {
-            if let Ok(event) = ui_receiver.recv() {
+        while let Ok(event) = synth_receiver.recv() {
                 match event {
                     EventType::UpdateOscillatorShape(shape, oscillator) => {
                         let mut oscillators = self.get_oscillators_mutex_lock();
@@ -515,14 +514,8 @@ impl Synth {
                             parameters.current_midi_state = MidiState::NoteOff;
                         }
                     }
-                    EventType::Start => {
-                        self.start();
-                    }
-                    EventType::Stop => {
-                        self.stop();
-                    }
+                    _ => {}
                 }
-            }
         }
     }
 
@@ -554,18 +547,6 @@ impl Synth {
         self.filter
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn start(&mut self) {
-        if let Some(ref mut stream) = self.stream {
-            stream.play().expect("Failed to play audio stream");
-        }
-    }
-
-    fn stop(&mut self) {
-        if let Some(ref mut stream) = self.stream {
-            stream.pause().expect("Failed to play audio stream");
-        }
     }
 
     fn create_audio_engine(&mut self) -> Stream {

@@ -76,6 +76,27 @@ export component WaveSelector inherits ComboBox {
     }
 }
 
+export component DeviceSelector inherits ComboBox {
+    in-out property <string> current-device;
+    in property <[string]> device-list;
+    callback device_selected(string);
+
+    model: device-list;
+    selected(device) => {
+        device_selected(device);
+    }
+}
+
+export component MidiSelector inherits ComboBox {
+    in property <[string]> port-list;
+    callback port_selected(int);
+
+    model: port-list;
+    selected() => {
+        port_selected(self.current-index);
+    }
+}
+
 export component LevelSlider inherits Slider {
     in-out property <int> level;
     in-out property <int> minimum-level;
