@@ -227,301 +227,294 @@ impl Synth {
         }
     }
 
-    pub fn run(&mut self, ui_receiver: Receiver<EventType>) {
+    pub fn run(&mut self, synth_receiver: Receiver<EventType>) {
         self.stream = Some(self.create_audio_engine());
 
-        loop {
-            if let Ok(event) = ui_receiver.recv() {
-                match event {
-                    EventType::UpdateOscillatorShape(shape, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
-                        oscillators.set_oscillator_type(wave_shape, oscillator);
-                    }
-                    EventType::UpdateOscillatorTuning(interval, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator_interval(interval, oscillator);
-                    }
-                    EventType::UpdateOscillatorLevel(level, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator_level(level, oscillator);
-                    }
-                    EventType::UpdateOscillatorFMAmount(amount, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator_fm_amount(amount as f32, oscillator);
-                    }
-                    EventType::UpdateOscillatorPulseWidth(width, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator_pulse_width(width, oscillator);
-                    }
-                    EventType::UpdateOscillatorShaperAmount(amount, oscillator) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.set_oscillator_shaper_amount(amount, oscillator);
-                    }
-                    EventType::UpdateOscillatorModFreq(speed, oscillator) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[oscillator as usize].frequency = speed;
-                    }
+        while let Ok(event) = synth_receiver.recv() {
+            match event {
+                EventType::UpdateOscillatorShape(shape, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    let wave_shape = oscillators.get_wave_shape_from_shape_name(shape);
+                    oscillators.set_oscillator_type(wave_shape, oscillator);
+                }
+                EventType::UpdateOscillatorTuning(interval, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.set_oscillator_interval(interval, oscillator);
+                }
+                EventType::UpdateOscillatorLevel(level, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.set_oscillator_level(level, oscillator);
+                }
+                EventType::UpdateOscillatorFMAmount(amount, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.set_oscillator_fm_amount(amount as f32, oscillator);
+                }
+                EventType::UpdateOscillatorPulseWidth(width, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.set_oscillator_pulse_width(width, oscillator);
+                }
+                EventType::UpdateOscillatorShaperAmount(amount, oscillator) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.set_oscillator_shaper_amount(amount, oscillator);
+                }
+                EventType::UpdateOscillatorModFreq(speed, oscillator) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.oscillator_mod_lfos[oscillator as usize].frequency = speed;
+                }
 
-                    EventType::UpdateOscillatorModAmount(amount, oscillator) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.oscillator_mod_lfos[oscillator as usize].width = amount;
-                    }
+                EventType::UpdateOscillatorModAmount(amount, oscillator) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.oscillator_mod_lfos[oscillator as usize].width = amount;
+                }
 
-                    EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
+                EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
 
-                        if is_active {
-                            oscillators.enable_unison(detune_amount);
-                        } else {
-                            oscillators.disable_unison();
-                        }
-                    }
-                    EventType::UpdateOscillatorDetuneValue(detune_amount) => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
+                    if is_active {
                         oscillators.enable_unison(detune_amount);
-                    }
-                    EventType::UpdateOutputLevel(level) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.output_level = level as f32;
-                    }
-                    EventType::UpdateOutputLevelConstant(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.output_level_constant = is_active;
-                    }
-                    EventType::UpdateEnvelopeAttack(milliseconds) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_attack_milliseconds(milliseconds.unsigned_abs());
-                    }
-                    EventType::UpdateEnvelopeDecay(milliseconds) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_decay_milliseconds(milliseconds.unsigned_abs());
-                    }
-                    EventType::UpdateEnvelopeRelease(milliseconds) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_release_milliseconds(milliseconds.unsigned_abs());
-                    }
-                    EventType::UpdateADSRNoteLength(milliseconds) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_sustain_milliseconds(milliseconds.unsigned_abs());
-                    }
-                    EventType::UpdateEnvelopeSustainLevel(level) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_sustain_level_below_output_level_in_dbfs(level as f32);
-                    }
-                    EventType::UpdateAmpModeEnvelopeEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        if is_enabled {
-                            parameters.amp_mode = AmpMode::Envelope;
-                        } else {
-                            parameters.amp_mode = AmpMode::Gate;
-                        }
-                    }
-                    EventType::UpdateGateDutyCycle(duty_cycle) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_gate_duty_cycle(duty_cycle);
-                    }
-                    EventType::UpdateGateNoteLength(note_length) => {
-                        let mut envelope = self.get_envelope_mutex_lock();
-                        envelope.set_gate_note_length(note_length.unsigned_abs());
-                    }
-                    EventType::UpdateFilterCutoffValue(cutoff) => {
-                        let mut filter = self.get_filter_mutex_lock();
-                        filter.set_cutoff_frequency(cutoff as f32);
-                    }
-                    EventType::UpdateFilterResonanceValue(level) => {
-                        let mut filter = self.get_filter_mutex_lock();
-                        filter.set_resonance(level);
-                    }
-                    EventType::UpdateFilterNumberOfPoles(number_of_poles) => {
-                        let mut filter = self.get_filter_mutex_lock();
-                        filter.set_number_of_poles(number_of_poles);
-                    }
-                    EventType::ResyncOscillators => {
-                        let mut oscillators = self.get_oscillators_mutex_lock();
-                        oscillators.reset();
-                    }
-                    EventType::ResyncOscillatorLFOs => {
-                        let mut lfos = self.get_lfo_mutex_lock();
-
-                        lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
-                        lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].reset();
-                        lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
-                        lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].reset();
-                    }
-                    EventType::UpdateAutoPanEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.auto_pan.is_enabled = is_enabled;
-                    }
-                    EventType::UpdateAutoPanSpeed(speed_hz) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.auto_pan.frequency = speed_hz;
-                    }
-                    EventType::UpdateAutoPanWidth(width) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.auto_pan.width = width;
-                    }
-                    EventType::UpdateTremoloEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.tremolo.is_enabled = is_enabled;
-                    }
-                    EventType::UpdateTremoloSpeed(speed_hz) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.tremolo.frequency = speed_hz;
-                    }
-                    EventType::UpdateTremoloDepth(depth) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.tremolo.width = depth;
-                        parameters.tremolo.center_value = 1.0 - (depth / 2.0);
-                    }
-                    EventType::UpdateFilterModEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.filter_mod.is_enabled = is_enabled;
-                    }
-                    EventType::UpdateFilterModSpeed(speed_hz) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.filter_mod.frequency = speed_hz;
-                    }
-                    EventType::UpdateFilterModAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.filter_mod.width = amount;
-                        parameters.filter_mod.center_value = 1.0 - (amount / 2.0);
-                    }
-                    EventType::UpdateFilterModShape(shape) => {
-                        let oscillators_arc = self.oscillators.clone();
-                        let lfo_arc = self.lfos.clone();
-                        let paramaters_arc = self.parameters.clone();
-
-                        let mut oscillators = oscillators_arc
-                            .lock()
-                            .unwrap_or_else(|poisoned| poisoned.into_inner());
-                        let mut parameters = paramaters_arc
-                            .lock()
-                            .unwrap_or_else(|poisoned| poisoned.into_inner());
-                        let mut lfos = lfo_arc
-                            .lock()
-                            .unwrap_or_else(|poisoned| poisoned.into_inner());
-
-                        let filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
-
-                        let filter_mod_lfo =
-                            oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
-                        lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
-
-                        parameters.filter_mod_shape = filter_mod_shape;
-                    }
-                    EventType::UpdatePhaserEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.phaser.is_enabled = is_enabled;
-                    }
-                    EventType::UpdatePhaserSpeed(speed_hz) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.phaser.frequency = speed_hz;
-                    }
-                    EventType::UpdatePhaserAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.phaser.width = amount;
-                        parameters.effects.phaser.center_value =
-                            effects::get_phaser_lfo_center_value_from_amount(amount);
-                    }
-                    EventType::UpdateBitCrusherEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.bitcrusher_is_enabled = is_enabled;
-                    }
-                    EventType::UpdateBitCrusherAmount(depth) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.bitcrusher_depth = depth as u32;
-                    }
-                    EventType::UpdateWaveShaperEnabled(is_enabled) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.wave_shaper_is_enabled = is_enabled;
-                    }
-                    EventType::UpdateWaveShaperAmount(amount) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.effects.wave_shaper = amount;
-                    }
-                    EventType::UpdateCompressorActive(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.compressor_enabled = is_active;
-                    }
-                    EventType::UpdateCompressorThreshold(threshold) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.compressor_threshold = threshold;
-                    }
-                    EventType::UpdateCompressorRatio(ratio) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.compressor_ratio = ratio;
-                    }
-                    EventType::UpdateWavefolderActive(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.wavefolder_enabled = is_active;
-                    }
-                    EventType::UpdateWavefolderThreshold(threshold) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.wavefolder_threshold = threshold;
-                    }
-                    EventType::UpdateWavefolderRatio(ratio) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.wavefolder_ratio = ratio;
-                    }
-                    EventType::UpdateLimiterActive(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.limiter_enabled = is_active;
-                    }
-                    EventType::UpdateLimiterThreshold(threshold) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.limiter_threshold = threshold;
-                    }
-                    EventType::UpdateClipperActive(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.clipper_enabled = is_active;
-                    }
-                    EventType::UpdateClipperThreshold(threshold) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.dynamics.clipper_threshold = threshold;
-                    }
-                    EventType::ArpeggiatorActive(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.arpeggiator_is_active = is_active;
-                    }
-                    EventType::ArpeggiatorAddNote(note_number) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.arpeggiator.add_note(note_number as u16);
-                    }
-                    EventType::ArpeggiatorRemoveNote(note_number) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        parameters.arpeggiator.remove_note(note_number as u16);
-                    }
-                    EventType::ArpeggiatorRandomEnabled(is_active) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        if is_active {
-                            parameters.arpeggiator_type = ArpeggiatorType::Randomize;
-                        } else {
-                            parameters.arpeggiator_type = ArpeggiatorType::NoteOrder;
-                        }
-                    }
-                    EventType::MidiNoteOn(note_number) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        if !parameters.arpeggiator_is_active {
-                            parameters.current_midi_note = note_number as u16;
-                            parameters.current_midi_state = MidiState::NoteOn;
-                        }
-                    }
-                    EventType::MidiNoteOff(note_number) => {
-                        let mut parameters = self.get_synth_parameters_mutex_lock();
-                        if !parameters.arpeggiator_is_active
-                            && parameters.current_midi_note == note_number as u16
-                        {
-                            parameters.current_midi_state = MidiState::NoteOff;
-                        }
-                    }
-                    EventType::Start => {
-                        self.start();
-                    }
-                    EventType::Stop => {
-                        self.stop();
+                    } else {
+                        oscillators.disable_unison();
                     }
                 }
+                EventType::UpdateOscillatorDetuneValue(detune_amount) => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.enable_unison(detune_amount);
+                }
+                EventType::UpdateOutputLevel(level) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.output_level = level as f32;
+                }
+                EventType::UpdateOutputLevelConstant(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.output_level_constant = is_active;
+                }
+                EventType::UpdateEnvelopeAttack(milliseconds) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_attack_milliseconds(milliseconds.unsigned_abs());
+                }
+                EventType::UpdateEnvelopeDecay(milliseconds) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_decay_milliseconds(milliseconds.unsigned_abs());
+                }
+                EventType::UpdateEnvelopeRelease(milliseconds) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_release_milliseconds(milliseconds.unsigned_abs());
+                }
+                EventType::UpdateADSRNoteLength(milliseconds) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_sustain_milliseconds(milliseconds.unsigned_abs());
+                }
+                EventType::UpdateEnvelopeSustainLevel(level) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_sustain_level_below_output_level_in_dbfs(level as f32);
+                }
+                EventType::UpdateAmpModeEnvelopeEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    if is_enabled {
+                        parameters.amp_mode = AmpMode::Envelope;
+                    } else {
+                        parameters.amp_mode = AmpMode::Gate;
+                    }
+                }
+                EventType::UpdateGateDutyCycle(duty_cycle) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_gate_duty_cycle(duty_cycle);
+                }
+                EventType::UpdateGateNoteLength(note_length) => {
+                    let mut envelope = self.get_envelope_mutex_lock();
+                    envelope.set_gate_note_length(note_length.unsigned_abs());
+                }
+                EventType::UpdateFilterCutoffValue(cutoff) => {
+                    let mut filter = self.get_filter_mutex_lock();
+                    filter.set_cutoff_frequency(cutoff as f32);
+                }
+                EventType::UpdateFilterResonanceValue(level) => {
+                    let mut filter = self.get_filter_mutex_lock();
+                    filter.set_resonance(level);
+                }
+                EventType::UpdateFilterNumberOfPoles(number_of_poles) => {
+                    let mut filter = self.get_filter_mutex_lock();
+                    filter.set_number_of_poles(number_of_poles);
+                }
+                EventType::ResyncOscillators => {
+                    let mut oscillators = self.get_oscillators_mutex_lock();
+                    oscillators.reset();
+                }
+                EventType::ResyncOscillatorLFOs => {
+                    let mut lfos = self.get_lfo_mutex_lock();
+
+                    lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
+                    lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].reset();
+                    lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
+                    lfos[LFO_INDEX_FOR_OSCILLATOR3_MOD].reset();
+                }
+                EventType::UpdateAutoPanEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.auto_pan.is_enabled = is_enabled;
+                }
+                EventType::UpdateAutoPanSpeed(speed_hz) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.auto_pan.frequency = speed_hz;
+                }
+                EventType::UpdateAutoPanWidth(width) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.auto_pan.width = width;
+                }
+                EventType::UpdateTremoloEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.tremolo.is_enabled = is_enabled;
+                }
+                EventType::UpdateTremoloSpeed(speed_hz) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.tremolo.frequency = speed_hz;
+                }
+                EventType::UpdateTremoloDepth(depth) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.tremolo.width = depth;
+                    parameters.tremolo.center_value = 1.0 - (depth / 2.0);
+                }
+                EventType::UpdateFilterModEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.filter_mod.is_enabled = is_enabled;
+                }
+                EventType::UpdateFilterModSpeed(speed_hz) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.filter_mod.frequency = speed_hz;
+                }
+                EventType::UpdateFilterModAmount(amount) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.filter_mod.width = amount;
+                    parameters.filter_mod.center_value = 1.0 - (amount / 2.0);
+                }
+                EventType::UpdateFilterModShape(shape) => {
+                    let oscillators_arc = self.oscillators.clone();
+                    let lfo_arc = self.lfos.clone();
+                    let paramaters_arc = self.parameters.clone();
+
+                    let mut oscillators = oscillators_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    let mut parameters = paramaters_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    let mut lfos = lfo_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+                    let filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
+
+                    let filter_mod_lfo =
+                        oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
+                    lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
+
+                    parameters.filter_mod_shape = filter_mod_shape;
+                }
+                EventType::UpdatePhaserEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.phaser.is_enabled = is_enabled;
+                }
+                EventType::UpdatePhaserSpeed(speed_hz) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.phaser.frequency = speed_hz;
+                }
+                EventType::UpdatePhaserAmount(amount) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.phaser.width = amount;
+                    parameters.effects.phaser.center_value =
+                        effects::get_phaser_lfo_center_value_from_amount(amount);
+                }
+                EventType::UpdateBitCrusherEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.bitcrusher_is_enabled = is_enabled;
+                }
+                EventType::UpdateBitCrusherAmount(depth) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.bitcrusher_depth = depth as u32;
+                }
+                EventType::UpdateWaveShaperEnabled(is_enabled) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.wave_shaper_is_enabled = is_enabled;
+                }
+                EventType::UpdateWaveShaperAmount(amount) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.wave_shaper = amount;
+                }
+                EventType::UpdateCompressorActive(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.compressor_enabled = is_active;
+                }
+                EventType::UpdateCompressorThreshold(threshold) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.compressor_threshold = threshold;
+                }
+                EventType::UpdateCompressorRatio(ratio) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.compressor_ratio = ratio;
+                }
+                EventType::UpdateWavefolderActive(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.wavefolder_enabled = is_active;
+                }
+                EventType::UpdateWavefolderThreshold(threshold) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.wavefolder_threshold = threshold;
+                }
+                EventType::UpdateWavefolderRatio(ratio) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.wavefolder_ratio = ratio;
+                }
+                EventType::UpdateLimiterActive(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.limiter_enabled = is_active;
+                }
+                EventType::UpdateLimiterThreshold(threshold) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.limiter_threshold = threshold;
+                }
+                EventType::UpdateClipperActive(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.clipper_enabled = is_active;
+                }
+                EventType::UpdateClipperThreshold(threshold) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.dynamics.clipper_threshold = threshold;
+                }
+                EventType::ArpeggiatorActive(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.arpeggiator_is_active = is_active;
+                }
+                EventType::ArpeggiatorAddNote(note_number) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.arpeggiator.add_note(note_number as u16);
+                }
+                EventType::ArpeggiatorRemoveNote(note_number) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.arpeggiator.remove_note(note_number as u16);
+                }
+                EventType::ArpeggiatorRandomEnabled(is_active) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    if is_active {
+                        parameters.arpeggiator_type = ArpeggiatorType::Randomize;
+                    } else {
+                        parameters.arpeggiator_type = ArpeggiatorType::NoteOrder;
+                    }
+                }
+                EventType::MidiNoteOn(note_number) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    if !parameters.arpeggiator_is_active {
+                        parameters.current_midi_note = note_number as u16;
+                        parameters.current_midi_state = MidiState::NoteOn;
+                    }
+                }
+                EventType::MidiNoteOff(note_number) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    if !parameters.arpeggiator_is_active
+                        && parameters.current_midi_note == note_number as u16
+                    {
+                        parameters.current_midi_state = MidiState::NoteOff;
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -554,18 +547,6 @@ impl Synth {
         self.filter
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
-    }
-
-    fn start(&mut self) {
-        if let Some(ref mut stream) = self.stream {
-            stream.play().expect("Failed to play audio stream");
-        }
-    }
-
-    fn stop(&mut self) {
-        if let Some(ref mut stream) = self.stream {
-            stream.pause().expect("Failed to play audio stream");
-        }
     }
 
     fn create_audio_engine(&mut self) -> Stream {

@@ -1,0 +1,54 @@
+import { Panel, Heading, Label, MidiSelector } from "../ui/components.slint";
+import { Theme } from "../ui/theme.slint";
+
+export component SettingsPanel inherits HorizontalLayout {
+
+    in-out property <[string]> midi_input_ports;
+
+    callback midi_port_selected(int);
+    callback midi_channel_selected(int);
+
+    Panel {
+        width: 100%;
+
+        HorizontalLayout {
+            alignment: start;
+
+            VerticalLayout {
+                alignment: start;
+                padding: 10px;
+                spacing: 10px;
+
+                Heading {
+                    heading: "Midi Settings";
+                }
+
+                Label {
+                    label: "Midi Device";
+                }
+
+                MidiSelector {
+                    list: midi_input_ports;
+                    item_selected(port_index) => {
+                        root.midi_port_selected(port_index);
+                    }
+                }
+
+
+                Label {
+                    label: "Midi Channel";
+                }
+
+                MidiSelector {
+                    list: Theme.midi_channel_list;
+                    item_selected(channel) => {
+                        root.midi_channel_selected(channel);
+                    }
+                }
+
+
+            }
+        }
+
+    }
+}
