@@ -4,7 +4,9 @@ import { Theme } from "../ui/theme.slint";
 export component SettingsPanel inherits HorizontalLayout {
 
     in-out property <[string]> midi_input_ports;
+
     callback midi_port_selected(int);
+    callback midi_channel_selected(int);
 
     Panel {
         width: 100%;
@@ -26,8 +28,8 @@ export component SettingsPanel inherits HorizontalLayout {
                 }
 
                 MidiSelector {
-                    port-list: midi_input_ports;
-                    port_selected(port_index) => {
+                    list: midi_input_ports;
+                    item_selected(port_index) => {
                         root.midi_port_selected(port_index);
                     }
                 }
@@ -38,7 +40,10 @@ export component SettingsPanel inherits HorizontalLayout {
                 }
 
                 MidiSelector {
-                    port-list: ["Omni","1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
+                    list: Theme.midi_channel_list;
+                    item_selected(channel) => {
+                        root.midi_channel_selected(channel);
+                    }
                 }
 
 

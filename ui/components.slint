@@ -88,12 +88,12 @@ export component DeviceSelector inherits ComboBox {
 }
 
 export component MidiSelector inherits ComboBox {
-    in property <[string]> port-list;
-    callback port_selected(int);
+    in property <[string]> list;
+    callback item_selected(int);
 
-    model: port-list;
+    model: list;
     selected() => {
-        port_selected(self.current-index);
+        item_selected(self.current-index);
     }
 }
 

@@ -1,5 +1,4 @@
 use crossbeam_channel::{Receiver, Sender, unbounded};
-use midir::MidiInputPort;
 use slint::SharedString;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -64,6 +63,7 @@ pub enum EventType {
     MidiNoteOff(u8),
     UpdateMidiPortList(Vec<String>),
     UpdateMidiPort(i32),
+    UpdateMidiChannel(i32),
 }
 
 pub struct Events {

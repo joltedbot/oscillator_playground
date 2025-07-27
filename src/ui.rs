@@ -4,7 +4,6 @@ use crossbeam_channel::{Receiver, Sender};
 use slint::{ModelRc, SharedString, VecModel, Weak};
 use std::error::Error;
 use std::process::exit;
-use std::sync::{Arc, Mutex};
 
 pub struct UI {
     pub ui: Weak<AppWindow>,
@@ -18,7 +17,6 @@ impl UI {
         synth_sender: Sender<EventType>,
         midi_sender: Sender<EventType>,
     ) -> Result<Self, Box<dyn Error>> {
-
         let ui = Self {
             ui,
             synth_sender,
@@ -28,8 +26,7 @@ impl UI {
         Ok(ui)
     }
 
-
-    pub fn run(&mut self, ui_receiver: Receiver<EventType>,) {
+    pub fn run(&mut self, ui_receiver: Receiver<EventType>) {
         let ui_weak = self.ui.clone();
         loop {
             if let Ok(event) = ui_receiver.recv() {
@@ -42,7 +39,6 @@ impl UI {
                     }
                     _ => {}
                 }
-
             }
         }
     }
@@ -117,6 +113,7 @@ impl UI {
         self.on_arpeggiator_random_activated();
         self.on_arp_button_pressed();
         self.on_midi_port_selected();
+        self.on_midi_channel_selected();
     }
 
     fn on_wave_shape_selected(&mut self) {
@@ -767,6 +764,16 @@ impl UI {
 
         ui.on_midi_port_selected(move |port_index| {
             if let Err(error) = midi_sender.send(EventType::UpdateMidiPort(port_index)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+    fn on_midi_channel_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let midi_sender = self.midi_sender.clone();
+
+        ui.on_midi_channel_selected(move |channel| {
+            if let Err(error) = midi_sender.send(EventType::UpdateMidiChannel(channel)) {
                 eprintln!("Error sending event: {error}",);
             }
         });

@@ -1,17 +1,16 @@
+mod device_manager;
 mod events;
 mod midi;
 mod synth;
 mod ui;
-mod device_manager;
 
+use crate::device_manager::DeviceManager;
+use crate::midi::Midi;
 use crate::synth::Synth;
 use crate::synth::device::AudioDevice;
 use crate::ui::UI;
 use slint::ComponentHandle;
-use std::sync::{Arc, Mutex};
 use std::thread;
-use crate::device_manager::DeviceManager;
-use crate::midi::Midi;
 
 slint::include_modules!();
 
@@ -28,8 +27,15 @@ fn main() -> Result<(), slint::PlatformError> {
     let midi_receiver = events.get_midi_receiver();
     let midi_sender = events.get_midi_sender();
 
-    let mut ui = UI::new(application.as_weak(), synth_sender.clone(), midi_sender.clone()).expect("Could not create \
-    UI");
+    let mut ui = UI::new(
+        application.as_weak(),
+        synth_sender.clone(),
+        midi_sender.clone(),
+    )
+    .expect(
+        "Could not create \
+    UI",
+    );
 
     ui.create_ui_callbacks();
 
@@ -37,11 +43,13 @@ fn main() -> Result<(), slint::PlatformError> {
         ui.run(ui_receiver.clone());
     });
 
-    let mut device_manager = DeviceManager::new(ui_sender.clone(), synth_sender.clone());
+    let mut device_manager = DeviceManager::new();
     let default_midi_input_port = device_manager.get_default_midi_input_port();
 
     thread::spawn(move || {
-        device_manager.run(ui_sender.clone()).expect("Could not run device manager");
+        device_manager
+            .run(ui_sender.clone())
+            .expect("Could not run device manager");
     });
 
     let mut midi = Midi::new(default_midi_input_port);
@@ -54,8 +62,6 @@ fn main() -> Result<(), slint::PlatformError> {
         let mut synth = Synth::new(audio_device);
         synth.run(synth_receiver);
     });
-
-
 
     application.run()
 }

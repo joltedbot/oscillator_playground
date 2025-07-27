@@ -81,6 +81,7 @@ export component AppWindow inherits Window {
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);
     callback midi_port_selected(int);
+    callback midi_channel_selected(int);
 
 
 
@@ -391,6 +392,10 @@ export component AppWindow inherits Window {
 
                         midi_port_selected(port_index) => {
                             root.midi_port_selected(port_index);
+                        }
+
+                        midi_channel_selected(channel) => {
+                            root.midi_channel_selected(channel);
                         }
                     }
 
