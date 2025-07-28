@@ -30,6 +30,8 @@ export component EffectsPanel inherits GridLayout {
     Row {
 
         auto_pan := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -118,6 +120,8 @@ export component EffectsPanel inherits GridLayout {
         }
 
         phaser := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -205,6 +209,8 @@ export component EffectsPanel inherits GridLayout {
         }
 
         tremolo := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -291,105 +297,112 @@ export component EffectsPanel inherits GridLayout {
                 }
             }
         }
-    }
-
-    Row {
 
         bitcrusher := Panel {
-
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
-
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
+                    width: Theme.effects-panel-width;
+                    height: Theme.effects-panel-height;
 
                     VerticalLayout {
-                        spacing: 10px;
+                        alignment: start;
+                        spacing: 20px;
+                        padding: 10px;
 
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.bitcrush-heading-text;
-                        }
+                        HorizontalLayout {
+                            alignment: center;
+                            spacing: 20px;
 
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                bitcrush_amount.enabled = self.activated;
-                                bitcrusher_activated(self.checked);
-                            }
-                        }
+                            VerticalLayout {
+                                spacing: 10px;
 
-                        Label {
-                            label: Theme.bitcrush-amount-text + round(bitcrush_amount.value);
-                        }
+                                Heading {
+                                    horizontal-alignment: center;
+                                    heading: Theme.bitcrush-heading-text;
+                                }
 
-                        bitcrush_amount := LFOSlider {
-                            slider_value: Theme.bitcrush-amount-slider-default;
-                            step: Theme.bitcrush-amount-slider-step;
-                            minimum: Theme.bitcrush-amount-slider-minimum;
-                            maximum: Theme.bitcrush-amount-slider-maximum;
-                            enabled: false;
-                            level_selected(level) => {
-                                bitcrusher_amount_changed(round(level));
+                                ActivationSwitch {
+                                    activated-text: Theme.activation-switch-active-text;
+                                    not-activated-text: Theme.activation-switch-not-active-text;
+                                    activation_toggled => {
+                                        bitcrush_amount.enabled = self.activated;
+                                        bitcrusher_activated(self.checked);
+                                    }
+                                }
+
+                                Label {
+                                    label: Theme.bitcrush-amount-text + round(bitcrush_amount.value);
+                                }
+
+                                bitcrush_amount := LFOSlider {
+                                    slider_value: Theme.bitcrush-amount-slider-default;
+                                    step: Theme.bitcrush-amount-slider-step;
+                                    minimum: Theme.bitcrush-amount-slider-minimum;
+                                    maximum: Theme.bitcrush-amount-slider-maximum;
+                                    enabled: false;
+                                    level_selected(level) => {
+                                        bitcrusher_amount_changed(round(level));
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
 
         wave_shaper := Panel {
+                            width: Theme.effects-panel-width;
+                            height: Theme.effects-panel-height;
 
-            VerticalLayout {
-                alignment: start;
-                spacing: 20px;
-                padding: 10px;
+                            VerticalLayout {
+                                alignment: start;
+                                spacing: 20px;
+                                padding: 10px;
 
-                HorizontalLayout {
-                    alignment: center;
-                    spacing: 20px;
+                                HorizontalLayout {
+                                    alignment: center;
+                                    spacing: 20px;
 
-                    VerticalLayout {
-                        spacing: 10px;
+                                    VerticalLayout {
+                                        spacing: 10px;
 
-                        Heading {
-                            horizontal-alignment: center;
-                            heading: Theme.wave_shaper-heading-text;
-                        }
+                                        Heading {
+                                            horizontal-alignment: center;
+                                            heading: Theme.wave_shaper-heading-text;
+                                        }
 
-                        ActivationSwitch {
-                            activated-text: Theme.activation-switch-active-text;
-                            not-activated-text: Theme.activation-switch-not-active-text;
-                            activation_toggled => {
-                                wave_shaper_amount.enabled = self.activated;
-                                wave_shaper_activated(self.checked);
+                                        ActivationSwitch {
+                                            activated-text: Theme.activation-switch-active-text;
+                                            not-activated-text: Theme.activation-switch-not-active-text;
+                                            activation_toggled => {
+                                                wave_shaper_amount.enabled = self.activated;
+                                                wave_shaper_activated(self.checked);
+                                            }
+                                        }
+
+                                        Label {
+                                            label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
+                                        }
+
+                                        wave_shaper_amount := LFOSlider {
+                                            slider_value: Theme.wave_shaper-amount-slider-default;
+                                            step: Theme.wave_shaper-amount-slider-step;
+                                            minimum: Theme.wave_shaper-amount-slider-minimum;
+                                            maximum: Theme.wave_shaper-amount-slider-maximum;
+                                            enabled: false;
+                                            level_selected(amount) => {
+                                                wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
-                        Label {
-                            label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
-                        }
+    }
 
-                        wave_shaper_amount := LFOSlider {
-                            slider_value: Theme.wave_shaper-amount-slider-default;
-                            step: Theme.wave_shaper-amount-slider-step;
-                            minimum: Theme.wave_shaper-amount-slider-minimum;
-                            maximum: Theme.wave_shaper-amount-slider-maximum;
-                            enabled: false;
-                            level_selected(amount) => {
-                                wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
+    Row {
         wavefolder := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -448,11 +461,10 @@ export component EffectsPanel inherits GridLayout {
                 }
             }
         }
-    }
-
-    Row {
 
         compressor := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -517,6 +529,8 @@ export component EffectsPanel inherits GridLayout {
         }
 
         limiter := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;
@@ -562,6 +576,8 @@ export component EffectsPanel inherits GridLayout {
         }
 
         clipper := Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-panel-height;
 
             VerticalLayout {
                 alignment: start;

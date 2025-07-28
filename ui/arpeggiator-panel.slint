@@ -3,7 +3,7 @@ import { CheckBox,  } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component ArpeggiatorPanel inherits HorizontalLayout {
-
+    padding: 5px;
     callback note_activated(int);
     callback note_deactivated(int);
     callback arpeggiator_random_activated(bool);

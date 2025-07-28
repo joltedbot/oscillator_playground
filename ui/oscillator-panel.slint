@@ -68,6 +68,7 @@ export component OscillatorPanel inherits HorizontalLayout {
                 oscillator_number: 2;
                 heading: Theme.oscillator2-heading-text;
 
+
                 wave_level_selected(level, oscillator) => {
                     root.wave_level_selected(level, oscillator);
                 }
@@ -187,6 +188,7 @@ export component OscillatorPanel inherits HorizontalLayout {
 
                     detune_amount := VerticalLabeledIntSlider {
                         is_enabled: false;
+                        slider_height: Theme.vertical-slider-height;
                         label: round(detune_amount.slider_value) + Theme.detune-amount-label-suffix;
                         slider_value: Theme.detune-amount-slider-default;
                         is_bold: true;

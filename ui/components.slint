@@ -174,15 +174,18 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
     width: Theme.vertical-slider-width;
 
     in-out property <string> label;
-    in-out property <int> slider_value;
+    in-out property <float> slider_value;
     in-out property <string> value_display;
     in-out property <bool> is_bold;
     in-out property <bool> is_enabled: true;
-    in-out property <int> step;
-    in-out property <int> minimum;
-    in-out property <int> maximum;
+    in-out property <float> step;
+    in-out property <float> minimum;
+    in-out property <float> maximum;
+    in-out property <length> slider_height: Theme.vertical-slider-height;
+    in-out property <Orientation> slider_orientation;
 
-    callback new_value_selected(int);
+    callback new_value_selected(float);
+
 
     HorizontalLayout {
         alignment: center;
@@ -199,6 +202,8 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
     }
 
     Slider {
+        height: slider_height;
+        orientation: slider_orientation;
         enabled: is_enabled;
         value: slider_value;
         step: step;
@@ -207,7 +212,7 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
 
         changed value => {
             slider_value = self.value;
-            if (self.value < step) {
+            if (self.value < self.step) {
                 self.value == 0;
             }
             new_value_selected(self.value);
@@ -226,6 +231,8 @@ export component VerticalLabeledFloatSlider inherits VerticalLayout {
     in-out property <float> step;
     in-out property <float> minimum;
     in-out property <float> maximum;
+    in-out property <length> slider_height: Theme.vertical-slider-height;
+    in-out property <Orientation> slider_orientation;
 
     callback new_value_selected(float);
 
@@ -244,6 +251,8 @@ export component VerticalLabeledFloatSlider inherits VerticalLayout {
     }
 
     Slider {
+        height: slider_height;
+        orientation: slider_orientation;
         enabled: is_enabled;
         value: slider_value;
         step: step;
@@ -382,7 +391,6 @@ export component OscilatorControls inherits HorizontalLayout {
     }
 
     VerticalLayout {
-        spacing: 10px;
 
         osc_tuning := VerticalLabeledIntSlider {
             label: Theme.oscillator-tuning-text;

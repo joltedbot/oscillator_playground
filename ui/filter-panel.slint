@@ -1,4 +1,4 @@
-import { Panel, Heading, Label, FilterSlider, LevelSlider, WaveSelector, LFOSlider, ActivationSwitch, HorizontalSpacer  } from "../ui/components.slint";
+import { Panel, Heading, Label, FilterSlider, LevelSlider, WaveSelector, LFOSlider, ActivationSwitch, HorizontalSpacer,VerticalLabeledIntSlider  } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component FilterPanel inherits HorizontalLayout {
@@ -70,26 +70,22 @@ export component FilterPanel inherits HorizontalLayout {
                             label: Theme.filter-cutoff-text;
                         }
 
-                        Label {
-                            horizontal-alignment: center;
-                            width: Theme.filter-cutoff-value-width;
-                            label: Theme.filter-cutoff-slider-maximum - round(filter_cutoff.level);
-                        }
+                        filter_cutoff := VerticalLabeledIntSlider {
+                            width: Theme.filter-slider-width;
+                            slider_height: Theme.filter-slider-height;
+                            slider_orientation: vertical;
+                            label: Theme.filter-cutoff-slider-maximum - round(filter_cutoff.slider_value);
+                            slider_value: Theme.filter-cutoff-slider-default;
+                            is_bold: true;
+                            step: self.slider_value * Theme.filter-cutoff-slider-step-factor;
+                            minimum: Theme.filter-cutoff-slider-minimum;
+                            maximum: Theme.filter-cutoff-slider-maximum;
 
-                        filter_cutoff := LevelSlider {
-
-                            orientation: vertical;
-                            height: Theme.filter-slider-height;
-
-                            level: Theme.filter-cutoff-slider-default;
-                            level-step: self.level * Theme.filter-cutoff-slider-step-factor;
-                            minimum-level: Theme.filter-cutoff-slider-minimum;
-                            maximum-level: Theme.filter-cutoff-slider-maximum;
-                            level_selected(level) => {
-                                filter_cutoff_value_changed(Theme.filter-cutoff-slider-maximum - level);
+                            new_value_selected(frequency) => {
+                                filter_cutoff_value_changed(Theme.filter-cutoff-slider-maximum - frequency);
                             }
                         }
-                    }
+                   }
 
                     VerticalLayout {
                         spacing: 10px;
@@ -99,23 +95,24 @@ export component FilterPanel inherits HorizontalLayout {
                             label: Theme.filter-resonance-text;
                         }
 
-                        Label {
-                            horizontal-alignment: center;
-                            label: Theme.filter-resonance-slider-maximum - filter_resonance.level;
-                        }
+                        filter_resonance := VerticalLabeledIntSlider {
+                            width: Theme.filter-slider-width;
+                            slider_height: Theme.filter-slider-height;
+                            slider_orientation: vertical;
+                            label: Theme.filter-resonance-slider-maximum - filter_resonance.slider_value;
+                            slider_value: Theme.filter-resonance-slider-default;
+                            is_bold: true;
+                            step: Theme.filter-resonance-slider-step;
+                            minimum: Theme.filter-resonance-slider-minimum;
+                            maximum: Theme.filter-resonance-slider-maximum;
 
-                        filter_resonance := LevelSlider {
-                            height: Theme.filter-slider-height;
-                            orientation: vertical;
-
-                            level: Theme.filter-resonance-slider-default;
-                            level-step: Theme.filter-resonance-slider-step;
-                            minimum-level: Theme.filter-resonance-slider-minimum;
-                            maximum-level: Theme.filter-resonance-slider-maximum;
-                            level_selected(level) => {
-                                filter_resonance_value_changed((Theme.filter-resonance-slider-maximum - level) / 100);
+                            new_value_selected(amount) => {
+                                filter_resonance_value_changed((Theme.filter-resonance-slider-maximum - amount) / 100);
                             }
                         }
+
+
+
                     }
                 }
             }

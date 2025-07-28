@@ -2,7 +2,7 @@ import { Panel, Heading, Label, MidiSelector } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component SettingsPanel inherits HorizontalLayout {
-
+    padding: 5px;
     in-out property <[string]> midi_input_ports;
 
     callback midi_port_selected(int);
