@@ -9,7 +9,8 @@ export component SettingsPanel inherits HorizontalLayout {
     callback midi_channel_selected(int);
 
     Panel {
-        width: 100%;
+        panel-height: Theme.settings-panel-height;
+        panel-width: Theme.settings-panel-width;
 
         HorizontalLayout {
             alignment: start;
@@ -34,7 +35,6 @@ export component SettingsPanel inherits HorizontalLayout {
                     }
                 }
 
-
                 Label {
                     label: "Midi Channel";
                 }
@@ -45,10 +45,7 @@ export component SettingsPanel inherits HorizontalLayout {
                         root.midi_channel_selected(channel);
                     }
                 }
-
-
             }
         }
-
     }
 }

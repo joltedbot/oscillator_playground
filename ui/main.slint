@@ -2,7 +2,6 @@ import { Button, Slider, Switch, SpinBox, HorizontalBox, TabWidget } from "std-w
 import { Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
-import { OscillatorGlobalPanel } from "../ui/oscillator-global-panel.slint";
 import { FilterPanel } from "../ui/filter-panel.slint";
 import { EnvelopePanel } from "../ui/envelope-panel.slint";
 import { EffectsPanel } from "../ui/effects-panel.slint";
@@ -23,7 +22,7 @@ export component AppWindow inherits Window {
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
-    callback wave_specific_parameter_selected(float, int);
+    callback wave_specific_parameters_selected(float, float, int);
     callback wave_shaper_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_mod_amount_changed(float, int);
@@ -82,8 +81,6 @@ export component AppWindow inherits Window {
     callback midi_port_selected(int);
     callback midi_channel_selected(int);
 
-
-
     Rectangle {
         padding: 4px;
         border-width: Theme.window-border-width;
@@ -104,150 +101,127 @@ export component AppWindow inherits Window {
 
             TabWidget {
                 Tab {
-                    title: Theme.tab-synth-title;
+                    title: Theme.tab-oscillators-title;
 
                     HorizontalLayout {
-                        alignment: center;
-                        spacing: 10px;
+                        alignment: start;
+                        padding: 5px;
+                        spacing: 5px;
 
-                        VerticalLayout {
-                            spacing: 5px;
-                            padding: 5px;
-                            alignment: start;
+                        OscillatorPanel {
 
-                            HorizontalLayout {
-                                spacing: 5px;
-                                alignment: start;
-
-                                OscillatorPanel {
-
-                                    wave_level_selected(level, oscillator) => {
-                                        root.wave_level_selected(level, oscillator);
-                                    }
-
-                                    wave_specific_parameter_selected(amount, oscillator) => {
-                                        root.wave_specific_parameter_selected(amount, oscillator);
-                                    }
-
-                                    wave_shape_selected(shape, oscillator) => {
-                                        root.wave_shape_selected(shape, oscillator);
-                                    }
-
-                                    wave_tuning_changed(interval, oscillator) => {
-                                        root.wave_tuning_changed(interval, oscillator);
-                                    }
-
-                                    wave_shaper_amount_changed(amount, oscillator) => {
-                                        root.wave_shaper_amount_changed(amount, oscillator);
-                                    }
-
-                                    wave_mod_amount_changed(amount, oscillator) => {
-                                        root.wave_mod_amount_changed(amount, oscillator);
-                                    }
-                                    wave_mod_speed_changed(speed_hz, oscillator) => {
-                                        root.wave_mod_speed_changed(speed_hz, oscillator);
-                                    }
-                                }
-
-                                VerticalLayout {
-
-                                    EnvelopePanel {
-                                        envelope_attack_updated(milliseconds) => {
-                                            root.envelope_attack_updated(milliseconds);
-                                        }
-
-                                        envelope_decay_updated(milliseconds) => {
-                                            root.envelope_decay_updated(milliseconds);
-                                        }
-
-                                        envelope_release_updated(milliseconds) => {
-                                            root.envelope_release_updated(milliseconds);
-                                        }
-
-                                        envelope_sustain_updated(milliseconds) => {
-                                            root.envelope_sustain_updated(milliseconds);
-                                        }
-
-                                        enable_amp_envelope(is_enabled) => {
-                                            root.enable_amp_envelope(is_enabled);
-                                        }
-
-                                        gate_length_changed(note_length) => {
-                                            root.gate_length_changed(note_length);
-                                        }
-
-                                        gate_duty_cycle_changed(duty_cycle) => {
-                                            root.gate_duty_cycle_changed(duty_cycle);
-                                        }
-                                    }
-
-                                    OscillatorGlobalPanel {
-                                        wave_detune_value_changed(int) => {
-                                            root.wave_detune_value_changed(int);
-                                        }
-
-                                        wave_detune_state_changed(active, amount) => {
-                                            root.wave_detune_state_changed(active, amount)
-                                        }
-
-                                        output_level_value_changed(level) => {
-                                            root.output_level_value_changed(level);
-                                        }
-
-                                        output_level_constant_activated(is_active) => {
-                                            root.output_level_constant_activated(is_active);
-                                        }
-                                    }
-                                }
+                            wave_level_selected(level, oscillator) => {
+                                root.wave_level_selected(level, oscillator);
                             }
 
-                            HorizontalLayout {
-                                spacing: 5px;
-                                alignment: start;
+                            wave_specific_parameters_selected(parameter1, parameter2, oscillator) => {
+                                root.wave_specific_parameters_selected(parameter1, parameter2, oscillator);
+                            }
 
-                                FilterPanel {
-                                    number_of_poles_selected(number_of_poles) => {
-                                        root.number_of_poles_selected(number_of_poles);
-                                    }
+                            wave_shape_selected(shape, oscillator) => {
+                                root.wave_shape_selected(shape, oscillator);
+                            }
 
-                                    filter_cutoff_value_changed(cutoff) => {
-                                        root.filter_cutoff_value_changed(cutoff);
-                                    }
+                            wave_tuning_changed(interval, oscillator) => {
+                                root.wave_tuning_changed(interval, oscillator);
+                            }
 
-                                    filter_resonance_value_changed(resonance) => {
-                                        root.filter_resonance_value_changed(resonance);
-                                    }
+                            wave_shaper_amount_changed(amount, oscillator) => {
+                                root.wave_shaper_amount_changed(amount, oscillator);
+                            }
 
-                                    filter_mod_activated(is_active) => {
-                                        root.filter_mod_activated(is_active);
-                                    }
-                                    filter_mod_speed_changed(speed) => {
-                                        root.filter_mod_speed_changed(speed);
-                                    }
-                                    filter_mod_amount_changed(amount) => {
-                                        root.filter_mod_amount_changed(amount);
-                                    }
-                                    filter_mod_shape_selected(shape) => {
-                                        root.filter_mod_shape_selected(shape);
-                                    }
-                                }
+                            wave_mod_amount_changed(amount, oscillator) => {
+                                root.wave_mod_amount_changed(amount, oscillator);
+                            }
+                            wave_mod_speed_changed(speed_hz, oscillator) => {
+                                root.wave_mod_speed_changed(speed_hz, oscillator);
+                            }
 
-                                ButtonsPanel {
+                            wave_detune_value_changed(int) => {
+                                root.wave_detune_value_changed(int);
+                            }
 
-                                    arp_button_active: arp_button_active;
+                            wave_detune_state_changed(active, amount) => {
+                                root.wave_detune_state_changed(active, amount)
+                            }
 
-                                    arp_button_pressed(active) => {
-                                        root.arp_button_pressed(active);
-                                    }
+                            output_level_value_changed(level) => {
+                                root.output_level_value_changed(level);
+                            }
 
-                                    resync_oscillators() => {
-                                        root.resync_oscillators();
-                                    }
+                            output_level_constant_activated(is_active) => {
+                                root.output_level_constant_activated(is_active);
+                            }
 
-                                    resync_oscillator_lfos() => {
-                                        root.resync_oscillator_lfos();
-                                    }
-                                }
+                            arp_button_active: arp_button_active;
+
+                            arp_button_pressed(active) => {
+                                root.arp_button_pressed(active);
+                            }
+
+                            resync_oscillators() => {
+                                root.resync_oscillators();
+                            }
+
+                            resync_oscillator_lfos() => {
+                                root.resync_oscillator_lfos();
+                            }
+                        }
+
+                        FilterPanel {
+                            number_of_poles_selected(number_of_poles) => {
+                                root.number_of_poles_selected(number_of_poles);
+                            }
+
+                            filter_cutoff_value_changed(cutoff) => {
+                                root.filter_cutoff_value_changed(cutoff);
+                            }
+
+                            filter_resonance_value_changed(resonance) => {
+                                root.filter_resonance_value_changed(resonance);
+                            }
+
+                            filter_mod_activated(is_active) => {
+                                root.filter_mod_activated(is_active);
+                            }
+                            filter_mod_speed_changed(speed) => {
+                                root.filter_mod_speed_changed(speed);
+                            }
+                            filter_mod_amount_changed(amount) => {
+                                root.filter_mod_amount_changed(amount);
+                            }
+                            filter_mod_shape_selected(shape) => {
+                                root.filter_mod_shape_selected(shape);
+                            }
+                        }
+
+                        EnvelopePanel {
+                            envelope_attack_updated(milliseconds) => {
+                                root.envelope_attack_updated(milliseconds);
+                            }
+
+                            envelope_decay_updated(milliseconds) => {
+                                root.envelope_decay_updated(milliseconds);
+                            }
+
+                            envelope_release_updated(milliseconds) => {
+                                root.envelope_release_updated(milliseconds);
+                            }
+
+                            envelope_sustain_updated(milliseconds) => {
+                                root.envelope_sustain_updated(milliseconds);
+                            }
+
+                            enable_amp_envelope(is_enabled) => {
+                                root.enable_amp_envelope(is_enabled);
+                            }
+
+                            gate_length_changed(note_length) => {
+                                root.gate_length_changed(note_length);
+                            }
+
+                            gate_duty_cycle_changed(duty_cycle) => {
+                                root.gate_duty_cycle_changed(duty_cycle);
                             }
                         }
                     }
@@ -393,7 +367,6 @@ export component AppWindow inherits Window {
                             root.midi_channel_selected(channel);
                         }
                     }
-
                 }
             }
         }

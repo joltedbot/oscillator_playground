@@ -3,8 +3,8 @@ export global Theme {
 
     // Main Window
     out property <string> window-title: "Oscillator Playground";
-    out property <length> window-width: 1000px;
-    out property <length> window-height: 750px;
+    out property <length> window-width: 1400px;
+    out property <length> window-height: 650px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
     out property <color> border-colour: #404040;
@@ -13,21 +13,49 @@ export global Theme {
     out property <color> header-background: #252525;
     out property <length> top-panel-row-height: 550px;
     out property <color> panel-box-background:#202020;
-    out property <string> tab-synth-title: "Synth Engine";
+    out property <string> tab-oscillators-title: "Synth Engine";
     out property <string> tab-effects-title: "Effects";
     out property <string> tab-arpeggiator-title: "Arpeggiator";
     out property <string> tab-settings-title: "Settings";
+    out property <string> tab-osc1-title: "Oscillator 1";
+    out property <string> tab-osc2-title: "Oscillator 2";
+    out property <string> tab-osc3-title: "Oscillator 3";
+    out property <string> tab-sub-title: "Sub Oscillator";
 
 
-    // Panel Sized
-    out property <length> envelope-panel-width: 330px;
+    // Panel Sizes
+    out property <length> envelope-panel-width: 200px;
+    out property <length> envelope-panel-height: 630px;
+    out property <length> button-panel-height: 200px;
+    out property <length> button-panel-width: 440px;
+    out property <length> filter-panel-height: 630px;
+    out property <length> filter-panel-width: 200px;
+    out property <length> filter-slider-height: 230px;
     out property <length> lfo-panel-width: 173px;
-    out property <length> oscillator-panel-width: 670px;
+    out property <length> vertical-slider-width: 170px;
+    out property <length> oscillators-panel-height: 120px;
+    out property <length> oscillators-panel-width: 985px;
+    out property <length> oscillators-global-panel-height: 130px;
+    out property <length> oscillators-global-panel-width: 985px;
+    out property <length> arp-panel-height: 615px;
+    out property <length> arp-panel-width: 990px;
+    out property <length> effects-panel-height: 300px;
+    out property <length> effects-panel-width: 300px;
+    out property <length> settings-panel-height: 150px;
+    out property <length> settings-panel-width: 300px;
+
+    // Horizontal Spacer
+    out property <color> horizontal-spacer-color: #888888;
+    out property <percent> horizontal-spacer-width: 90%;
+    out property <length> horizontal-spacer-height: 2px;
+
+
 
     // Fonts
     out property <color> text-color: #AAAAAA;
     out property <color> greyed-out: #444444;
     out property <int> text-weight-bold: 800;
+    out property <int> text-weight-regular: 0;
     out property <length> text-size: 13px;
     out property <length> label-text-size: 13px;
     out property <length> heading-text-size: 15px;
@@ -88,6 +116,8 @@ export global Theme {
         "Noise"
     ];
     out property <string> wave-shape-default: "Sine";
+    out property <length> wave-selector-height: 25px;
+    out property <length> wave-selector-width: 175px;
 
     // Oscillator Level Slider
     out property <int> osc-level-slider-step: 1;
@@ -104,7 +134,11 @@ export global Theme {
     out property <int> osc-tuning-slider-default: 0;
     out property <string> osc-tuning-slider-unison: "Unison";
 
-    // Oscillator FM Amount Slider
+    // Oscillator FM Sliders
+    out property <int> osc-fm-ratio-slider-step: 1;
+    out property <int> osc-fm-ratio-slider-minimum: 1;
+    out property <int> osc-fm-ratio-slider-maximum: 20;
+    out property <int> osc-fm-ratio-slider-default: 2;
     out property <int> osc-fm-amount-slider-step: 1;
     out property <int> osc-fm-amount-slider-minimum: 1;
     out property <int> osc-fm-amount-slider-maximum: 100;
@@ -112,12 +146,12 @@ export global Theme {
     out property <int> osc-fm-amount-slider-adjustment-factor: 100;
     out property <string> osc-fm-amount-wave-shape: "FM";
     
-    c
+
     // Oscillator AM Amount Slider
     out property <int> osc-am-amount-slider-step: 1;
     out property <int> osc-am-amount-slider-minimum: 1;
     out property <int> osc-am-amount-slider-maximum: 16;
-    out property <int> osc-am-amount-slider-default: 8;
+    out property <int> osc-am-amount-slider-default: 1;
     out property <string> osc-am-amount-wave-shape: "AM";
 
 
@@ -125,15 +159,15 @@ export global Theme {
     out property <float> osc-pulse-width-slider-step: 0.1;
     out property <float> osc-pulse-width-slider-minimum: 0.0;
     out property <float> osc-pulse-width-slider-maximum: 1.0;
-    out property <float> osc-pulse-width-slider-default: 0.0;
+    out property <float> osc-pulse-width-slider-default: 0.5;
     out property <string> osc-pulse-width-wave-shape: "Pulse";
 
 
     // Oscillator Modulation Slider
-    out property <float> osc-mod-fine-speed-slider-step: 0.01;
-    out property <float> osc-mod-fine-speed-slider-minimum: 0.0;
-    out property <float> osc-mod-fine-speed-slider-default: 0.01;
-    out property <float> osc-mod-fine-speed-slider-maximum: 10.0;
+    out property <float> osc-mod-speed-slider-step: 0.01;
+    out property <float> osc-mod-speed-slider-minimum: 0.0;
+    out property <float> osc-mod-speed-slider-default: 0.01;
+    out property <float> osc-mod-speed-slider-maximum: 10.0;
     out property <float> osc-mod-amount-slider-step: 0.01;
     out property <float> osc-mod-amount-slider-minimum: 0.0;
     out property <float> osc-mod-amount-slider-maximum: 1.0;
@@ -143,7 +177,7 @@ export global Theme {
     out property <int> filter-cutoff-slider-step-factor: 0.05;
     out property <int> filter-cutoff-slider-minimum: 0;
     out property <int> filter-cutoff-slider-maximum: 18500;
-    out property <int> filter-cutoff-slider-default: 18500;
+    out property <int> filter-cutoff-slider-default: 0;
     out property <length> filter-cutoff-value-width: 75px;
     out property <int> filter-cutoff-display-adjustment-factor: 185;
 
@@ -151,7 +185,7 @@ export global Theme {
     out property <int> filter-resonance-slider-step: 1;
     out property <int> filter-resonance-slider-minimum: 0;
     out property <int> filter-resonance-slider-maximum: 60;
-    out property <float> filter-resonance-slider-default: 0;
+    out property <float> filter-resonance-slider-default: 60;
 
     // Filter Poles Slider
     out property <int> filter-poles-slider-step: 1;
@@ -308,7 +342,25 @@ export global Theme {
     out property <float> clipper-threshold-default: 0;
 
     // Settings
-    out property <[string]> midi_channel_list: ["Omni","1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
+    out property <[string]> midi_channel_list: [
+        "Omni",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+    ];
 
 
     //
@@ -316,22 +368,25 @@ export global Theme {
     //
     out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
+    out property <string> wave-form-label-text: "Wave Form";
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator1-heading-text: "Oscillator 1";
     out property <string> oscillator2-heading-text: "Oscillator 2";
     out property <string> oscillator3-heading-text: "Oscillator 3";
-    out property <string> oscillator-tune-text: "Tuning";
-    out property <string> oscillator-tune-value-text: "Unison";
-    out property <string> oscillator-tune-value-suffix: " semitones";
+    out property <string> oscillator-tuning-text: "Tuning:  ";
+    out property <string> oscillator-tuning-value-text: "Unison";
+    out property <string> oscillator-tuning-value-suffix: " st";
     out property <string> oscillator-level-text: "Level";
     out property <string> oscillator-fm-amount-text: "FM Amount";
+    out property <string> oscillator-fm-ratio-text: "FM Ratio:   ";
+    out property <string> oscillator-fm-ratio-suffix: ":1";
     out property <string> oscillator-am-amount-text: "AM Amount";
     out property <string> oscillator-pulse-width-text: "Pulse Width";
     out property <string> oscillator-shape-text: "Shape";
-    out property <string> oscillator-mod-text: "Pitch Modulation";
+    out property <string> oscillator-mod-text: "Pitch Moduation";
     out property <string> oscillator-mod-speed-text: "Speed: ";
     out property <string> oscillator-mod-speed-suffix: " Hz";
-    out property <string> oscillator-mod-amount-text: "Amount: ";
+    out property <string> oscillator-mod-amount-text: "Mod Amount: ";
     out property <string> oscillator-mod-amount-suffix: "%";
     out property <string> detune-heading-text: "Detune";
     out property <string> detune-amount-label-suffix: "%";

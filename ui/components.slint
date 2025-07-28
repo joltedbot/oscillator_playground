@@ -18,10 +18,20 @@ export component Label inherits Text {
 }
 
 export component Panel inherits Rectangle {
+    in-out property <length> panel-height;
+    in-out property <length> panel-width;
     border-width: Theme.window-border-width;
     border-color: Theme.border-colour;
     border-radius: Theme.border-radius;
     background: Theme.panel-box-background;
+    height: panel-height;
+    width: panel-width;
+}
+
+export component HorizontalSpacer inherits Rectangle {
+    background: Theme.horizontal-spacer-color;
+    width: Theme.horizontal-spacer-width;
+    height: Theme.horizontal-spacer-height;
 }
 
 export component StartButton inherits Button {
@@ -160,6 +170,96 @@ export component LFOSlider inherits Slider {
     }
 }
 
+export component VerticalLabeledIntSlider inherits VerticalLayout {
+    width: Theme.vertical-slider-width;
+
+    in-out property <string> label;
+    in-out property <int> slider_value;
+    in-out property <string> value_display;
+    in-out property <bool> is_bold;
+    in-out property <bool> is_enabled: true;
+    in-out property <int> step;
+    in-out property <int> minimum;
+    in-out property <int> maximum;
+
+    callback new_value_selected(int);
+
+    HorizontalLayout {
+        alignment: center;
+        Label {
+            horizontal-alignment: center;
+            font-weight: is_bold ? Theme.text-weight-bold : Theme.text-weight-regular;
+            label: label;
+        }
+
+        Label {
+            font-weight: is_bold ? Theme.text-weight-bold : Theme.text-weight-regular;
+            label: value_display;
+        }
+    }
+
+    Slider {
+        enabled: is_enabled;
+        value: slider_value;
+        step: step;
+        minimum: minimum;
+        maximum: maximum;
+
+        changed value => {
+            slider_value = self.value;
+            if (self.value < step) {
+                self.value == 0;
+            }
+            new_value_selected(self.value);
+        }
+    }
+}
+
+export component VerticalLabeledFloatSlider inherits VerticalLayout {
+    width: Theme.vertical-slider-width;
+
+    in-out property <string> label;
+    in-out property <float> slider_value;
+    in-out property <string> value_display;
+    in-out property <bool> is_bold;
+    in-out property <bool> is_enabled: true;
+    in-out property <float> step;
+    in-out property <float> minimum;
+    in-out property <float> maximum;
+
+    callback new_value_selected(float);
+
+    HorizontalLayout {
+        alignment: center;
+        Label {
+            horizontal-alignment: center;
+            font-weight: is_bold ? Theme.text-weight-bold : Theme.text-weight-regular;
+            label: label;
+        }
+
+        Label {
+            font-weight: is_bold ? Theme.text-weight-bold : Theme.text-weight-regular;
+            label: value_display;
+        }
+    }
+
+    Slider {
+        enabled: is_enabled;
+        value: slider_value;
+        step: step;
+        minimum: minimum;
+        maximum: maximum;
+
+        changed value => {
+            slider_value = self.value;
+            if (self.value < step) {
+                self.value == 0;
+            }
+            new_value_selected(self.value);
+        }
+    }
+}
+
 export component ActivationSwitch inherits Switch {
     callback activation_toggled(bool);
     in-out property <bool> activated: self.checked;
@@ -207,11 +307,11 @@ export component ArpNoteBox inherits HorizontalLayout {
     }
 }
 
-export component OscilatorControls inherits VerticalLayout {
+export component OscilatorControls inherits HorizontalLayout {
 
-    in-out property <string> heading;
     in-out property <bool> is_sub: false;
     in-out property <int> oscillator_number;
+    in-out property <string> heading;
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
@@ -219,192 +319,204 @@ export component OscilatorControls inherits VerticalLayout {
     callback wave_mod_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_tuning_changed(int, int);
-    callback specific_parameter_selected(float, int);
+    callback wave_specific_parameters_selected(float, float, int);
 
+    alignment: space-between;
     spacing: 10px;
+    padding: 10px;
 
-    Heading {
-        horizontal-alignment: center;
-        heading: heading;
-    }
+    VerticalLayout {
+        spacing: 10px;
 
-    osc_selector := WaveSelector {
-        wave_shape_selected(shape) => {
-            if (shape == Theme.osc-fm-amount-wave-shape) {
-                osc_fm_amount.enabled = true;
-                osc_am_amount.enabled = false;
-                osc_pulse_width.enabled = false;
-            } else if (shape == Theme.osc-am-amount-wave-shape) {
-                osc_fm_amount.enabled = false;
-                osc_am_amount.enabled = true;
-                osc_pulse_width.enabled = false;
-            } else if (shape == Theme.osc-pulse-width-wave-shape) {
-                osc_fm_amount.enabled = false;
-                osc_am_amount.enabled = false;
-                osc_pulse_width.enabled = true;
-            } else {
-                osc_fm_amount.enabled = false;
-                osc_am_amount.enabled = false;
-                osc_pulse_width.enabled = false;
+        VerticalLayout {
+
+            Label {
+                horizontal-alignment: center;
+                label: heading;
             }
 
-            wave_shape_selected(shape, oscillator_number);
-        }
-    }
+            osc_selector := WaveSelector {
+                height: Theme.wave-selector-height;
+                width: Theme.wave-selector-width;
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-tune-text;
-    }
+                wave_shape_selected(shape) => {
+                    if (shape == Theme.osc-fm-amount-wave-shape) {
+                        osc_fm_amount.is_enabled = true;
+                        osc_fm_ratio.is_enabled = true;
+                        osc_am_amount.is_enabled = false;
+                        osc_pulse_width.is_enabled = false;
+                    } else if (shape == Theme.osc-am-amount-wave-shape) {
+                        osc_fm_amount.is_enabled = false;
+                        osc_fm_ratio.is_enabled = false;
+                        osc_am_amount.is_enabled = true;
+                        osc_pulse_width.is_enabled = false;
+                    } else if (shape == Theme.osc-pulse-width-wave-shape) {
+                        osc_fm_amount.is_enabled = false;
+                        osc_fm_ratio.is_enabled = false;
+                        osc_am_amount.is_enabled = false;
+                        osc_pulse_width.is_enabled = true;
+                    } else {
+                        osc_fm_amount.is_enabled = false;
+                        osc_fm_ratio.is_enabled = false;
+                        osc_am_amount.is_enabled = false;
+                        osc_pulse_width.is_enabled = false;
+                    }
 
-    tuning-interval := Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.osc-tuning-slider-unison;
-    }
-
-    osc_tuning := LevelSlider {
-        level: Theme.osc-tuning-slider-default;
-        level-step: Theme.osc-tuning-slider-step;
-        minimum-level: Theme.osc-tuning-slider-minimum;
-        maximum-level: Theme.osc-tuning-slider-maximum;
-
-        level_selected(level) => {
-            if (round(level) == 0) {
-                tuning-interval.label = Theme.osc-tuning-slider-unison;
-            } else if (round(level) > 0) {
-                tuning-interval.label = "+" + round(level) + Theme.oscillator-tune-value-suffix;
-            } else {
-                tuning-interval.label = round(level) + Theme.oscillator-tune-value-suffix;
+                    wave_shape_selected(shape, oscillator_number);
+                }
             }
-            wave_tuning_changed(round(level), oscillator_number);
+        }
+
+        osc_level := VerticalLabeledIntSlider {
+            label: Theme.oscillator-level-text;
+            slider_value: is_sub ? Theme.sub-level-slider-default : Theme.osc-level-slider-default;
+            is_bold: true;
+            step: Theme.osc-level-slider-step;
+            minimum: Theme.osc-level-slider-minimum;
+            maximum: Theme.osc-level-slider-maximum;
+
+            new_value_selected(level) => {
+                wave_level_selected(level / 100, oscillator_number);
+            }
         }
     }
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-level-text;
-    }
+    VerticalLayout {
+        spacing: 10px;
 
-    osc_level := LevelSlider {
-        level: is_sub ? Theme.sub-level-slider-default : Theme.osc-level-slider-default;
-        level-step: Theme.osc-level-slider-step;
-        minimum-level: Theme.osc-level-slider-minimum;
-        maximum-level: Theme.osc-level-slider-maximum;
+        osc_tuning := VerticalLabeledIntSlider {
+            label: Theme.oscillator-tuning-text;
+            value_display: Theme.osc-tuning-slider-unison;
+            slider_value: Theme.osc-tuning-slider-default;
+            is_bold: true;
+            step: Theme.osc-tuning-slider-step;
+            minimum: Theme.osc-tuning-slider-minimum;
+            maximum: Theme.osc-tuning-slider-maximum;
 
-        level_selected(level) => {
-            wave_level_selected(level / 100, oscillator_number);
+            new_value_selected(interval) => {
+                if (interval == 0) {
+                    self.value_display = Theme.osc-tuning-slider-unison;
+                } else if (interval > 0) {
+                    self.value_display = "+" + interval + Theme.oscillator-tuning-value-suffix;
+                } else {
+                    self.value_display = interval + Theme.oscillator-tuning-value-suffix;
+                }
+                wave_tuning_changed(interval, oscillator_number);
+            }
+        }
+
+        osc_shape := VerticalLabeledFloatSlider {
+            label: Theme.oscillator-shape-text;
+            slider_value: Theme.wave_shaper-amount-slider-default;
+            is_bold: true;
+            step: Theme.wave_shaper-amount-slider-step;
+            minimum: Theme.wave_shaper-amount-slider-minimum;
+            maximum: Theme.wave_shaper-amount-slider-maximum;
+
+            new_value_selected(amount) => {
+                wave_shaper_amount_changed(round(amount * 10.0) / 10.0, oscillator_number);
+            }
         }
     }
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-fm-amount-text;
-    }
+    VerticalLayout {
+        spacing: 10px;
 
-    osc_fm_amount := LevelSlider {
-        level-step: Theme.osc-fm-amount-slider-step;
-        minimum-level: Theme.osc-fm-amount-slider-minimum;
-        maximum-level: Theme.osc-fm-amount-slider-maximum;
-        enabled: false;
+        VerticalLayout {
+            spacing: 10px;
 
-        level_selected(level) => {
-            specific_parameter_selected(level * Theme.osc-fm-amount-slider-adjustment-factor, oscillator_number);
-        }
-    }
-    
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-am-amount-text;
-    }
+            osc_mod_amount := VerticalLabeledFloatSlider {
+                label: Theme.oscillator-mod-amount-text;
+                value_display: (round(self.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
+                is_bold: true;
+                slider_value: Theme.osc-mod-amount-slider-default;
+                step: Theme.osc-mod-amount-slider-step;
+                minimum: Theme.osc-mod-amount-slider-minimum;
+                maximum: Theme.osc-mod-amount-slider-maximum;
 
-    osc_am_amount := LevelSlider {
-        value: Theme.osc-am-amount-slider-default;
-        step: Theme.osc-am-amount-slider-step;
-        minimum: Theme.osc-am-amount-slider-minimum;
-        maximum: Theme.osc-am-amount-slider-maximum;
-        enabled: false;
+                new_value_selected(amount) => {
+                    wave_mod_amount_changed(amount, oscillator_number);
+                }
+            }
 
-        level_selected(level) => {
-            specific_parameter_selected(level/2, oscillator_number);
-        }
-    }
+            osc_mod_speed := VerticalLabeledFloatSlider {
+                label: Theme.oscillator-mod-speed-text;
+                value_display: (round(self.slider_value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
+                is_bold: true;
+                slider_value: Theme.osc-mod-speed-slider-default;
+                step: Theme.osc-mod-speed-slider-step;
+                minimum: Theme.osc-mod-speed-slider-minimum;
+                maximum: Theme.osc-mod-speed-slider-maximum;
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-pulse-width-text;
-    }
-
-    osc_pulse_width := LFOSlider {
-        value: Theme.osc-pulse-width-slider-default;
-        step: Theme.osc-pulse-width-slider-step;
-        minimum: Theme.osc-pulse-width-slider-minimum;
-        maximum: Theme.osc-pulse-width-slider-maximum;
-        enabled: false;
-
-        level_selected(level) => {
-            specific_parameter_selected(level, oscillator_number);
+                new_value_selected(speed_hz) => {
+                    wave_mod_speed_changed(speed_hz, oscillator_number);
+                }
+            }
         }
     }
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-shape-text;
-    }
+    VerticalLayout {
+        spacing: 10px;
 
-    osc_shape := LFOSlider {
-        slider_value: Theme.wave_shaper-amount-slider-default;
-        step: Theme.wave_shaper-amount-slider-step;
-        minimum: Theme.wave_shaper-amount-slider-minimum;
-        maximum: Theme.wave_shaper-amount-slider-maximum;
+        osc_fm_amount := VerticalLabeledIntSlider {
+            is_enabled: false;
+            label: Theme.oscillator-fm-amount-text;
+            slider_value: Theme.osc-fm-amount-slider-default;
+            is_bold: true;
+            step: Theme.osc-fm-amount-slider-step;
+            minimum: Theme.osc-fm-amount-slider-minimum;
+            maximum: Theme.osc-fm-amount-slider-maximum;
 
-        level_selected(amount) => {
-            wave_shaper_amount_changed(round(amount * 10.0) / 10.0, oscillator_number);
+            new_value_selected(amount) => {
+                wave_specific_parameters_selected(amount * Theme.osc-fm-amount-slider-adjustment-factor, osc_fm_ratio.slider_value / 2,
+                    oscillator_number);
+            }
+        }
+
+        osc_fm_ratio := VerticalLabeledIntSlider {
+            is_enabled: false;
+            label: Theme.oscillator-fm-ratio-text;
+            value_display: osc_fm_ratio.slider_value / 2 + Theme.oscillator-fm-ratio-suffix;
+            slider_value: Theme.osc-fm-ratio-slider-default;
+            is_bold: true;
+            step: Theme.osc-fm-ratio-slider-step;
+            minimum: Theme.osc-fm-ratio-slider-minimum;
+            maximum: Theme.osc-fm-ratio-slider-maximum;
+
+            new_value_selected(ratio) => {
+                wave_specific_parameters_selected(osc_fm_amount.slider_value * Theme.osc-fm-amount-slider-adjustment-factor, ratio / 2, oscillator_number);
+            }
         }
     }
 
-    Label {
-        horizontal-alignment: center;
-        font-weight: Theme.text-weight-bold;
-        label: Theme.oscillator-mod-text;
-    }
+    VerticalLayout {
+        spacing: 10px;
 
-    Label {
-        horizontal-alignment: center;
-        label: Theme.oscillator-mod-amount-text + (round(osc_mod_amount.slider_value * 100)) + Theme.oscillator-mod-amount-suffix;
-    }
+        osc_am_amount := VerticalLabeledIntSlider {
+            is_enabled: false;
+            label: Theme.oscillator-am-amount-text;
+            slider_value: Theme.osc-am-amount-slider-default;
+            is_bold: true;
+            step: Theme.osc-am-amount-slider-step;
+            minimum: Theme.osc-am-amount-slider-minimum;
+            maximum: Theme.osc-am-amount-slider-maximum;
 
-    osc_mod_amount := LFOSlider {
-        slider_value: Theme.osc-mod-amount-slider-default;
-        step: Theme.osc-mod-amount-slider-step;
-        minimum: Theme.osc-mod-amount-slider-minimum;
-        maximum: Theme.osc-mod-amount-slider-maximum;
-
-        level_selected(amount) => {
-            wave_mod_amount_changed(amount, oscillator_number);
+            new_value_selected(amount) => {
+                wave_specific_parameters_selected(amount / 2, 0, oscillator_number);
+            }
         }
-    }
 
-    Label {
-        horizontal-alignment: center;
-        label: Theme.oscillator-mod-speed-text + (round(osc_fine_speed.value * 100) / 100) + Theme.oscillator-mod-speed-suffix;
-    }
+        osc_pulse_width := VerticalLabeledFloatSlider {
+            is_enabled: false;
+            label: Theme.oscillator-pulse-width-text;
+            slider_value: Theme.osc-pulse-width-slider-default;
+            is_bold: true;
+            step: Theme.osc-pulse-width-slider-step;
+            minimum: Theme.osc-pulse-width-slider-minimum;
+            maximum: Theme.osc-pulse-width-slider-maximum;
 
-    HorizontalLayout {
-
-        osc_fine_speed := LFOSlider {
-            slider_value: Theme.osc-mod-fine-speed-slider-default;
-            step: self.slider_value;
-            minimum: Theme.osc-mod-fine-speed-slider-minimum;
-            maximum: Theme.osc-mod-fine-speed-slider-maximum;
-            level_selected(level) => {
-                wave_mod_speed_changed(level, oscillator_number);
+            new_value_selected(width) => {
+                wave_specific_parameters_selected(width, 0, oscillator_number);
             }
         }
     }

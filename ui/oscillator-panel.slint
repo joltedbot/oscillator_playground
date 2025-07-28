@@ -1,136 +1,270 @@
-import { Panel, Heading, Label, LevelSlider, LFOSlider, OscilatorControls, WaveSelector, ActivationSwitch, StartButton, ActionButton } from "../ui/components.slint";
+import { Panel, Heading, Label, LevelSlider, LFOSlider, OscilatorControls, WaveSelector, ActivationSwitch, StartButton, ActionButton, VerticalLabeledIntSlider } from "../ui/components.slint";
+import { TabWidget } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
 
 
 export component OscillatorPanel inherits HorizontalLayout {
 
+    in-out property <bool> arp_button_active: false;
+
     callback wave_level_selected(float, int);
-    callback wave_specific_parameter_selected(float, int);
+    callback wave_specific_parameters_selected(float, float, int);
     callback wave_am_amount_selected(int, int);
     callback wave_shape_selected(string, int);
     callback wave_tuning_changed(int, int);
     callback wave_shaper_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_mod_amount_changed(float, int);
+    callback wave_detune_value_changed(float);
+    callback wave_detune_state_changed(bool, float);
+    callback output_level_value_changed(int);
+    callback output_level_constant_activated(bool);
 
-    Panel {
-        width: Theme.oscillator-panel-width;
+    callback arp_button_pressed(bool);
+    callback resync_oscillators();
+    callback resync_oscillator_lfos();
 
-        VerticalLayout {
-            alignment: center;
-            spacing: 10px;
-            padding: 10px;
+    VerticalLayout {
+        alignment: start;
+        spacing: 5px;
+
+        osc1_panel := Panel {
+            panel-width: Theme.oscillators-panel-width;
+            panel-height: Theme.oscillators-panel-height;
+
+            osc1 := OscilatorControls {
+                oscillator_number: 1;
+                heading: Theme.oscillator1-heading-text;
+
+                wave_level_selected(level, oscillator) => {
+                    root.wave_level_selected(level, oscillator);
+                }
+                wave_specific_parameters_selected(parameter1, parameter2, oscillator) => {
+                    root.wave_specific_parameters_selected(parameter1, parameter2, oscillator);
+                }
+                wave_shape_selected(shape, oscillator) => {
+                    root.wave_shape_selected(shape, oscillator);
+                }
+                wave_tuning_changed(interval, oscillator) => {
+                    root.wave_tuning_changed(interval, oscillator);
+                }
+                wave_shaper_amount_changed(amount, oscillator) => {
+                    root.wave_shaper_amount_changed(amount, oscillator);
+                }
+                wave_mod_amount_changed(amount, oscillator) => {
+                    root.wave_mod_amount_changed(amount, oscillator);
+                }
+                wave_mod_speed_changed(speed_hz, oscillator) => {
+                    root.wave_mod_speed_changed(speed_hz, oscillator);
+                }
+            }
+        }
+
+        osc2_panel := Panel {
+            panel-width: Theme.oscillators-panel-width;
+            panel-height: Theme.oscillators-panel-height;
+
+            osc2 := OscilatorControls {
+                oscillator_number: 2;
+                heading: Theme.oscillator2-heading-text;
+
+                wave_level_selected(level, oscillator) => {
+                    root.wave_level_selected(level, oscillator);
+                }
+                wave_specific_parameters_selected(parameter1, parameter2, oscillator) => {
+                    root.wave_specific_parameters_selected(parameter1, parameter2, oscillator);
+                }
+                wave_shape_selected(shape, oscillator) => {
+                    root.wave_shape_selected(shape, oscillator);
+                }
+                wave_tuning_changed(interval, oscillator) => {
+                    root.wave_tuning_changed(interval, oscillator);
+                }
+                wave_shaper_amount_changed(amount, oscillator) => {
+                    root.wave_shaper_amount_changed(amount, oscillator);
+                }
+                wave_mod_amount_changed(amount, oscillator) => {
+                    root.wave_mod_amount_changed(amount, oscillator);
+                }
+                wave_mod_speed_changed(speed_hz, oscillator) => {
+                    root.wave_mod_speed_changed(speed_hz, oscillator);
+                }
+            }
+        }
+
+        osc3_panel := Panel {
+            panel-width: Theme.oscillators-panel-width;
+            panel-height: Theme.oscillators-panel-height;
+
+            osc3 := OscilatorControls {
+                oscillator_number: 3;
+                heading: Theme.oscillator3-heading-text;
+
+                wave_level_selected(level, oscillator) => {
+                    root.wave_level_selected(level, oscillator);
+                }
+                wave_specific_parameters_selected(parameter1, parameter2, oscillator) => {
+                    root.wave_specific_parameters_selected(parameter1, parameter2, oscillator);
+                }
+                wave_shape_selected(shape, oscillator) => {
+                    root.wave_shape_selected(shape, oscillator);
+                }
+                wave_tuning_changed(interval, oscillator) => {
+                    root.wave_tuning_changed(interval, oscillator);
+                }
+                wave_shaper_amount_changed(amount, oscillator) => {
+                    root.wave_shaper_amount_changed(amount, oscillator);
+                }
+                wave_mod_amount_changed(amount, oscillator) => {
+                    root.wave_mod_amount_changed(amount, oscillator);
+                }
+                wave_mod_speed_changed(speed_hz, oscillator) => {
+                    root.wave_mod_speed_changed(speed_hz, oscillator);
+                }
+            }
+        }
+
+        sub_panel := Panel {
+            panel-width: Theme.oscillators-panel-width;
+            panel-height: Theme.oscillators-panel-height;
+
+            sub := OscilatorControls {
+                is_sub: true;
+                oscillator_number: 0;
+                heading: Theme.sub_oscillator-heading-text;
+
+                wave_level_selected(level, oscillator) => {
+                    root.wave_level_selected(level, oscillator);
+                }
+                wave_specific_parameters_selected(parameter1, parameter2, oscillator) => {
+                    root.wave_specific_parameters_selected(parameter1, parameter2, oscillator);
+                }
+                wave_shape_selected(shape, oscillator) => {
+                    root.wave_shape_selected(shape, oscillator);
+                }
+                wave_tuning_changed(interval, oscillator) => {
+                    root.wave_tuning_changed(interval, oscillator);
+                }
+                wave_shaper_amount_changed(amount, oscillator) => {
+                    root.wave_shaper_amount_changed(amount, oscillator);
+                }
+                wave_mod_amount_changed(amount, oscillator) => {
+                    root.wave_mod_amount_changed(amount, oscillator);
+                }
+                wave_mod_speed_changed(speed_hz, oscillator) => {
+                    root.wave_mod_speed_changed(speed_hz, oscillator);
+                }
+            }
+        }
+
+        global_panel := Panel {
+
+            width: Theme.oscillators-global-panel-width;
+            height: Theme.oscillators-global-panel-height;
 
             HorizontalLayout {
-                alignment: center;
+                alignment: space-between;
                 spacing: 10px;
+                padding: 10px;
 
-                osc1 := OscilatorControls {
-                    heading: Theme.oscillator1-heading-text;
-                    oscillator_number: 1;
+                VerticalLayout {
+                    spacing: 10px;
 
-                    wave_level_selected(level, oscillator) => {
-                        root.wave_level_selected(level, oscillator);
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.detune-heading-text;
                     }
-                    specific_parameter_selected(amount, oscillator) => {
-                        root.wave_specific_parameter_selected(amount, oscillator);
+
+                    ActivationSwitch {
+                        activated-text: Theme.activation-switch-active-text;
+                        not-activated-text: Theme.activation-switch-not-active-text;
+
+                        activation_toggled => {
+                            detune_amount.is_enabled = self.activated;
+                            wave_detune_state_changed(self.activated, round(detune_amount.slider_value) / 100);
+                        }
                     }
-                    wave_shape_selected(shape, oscillator) => {
-                        root.wave_shape_selected(shape, oscillator);
-                    }
-                    wave_tuning_changed(interval, oscillator) => {
-                        root.wave_tuning_changed(interval, oscillator);
-                    }
-                    wave_shaper_amount_changed(amount, oscillator) => {
-                        root.wave_shaper_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_amount_changed(amount, oscillator) => {
-                        root.wave_mod_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_speed_changed(speed_hz, oscillator) => {
-                        root.wave_mod_speed_changed(speed_hz, oscillator);
+
+                    detune_amount := VerticalLabeledIntSlider {
+                        is_enabled: false;
+                        label: round(detune_amount.slider_value) + Theme.detune-amount-label-suffix;
+                        slider_value: Theme.detune-amount-slider-default;
+                        is_bold: true;
+                        step: Theme.osc-level-slider-step;
+                        minimum: Theme.osc-level-slider-minimum;
+                        maximum: Theme.osc-level-slider-maximum;
+
+                        new_value_selected(amount) => {
+                            wave_detune_value_changed(amount / 100);
+                        }
                     }
                 }
 
-                osc2 := OscilatorControls {
-                    heading: Theme.oscillator2-heading-text;
-                    oscillator_number: 2;
+                VerticalLayout {
+                    spacing: 10px;
 
-                    wave_level_selected(level, oscillator) => {
-                        root.wave_level_selected(level, oscillator);
+                    Heading {
+                        horizontal-alignment: center;
+                        heading: Theme.output-level-heading-text;
                     }
-                    specific_parameter_selected(amount, oscillator) => {
-                        root.wave_specific_parameter_selected(amount, oscillator);
+
+                    output_level_constant := ActivationSwitch {
+                        activated-text: Theme.output-level-constant-active-text;
+                        not-activated-text: Theme.output-level-constant-not-active-text;
+                        checked: true;
+
+                        activation_toggled => {
+                            root.output_level_constant_activated(self.checked);
+                        }
                     }
-                    wave_shape_selected(shape, oscillator) => {
-                        root.wave_shape_selected(shape, oscillator);
-                    }
-                    wave_tuning_changed(interval, oscillator) => {
-                        root.wave_tuning_changed(interval, oscillator);
-                    }
-                    wave_shaper_amount_changed(amount, oscillator) => {
-                        root.wave_shaper_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_amount_changed(amount, oscillator) => {
-                        root.wave_mod_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_speed_changed(speed_hz, oscillator) => {
-                        root.wave_mod_speed_changed(speed_hz, oscillator);
+
+                    output_level := VerticalLabeledIntSlider {
+                        label: round(output_level.slider_value) - 100 + Theme.output-level-label-suffix;
+                        slider_value: Theme.output-level-slider-default;
+                        is_bold: true;
+                        step: Theme.output-level-slider-step;
+                        minimum: Theme.output-level-slider-minimum;
+                        maximum: Theme.output-level-slider-maximum;
+
+                        new_value_selected(level) => {
+                            root.output_level_value_changed(level - 100);
+                        }
                     }
                 }
 
-                osc3 := OscilatorControls {
-                    heading: Theme.oscillator3-heading-text;
-                    oscillator_number: 3;
+                VerticalLayout {
+                    alignment: center;
+                    HorizontalLayout {
+                        spacing: 20px;
+                        padding: 20px;
+                        alignment: center;
 
-                    wave_level_selected(level, oscillator) => {
-                        root.wave_level_selected(level, oscillator);
-                    }
-                    specific_parameter_selected(amount, oscillator) => {
-                        root.wave_specific_parameter_selected(amount, oscillator);
-                    }
-                    wave_shape_selected(shape, oscillator) => {
-                        root.wave_shape_selected(shape, oscillator);
-                    }
-                    wave_tuning_changed(interval, oscillator) => {
-                        root.wave_tuning_changed(interval, oscillator);
-                    }
-                    wave_shaper_amount_changed(amount, oscillator) => {
-                        root.wave_shaper_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_amount_changed(amount, oscillator) => {
-                        root.wave_mod_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_speed_changed(speed_hz, oscillator) => {
-                        root.wave_mod_speed_changed(speed_hz, oscillator);
-                    }
-                }
+                        arp_button := StartButton {
+                            active: arp_button_active;
+                            start_button_pressed(active) => {
+                                root.arp_button_pressed(active);
+                            }
+                        }
 
-                sub := OscilatorControls {
-                    heading: Theme.sub-oscillator-heading-text;
-                    is_sub: true;
-                    oscillator_number: 0;
+                        reset_button := ActionButton {
+                            text: Theme.resync-button-text;
+                            width: Theme.resync-button-width;
+                            height: Theme.resync-button-height;
 
-                    wave_level_selected(level, oscillator) => {
-                        root.wave_level_selected(level, oscillator);
-                    }
-                    specific_parameter_selected(amount, oscillator) => {
-                        root.wave_specific_parameter_selected(amount, oscillator);
-                    }
-                    wave_shape_selected(shape, oscillator) => {
-                        root.wave_shape_selected(shape, oscillator);
-                    }
-                    wave_tuning_changed(interval, oscillator) => {
-                        root.wave_tuning_changed(interval, oscillator);
-                    }
-                    wave_shaper_amount_changed(amount, oscillator) => {
-                        root.wave_shaper_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_amount_changed(amount, oscillator) => {
-                        root.wave_mod_amount_changed(amount, oscillator);
-                    }
-                    wave_mod_speed_changed(speed_hz, oscillator) => {
-                        root.wave_mod_speed_changed(speed_hz, oscillator);
+                            take_action() => {
+                                root.resync_oscillators();
+                            }
+                        }
+
+                        lfo_reset_button := ActionButton {
+                            text: Theme.resync-lfo-button-text;
+                            width: Theme.resync-button-width;
+                            height: Theme.resync-button-height;
+
+                            take_action() => {
+                                root.resync_oscillator_lfos();
+                            }
+                        }
                     }
                 }
             }

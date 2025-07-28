@@ -1,4 +1,4 @@
-import { Panel, Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
+import { Panel, Heading, Label, ADSRSlider, LevelSlider, ActivationSwitch, HorizontalSpacer } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component EnvelopePanel inherits HorizontalLayout {
@@ -14,22 +14,21 @@ export component EnvelopePanel inherits HorizontalLayout {
     Panel {
 
         width: Theme.envelope-panel-width;
+        height: Theme.envelope-panel-height;
 
         VerticalLayout {
-            alignment: center;
+            alignment: start;
             spacing: 20px;
             padding: 10px;
 
-            HorizontalLayout {
-                spacing: 5px;
-                Heading {
-                    horizontal-alignment: center;
-                    heading: Theme.envelope-header-text;
-                }
+            Heading {
+                horizontal-alignment: center;
+                heading: Theme.envelope-header-text;
             }
 
             HorizontalLayout {
                 spacing: 5px;
+
 
                 Label {
                     horizontal-alignment: center;
@@ -58,10 +57,9 @@ export component EnvelopePanel inherits HorizontalLayout {
                 heading: Theme.envelope-amp-mode-adsr-text;
             }
 
-            HorizontalLayout {
-                spacing: 5px;
 
                 VerticalLayout {
+                    spacing: 5px;
                     Label {
                         horizontal-alignment: center;
                         label: Theme.envelope-attack-text;
@@ -81,6 +79,8 @@ export component EnvelopePanel inherits HorizontalLayout {
                 }
 
                 VerticalLayout {
+                    spacing: 5px;
+
                     Label {
                         horizontal-alignment: center;
                         label: Theme.envelope-decay-text;
@@ -98,12 +98,9 @@ export component EnvelopePanel inherits HorizontalLayout {
                         }
                     }
                 }
-            }
-
-            HorizontalLayout {
-                spacing: 5px;
 
                 VerticalLayout {
+                    spacing: 5px;
                     Label {
                         horizontal-alignment: center;
                         label: Theme.envelope-sustain-level-text;
@@ -144,7 +141,9 @@ export component EnvelopePanel inherits HorizontalLayout {
                         }
                     }
                 }
-            }
+
+            HorizontalSpacer{}
+
 
             HorizontalLayout {
                 spacing: 5px;
