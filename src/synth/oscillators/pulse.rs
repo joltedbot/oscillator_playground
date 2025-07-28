@@ -49,8 +49,8 @@ impl GenerateSamples for Pulse {
         y_coordinate
     }
 
-    fn set_shape_specific_parameter(&mut self, parameter: f32) {
-        self.pulse_width = parameter;
+    fn set_shape_specific_parameters(&mut self, parameters: (f32, f32)) {
+        self.pulse_width = parameters.0;
     }
 
     fn reset(&mut self) {

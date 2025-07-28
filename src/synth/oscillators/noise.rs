@@ -16,7 +16,7 @@ impl GenerateSamples for Noise {
         rand::random_range(-1.0..=1.0) * modulation.unwrap_or(1.0)
     }
 
-    fn set_shape_specific_parameter(&mut self, _parameter: f32) {}
+    fn set_shape_specific_parameters(&mut self, _parameter: (f32, f32)) {}
 
     fn reset(&mut self) {}
 }

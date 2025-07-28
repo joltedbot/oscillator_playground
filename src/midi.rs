@@ -57,14 +57,13 @@ impl Midi {
                 synth_sender.clone(),
                 input_port,
                 midi_channel_arc.clone(),
-            ).ok();
+            )
+            .ok();
         }
-
 
         let input_connection_thread_arc = self.input_connection.clone();
 
         thread::spawn(move || {
-
             while let Ok(event) = midi_receiver.recv() {
                 match event {
                     EventType::UpdateMidiPort(port_index) => {
@@ -74,14 +73,17 @@ impl Midi {
 
                         if let Some(port) = get_midi_input_port_from_port_index(port_index) {
                             *input_connection = create_new_midi_listener(
-                                    synth_sender.clone(),
-                                    port,
-                                    midi_channel_arc.clone(),
-                                ).ok();
+                                synth_sender.clone(),
+                                port,
+                                midi_channel_arc.clone(),
+                            )
+                            .ok();
                         }
                     }
                     EventType::UpdateMidiChannel(channel) => {
-                        let mut midi_channel = midi_channel_arc.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+                        let mut midi_channel = midi_channel_arc
+                            .lock()
+                            .unwrap_or_else(|poisoned| poisoned.into_inner());
                         *midi_channel = channel;
                     }
                     _ => {}
@@ -90,8 +92,6 @@ impl Midi {
         });
     }
 }
-
-
 
 fn create_new_midi_listener(
     synth_sender: Sender<EventType>,
@@ -106,14 +106,15 @@ fn create_new_midi_listener(
             &in_port,
             "midir-read-input",
             move |_, message, _| {
-
                 let current_midi_channel = midi_channel_arc
                     .lock()
                     .unwrap_or_else(|poisoned| poisoned.into_inner());
                 let message_channel =
                     get_midi_channel_type_from_status_byte(message[MIDI_STATUS_BYTE_INDEX]);
 
-                if *current_midi_channel != MIDI_CHANNEL_FOR_OMNI && *current_midi_channel != message_channel {
+                if *current_midi_channel != MIDI_CHANNEL_FOR_OMNI
+                    && *current_midi_channel != message_channel
+                {
                     return;
                 }
 
@@ -144,9 +145,9 @@ fn create_new_midi_listener(
 }
 
 fn get_midi_input_port_from_port_index(port_index: i32) -> Option<MidiInputPort> {
-    MidiInput::new(MIDI_INPUT_CLIENT_NAME).ok().and_then(|midi_input| {
-        midi_input.ports().get(port_index as usize).cloned()
-    })
+    MidiInput::new(MIDI_INPUT_CLIENT_NAME)
+        .ok()
+        .and_then(|midi_input| midi_input.ports().get(port_index as usize).cloned())
 }
 
 fn get_midi_message_type_from_status_byte(status: u8) -> MessageType {

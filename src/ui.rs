@@ -58,7 +58,7 @@ impl UI {
     pub fn create_ui_callbacks(&mut self) {
         self.on_wave_shape_selected();
         self.on_wave_level_selected();
-        self.on_wave_specific_parameter_selected();
+        self.on_wave_specific_parameters_selected();
         self.on_wave_tuning_changed();
         self.on_wave_shaper_amount_changed();
         self.on_wave_mod_speed_changed();
@@ -154,14 +154,15 @@ impl UI {
         });
     }
 
-    fn on_wave_specific_parameter_selected(&mut self) {
+    fn on_wave_specific_parameters_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_specific_parameter_selected(move |parameter, oscillator| {
-            if let Err(error) =
-                synth_sender.send(EventType::UpdateOscillatorSpecificParameter(parameter, oscillator))
-            {
+        ui.on_wave_specific_parameters_selected(move |parameter1, parameter2, oscillator| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOscillatorSpecificParameters(
+                (parameter1, parameter2),
+                oscillator,
+            )) {
                 eprintln!("Error sending event: {error}",);
             }
         });
@@ -184,9 +185,9 @@ impl UI {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_mod_speed_changed(move |level, oscillator| {
+        ui.on_wave_mod_speed_changed(move |speed_hz, oscillator| {
             if let Err(error) =
-                synth_sender.send(EventType::UpdateOscillatorModFreq(level, oscillator))
+                synth_sender.send(EventType::UpdateOscillatorModFreq(speed_hz, oscillator))
             {
                 eprintln!("Error sending event: {error}",);
             }
@@ -197,9 +198,9 @@ impl UI {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_mod_amount_changed(move |level, oscillator| {
+        ui.on_wave_mod_amount_changed(move |amount, oscillator| {
             if let Err(error) =
-                synth_sender.send(EventType::UpdateOscillatorModAmount(level, oscillator))
+                synth_sender.send(EventType::UpdateOscillatorModAmount(amount, oscillator))
             {
                 eprintln!("Error sending event: {error}",);
             }

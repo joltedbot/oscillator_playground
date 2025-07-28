@@ -1,15 +1,12 @@
 use crate::synth::oscillators::GenerateSamples;
 use crate::synth::oscillators::sine::Sine;
-use crate::synth::oscillators::saw::Saw;
 
-const DEFAULT_RATIO: f32 = 1.0;
-const DEFAULT_MODULATION_AMOUNT: f32 = 3.0;
+const DEFAULT_MODULATION_AMOUNT: f32 = 4.0;
 
 pub struct AM {
     carrier: Box<dyn GenerateSamples + Send + Sync>,
     modulator: Box<dyn GenerateSamples + Send + Sync>,
     modulation_amount: f32,
-    ratio: f32,
 }
 
 impl AM {
@@ -18,7 +15,6 @@ impl AM {
             carrier: Box::new(Sine::new(sample_rate)),
             modulator: Box::new(Sine::new(sample_rate)),
             modulation_amount: DEFAULT_MODULATION_AMOUNT,
-            ratio: DEFAULT_RATIO,
         }
     }
 }
@@ -31,8 +27,8 @@ impl GenerateSamples for AM {
         self.carrier.next_sample(tone_frequency, modulation) * modulator
     }
 
-    fn set_shape_specific_parameter(&mut self, parameter: f32) {
-        self.modulation_amount = parameter;
+    fn set_shape_specific_parameters(&mut self, parameters: (f32, f32)) {
+        self.modulation_amount = parameters.0;
     }
 
     fn reset(&mut self) {

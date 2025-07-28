@@ -31,7 +31,7 @@ impl GenerateSamples for Ramp {
         y_coordinate
     }
 
-    fn set_shape_specific_parameter(&mut self, _parameter: f32) {}
+    fn set_shape_specific_parameters(&mut self, _parameter: (f32, f32)) {}
     fn reset(&mut self) {
         self.x_coordinate = DEFAULT_X_COORDINATE;
     }

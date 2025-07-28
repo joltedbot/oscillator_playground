@@ -1,3 +1,4 @@
+pub mod am;
 pub mod fm;
 pub mod noise;
 pub mod pulse;
@@ -8,10 +9,9 @@ pub mod square;
 pub mod sub;
 pub mod super_saw;
 pub mod triangle;
-pub mod am;
 
-use fm::FM;
 use am::AM;
+use fm::FM;
 use noise::Noise;
 use pulse::Pulse;
 use ramp::Ramp;
@@ -32,7 +32,7 @@ const DEFAULT_WAVE_INTERVAL: i32 = 0;
 pub trait GenerateSamples {
     fn next_sample(&mut self, tone_frequency: f32, modulation: Option<f32>) -> f32;
 
-    fn set_shape_specific_parameter(&mut self, parameter: f32);
+    fn set_shape_specific_parameters(&mut self, parameters: (f32, f32));
 
     fn reset(&mut self);
 }
@@ -130,10 +130,10 @@ impl Oscillators {
         self.oscillators[oscillator as usize].interval = interval;
     }
 
-    pub fn set_shape_specific_parameter(&mut self, parameter: f32, oscillator: i32) {
+    pub fn set_shape_specific_parameters(&mut self, parameters: (f32, f32), oscillator: i32) {
         self.oscillators[oscillator as usize]
             .wave
-            .set_shape_specific_parameter(parameter);
+            .set_shape_specific_parameters(parameters);
     }
 
     pub fn set_oscillator_shaper_amount(&mut self, amount: f32, oscillator: i32) {
