@@ -66,6 +66,7 @@ pub enum EventType {
     UpdateMidiChannel(i32),
     UpdateOutputDeviceList(DeviceList),
     UpdateAudioDevice(String),
+    UpdateAudioChannels(String, String),
 }
 
 pub struct Events {

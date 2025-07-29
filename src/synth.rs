@@ -87,6 +87,7 @@ struct SynthParameters {
     arpeggiator: Arpeggiator,
     arpeggiator_type: ArpeggiatorType,
     arpeggiator_is_active: bool,
+    audio_output_channels: (usize, Option<usize>),
 }
 
 pub struct Synth {
@@ -212,6 +213,10 @@ impl Synth {
             arpeggiator,
             arpeggiator_type: Default::default(),
             arpeggiator_is_active: false,
+            audio_output_channels: (
+                DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL,
+                DEFAULT_AUDIO_OUTPUT_RIGHT_CHANNEL,
+            ),
         };
 
         Self {
@@ -516,6 +521,16 @@ impl Synth {
                         }
                     }
                 }
+                EventType::UpdateAudioChannels(left, right) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    let left_channel: usize =
+                        left.parse().unwrap_or(DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL);
+                    let right_channel = right.parse::<usize>().ok();
+                    let left_channel_index = left_channel - 1;
+                    let right_channel_index = right_channel.map(|channel| channel - 1);
+
+                    parameters.audio_output_channels = (left_channel_index, right_channel_index);
+                }
                 _ => {}
             }
         }
@@ -628,6 +643,9 @@ impl Synth {
                     let oscillator2_level = oscillators.get_oscillator2_level();
                     let oscillator3_level = oscillators.get_oscillator3_level();
                     let sub_oscillator_level = oscillators.get_sub_oscillator_level();
+
+                    let left_channel_index = parameters.audio_output_channels.0;
+                    let right_channel_index = parameters.audio_output_channels.1;
 
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_modulation = get_oscillator_mod_value(
@@ -828,8 +846,12 @@ impl Synth {
                             );
                         }
 
-                        frame[0] = left_sample;
-                        frame[1] = right_sample;
+                        frame[left_channel_index] = left_sample;
+
+                        if number_of_channels > 1 && right_channel_index.is_some() {
+                            let right_index = right_channel_index.unwrap();
+                            frame[right_index] = right_sample;
+                        }
                     }
                 },
                 |err| panic!("an error occurred for the stream: {err}"),

@@ -12,7 +12,6 @@ use crate::ui::UI;
 use slint::ComponentHandle;
 use std::thread;
 
-
 slint::include_modules!();
 fn main() -> Result<(), slint::PlatformError> {
     let application = ApplicationWindow::new()?;
@@ -30,11 +29,9 @@ fn main() -> Result<(), slint::PlatformError> {
         application.as_weak(),
         synth_sender.clone(),
         midi_sender.clone(),
+        ui_sender.clone(),
     )
-    .expect(
-        "Could not create \
-    UI",
-    );
+    .expect("Could not create UI");
 
     ui.create_ui_callbacks();
 

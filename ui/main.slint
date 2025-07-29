@@ -371,7 +371,6 @@ export component ApplicationWindow inherits Window {
                         audio_output_left_channel: audio_output_left_channel;
                         audio_output_right_channel: audio_output_right_channel;
 
-
                         midi_port_selected(port_index) => {
                             root.midi_port_selected(port_index);
                         }
@@ -387,7 +386,6 @@ export component ApplicationWindow inherits Window {
                         audio_channels_selected(left, right) => {
                             root.audio_channels_selected(left, right)
                         }
-                        
                     }
                 }
             }

@@ -100,11 +100,11 @@ export component SettingsPanel inherits HorizontalLayout {
 
                     right_channel := AudioDeviceSelector {
                         states [
-                            Mono when audio_output_right_channel != "": {
-                                right_channel.is_enabled: true;
-                            }
-                            MultiChannel when audio_output_right_channel == "": {
+                            Mono when audio_output_right_channel == "": {
                                 right_channel.is_enabled: false;
+                            }
+                            MultiChannel when audio_output_right_channel != "": {
+                                right_channel.is_enabled: true;
                             }
                         ]
 
