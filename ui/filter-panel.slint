@@ -85,7 +85,7 @@ export component FilterPanel inherits HorizontalLayout {
                                 filter_cutoff_value_changed(Theme.filter-cutoff-slider-maximum - frequency);
                             }
                         }
-                   }
+                    }
 
                     VerticalLayout {
                         spacing: 10px;
@@ -110,14 +110,11 @@ export component FilterPanel inherits HorizontalLayout {
                                 filter_resonance_value_changed((Theme.filter-resonance-slider-maximum - amount) / 100);
                             }
                         }
-
-
-
                     }
                 }
             }
 
-            HorizontalSpacer{}
+            HorizontalSpacer { }
 
             VerticalLayout {
                 alignment: start;

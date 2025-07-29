@@ -257,12 +257,10 @@ impl Synth {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
                     parameters.oscillator_mod_lfos[oscillator as usize].frequency = speed;
                 }
-
                 EventType::UpdateOscillatorModAmount(amount, oscillator) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
                     parameters.oscillator_mod_lfos[oscillator as usize].width = amount;
                 }
-
                 EventType::UpdateOscillatorDetuneActive(is_active, detune_amount) => {
                     let mut oscillators = self.get_oscillators_mutex_lock();
 
@@ -508,6 +506,14 @@ impl Synth {
                         && parameters.current_midi_note == note_number as u16
                     {
                         parameters.current_midi_state = MidiState::NoteOff;
+                    }
+                }
+                EventType::UpdateAudioDevice(device) => {
+                    match self.audio_device.update_audio_device(&device) {
+                        Err(error) => eprintln!("Error updating audio device: {}", error),
+                        Ok(_) => {
+                            self.stream = Some(self.create_audio_engine());
+                        }
                     }
                 }
                 _ => {}

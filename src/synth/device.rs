@@ -1,3 +1,4 @@
+use std::error::Error;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Device, StreamConfig, default_host};
 pub struct AudioDevice {
@@ -21,6 +22,16 @@ impl AudioDevice {
             stream_config,
             output_device,
         }
+    }
+
+    pub fn update_audio_device(&mut self, audio_device_name: &str) -> Result<(), Box<dyn Error>> {
+        let host = default_host();
+        let mut device_list = host.output_devices()?;
+        self.output_device = device_list.find(|device| device.name().unwrap() == audio_device_name).ok_or("Audio device not found")?;
+        self.stream_config = self.output_device.default_output_config()?.into();
+        self.sample_rate = self.stream_config.sample_rate.0 as f32;
+        self.number_of_channels = self.stream_config.channels as usize;
+        Ok(())
     }
 
     pub fn get_sample_rate(&self) -> f32 {

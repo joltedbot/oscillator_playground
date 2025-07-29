@@ -1,3 +1,4 @@
+use crate::device_manager::DeviceList;
 use crossbeam_channel::{Receiver, Sender, unbounded};
 use slint::SharedString;
 
@@ -63,6 +64,8 @@ pub enum EventType {
     UpdateMidiPortList(Vec<String>),
     UpdateMidiPort(i32),
     UpdateMidiChannel(i32),
+    UpdateOutputDeviceList(DeviceList),
+    UpdateAudioDevice(String),
 }
 
 pub struct Events {

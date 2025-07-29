@@ -12,11 +12,10 @@ use crate::ui::UI;
 use slint::ComponentHandle;
 use std::thread;
 
-slint::include_modules!();
 
+slint::include_modules!();
 fn main() -> Result<(), slint::PlatformError> {
-    // Initialize Slint Application
-    let application = AppWindow::new()?;
+    let application = ApplicationWindow::new()?;
 
     let events = events::Events::new();
 

@@ -99,11 +99,25 @@ export component DeviceSelector inherits ComboBox {
 
 export component MidiSelector inherits ComboBox {
     in property <[string]> list;
+    in property <bool> is_enabled: true;
     callback item_selected(int);
 
+    enabled: is_enabled;
     model: list;
     selected() => {
         item_selected(self.current-index);
+    }
+}
+
+export component AudioDeviceSelector inherits ComboBox {
+    in property <[string]> list;
+    in property <bool> is_enabled: true;
+    callback item_selected(string);
+
+    enabled: is_enabled;
+    model: list;
+    selected(device) => {
+        item_selected(device);
     }
 }
 
@@ -185,7 +199,6 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
     in-out property <Orientation> slider_orientation;
 
     callback new_value_selected(float);
-
 
     HorizontalLayout {
         alignment: center;

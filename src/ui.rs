@@ -1,19 +1,27 @@
-use super::AppWindow;
+use super::ApplicationWindow;
 use crate::events::EventType;
 use crossbeam_channel::{Receiver, Sender};
 use slint::{ModelRc, SharedString, VecModel, Weak};
 use std::error::Error;
 use std::process::exit;
+use crate::device_manager::DeviceList;
+
+const DEFAULT_AUDIO_OUTPUT_DEVICE_INDEX: usize = 0;
+const DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL: &str = "1";
+const DEFAULT_AUDIO_OUTPUT_RIGHT_CHANNEL: &str = "2";
+
 
 pub struct UI {
-    pub ui: Weak<AppWindow>,
+    pub ui: Weak<ApplicationWindow>,
     synth_sender: Sender<EventType>,
     midi_sender: Sender<EventType>,
+    current_audio_output_device: String,
+    audio_output_devices: DeviceList,
 }
 
 impl UI {
     pub fn new(
-        ui: Weak<AppWindow>,
+        ui: Weak<ApplicationWindow>,
         synth_sender: Sender<EventType>,
         midi_sender: Sender<EventType>,
     ) -> Result<Self, Box<dyn Error>> {
@@ -21,6 +29,8 @@ impl UI {
             ui,
             synth_sender,
             midi_sender,
+            current_audio_output_device: String::new(),
+            audio_output_devices: Default::default(),
         };
 
         Ok(ui)
@@ -33,9 +43,39 @@ impl UI {
                 match event {
                     EventType::UpdateMidiPortList(midi_port_list) => {
                         let _ = ui_weak.upgrade_in_event_loop(move |ui| {
-                            let midi_input_port_model = get_model_from_string_slice(midi_port_list);
+                            let midi_input_port_model = get_model_from_string_slice(&midi_port_list);
                             ui.set_midi_input_ports(midi_input_port_model);
                         });
+                    }
+                    EventType::UpdateOutputDeviceList(audio_device_list) => {
+                        if self.current_audio_output_device.is_empty() {
+                            self.current_audio_output_device = audio_device_list.devices[DEFAULT_AUDIO_OUTPUT_DEVICE_INDEX].clone();
+                        }
+
+                        let device_was_removed = !self.audio_output_devices.devices.contains(&self.current_audio_output_device);
+
+                        self.audio_output_devices = audio_device_list.clone();
+
+                        let _ = ui_weak.upgrade_in_event_loop(move |ui| {
+                            let audio_output_device_model = get_model_from_string_slice(&audio_device_list.devices);
+                            ui.set_audio_output_device_list(audio_output_device_model);
+
+                            if device_was_removed {
+                                let audio_output_device_model = get_model_from_string_slice(&audio_device_list
+                                    .channels[DEFAULT_AUDIO_OUTPUT_DEVICE_INDEX]);
+                                ui.set_audio_output_channels(audio_output_device_model);
+                                ui.set_audio_output_device(SharedString::from(audio_device_list.devices[DEFAULT_AUDIO_OUTPUT_DEVICE_INDEX].clone()));
+                                ui.set_audio_output_left_channel(SharedString::from(DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL));
+                                if audio_device_list.channels[DEFAULT_AUDIO_OUTPUT_DEVICE_INDEX].len() > 1 {
+                                    ui.set_audio_output_right_channel(SharedString::from
+                                        (DEFAULT_AUDIO_OUTPUT_RIGHT_CHANNEL));
+                                } else {
+                                    ui.set_audio_output_right_channel(SharedString::new());
+                                }
+
+                            }
+                        });
+
                     }
                     _ => {}
                 }
@@ -43,7 +83,7 @@ impl UI {
         }
     }
 
-    fn get_ui_reference_from_ui_weak(&mut self) -> AppWindow {
+    fn get_ui_reference_from_ui_weak(&mut self) -> ApplicationWindow {
         let ui_weak = self.ui.clone();
 
         match ui_weak.upgrade() {
@@ -113,6 +153,7 @@ impl UI {
         self.on_arp_button_pressed();
         self.on_midi_port_selected();
         self.on_midi_channel_selected();
+        self.on_audio_device_selected();
     }
 
     fn on_wave_shape_selected(&mut self) {
@@ -754,6 +795,7 @@ impl UI {
             }
         });
     }
+    
     fn on_midi_channel_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let midi_sender = self.midi_sender.clone();
@@ -763,10 +805,21 @@ impl UI {
                 eprintln!("Error sending event: {error}",);
             }
         });
+    }    
+    fn on_audio_device_selected(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_audio_device_selected(move |device| {
+            println!("Selected device: {device}");
+            if let Err(error) = synth_sender.send(EventType::UpdateAudioDevice(device.to_string())) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
     }
 }
 
-fn get_model_from_string_slice(devices: Vec<String>) -> ModelRc<SharedString> {
+fn get_model_from_string_slice(devices: &Vec<String>) -> ModelRc<SharedString> {
     let name_list: Vec<SharedString> = devices.iter().map(SharedString::from).collect();
     ModelRc::new(VecModel::from_slice(name_list.as_slice()))
 }

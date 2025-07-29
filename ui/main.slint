@@ -10,7 +10,7 @@ import { ArpeggiatorPanel } from "../ui/arpeggiator-panel.slint";
 import { SettingsPanel } from "../ui/settings-panel.slint";
 
 
-export component AppWindow inherits Window {
+export component ApplicationWindow inherits Window {
     title: Theme.window-title;
     min-width: Theme.window-width;
     min-height: Theme.window-height;
@@ -19,6 +19,11 @@ export component AppWindow inherits Window {
 
     in-out property <bool> arp_button_active: false;
     in-out property <[string]> midi_input_ports;
+    in-out property <[string]> audio_output_device_list;
+    in-out property <[string]> audio_output_channels;
+    in-out property <string> audio_output_left_channel;
+    in-out property <string> audio_output_right_channel;
+    in-out property <string> audio_output_device;
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
@@ -80,6 +85,8 @@ export component AppWindow inherits Window {
     callback arpeggiator_random_activated(bool);
     callback midi_port_selected(int);
     callback midi_channel_selected(int);
+    callback audio_device_selected(string);
+    callback audio_channels_selected(string, string);
 
     Rectangle {
         padding: 4px;
@@ -358,6 +365,12 @@ export component AppWindow inherits Window {
 
                     SettingsPanel {
                         midi_input_ports: midi_input_ports;
+                        audio_output_device_list: audio_output_device_list;
+                        audio_output_channels: audio_output_channels;
+                        audio_output_device: audio_output_device;
+                        audio_output_left_channel: audio_output_left_channel;
+                        audio_output_right_channel: audio_output_right_channel;
+
 
                         midi_port_selected(port_index) => {
                             root.midi_port_selected(port_index);
@@ -366,6 +379,15 @@ export component AppWindow inherits Window {
                         midi_channel_selected(channel) => {
                             root.midi_channel_selected(channel);
                         }
+
+                        audio_device_selected(device) => {
+                            root.audio_device_selected(device);
+                        }
+
+                        audio_channels_selected(left, right) => {
+                            root.audio_channels_selected(left, right)
+                        }
+                        
                     }
                 }
             }

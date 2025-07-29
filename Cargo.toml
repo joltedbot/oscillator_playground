@@ -1,6 +1,6 @@
 [package]
 name = "oscillator_playground"
-version = "0.7.1"
+version = "0.7.2"
 edition = "2024"
 authors = ["Dave White"]
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ crossbeam-channel = "0.5.15"
 midir = "0.10.1"
 rand = "0.9.1"
 slint = "1.12.1"
-slint-build = "1.12.1"
+
 
 [build-dependencies]
 slint-build = "1.12.1"
