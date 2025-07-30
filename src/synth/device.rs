@@ -11,7 +11,7 @@ pub struct AudioDevice {
 impl AudioDevice {
     pub fn new() -> Self {
         let host = default_host();
-        let output_device = host.default_output_device().unwrap();
+        let output_device = host.output_devices().unwrap().next().unwrap();
         let stream_config: StreamConfig = output_device.default_output_config().unwrap().into();
         let sample_rate = stream_config.sample_rate.0 as f32;
         let number_of_channels = stream_config.channels as usize;

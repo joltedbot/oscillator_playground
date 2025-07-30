@@ -87,7 +87,7 @@ struct SynthParameters {
     arpeggiator: Arpeggiator,
     arpeggiator_type: ArpeggiatorType,
     arpeggiator_is_active: bool,
-    audio_output_channels: (usize, Option<usize>),
+    audio_output_channel_indexes: (usize, Option<usize>),
 }
 
 pub struct Synth {
@@ -213,9 +213,9 @@ impl Synth {
             arpeggiator,
             arpeggiator_type: Default::default(),
             arpeggiator_is_active: false,
-            audio_output_channels: (
-                DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL,
-                DEFAULT_AUDIO_OUTPUT_RIGHT_CHANNEL,
+            audio_output_channel_indexes: (
+                DEFAULT_AUDIO_OUTPUT_LEFT_FRAME_INDEX,
+                Some(DEFAULT_AUDIO_OUTPUT_RIGHT_FRAME_INDEX),
             ),
         };
 
@@ -341,7 +341,6 @@ impl Synth {
                 }
                 EventType::ResyncOscillatorLFOs => {
                     let mut lfos = self.get_lfo_mutex_lock();
-
                     lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD].reset();
                     lfos[LFO_INDEX_FOR_OSCILLATOR1_MOD].reset();
                     lfos[LFO_INDEX_FOR_OSCILLATOR2_MOD].reset();
@@ -386,26 +385,27 @@ impl Synth {
                     parameters.filter_mod.center_value = 1.0 - (amount / 2.0);
                 }
                 EventType::UpdateFilterModShape(shape) => {
-                    let oscillators_arc = self.oscillators.clone();
                     let lfo_arc = self.lfos.clone();
-                    let paramaters_arc = self.parameters.clone();
+                    let oscillators_arc = self.oscillators.clone();
+                    let parameters_arc = self.parameters.clone();
 
-                    let mut oscillators = oscillators_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
-                    let mut parameters = paramaters_arc
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
                     let mut lfos = lfo_arc
                         .lock()
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
 
+                    let mut oscillators = oscillators_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+                    let mut parameters = parameters_arc
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
                     let filter_mod_shape = oscillators.get_wave_shape_from_shape_name(shape);
-
                     let filter_mod_lfo =
-                        oscillators.get_oscillator_for_wave_shape(&parameters.filter_mod_shape);
-                    lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
+                        oscillators.get_oscillator_for_wave_shape(&filter_mod_shape);
 
+                    lfos[LFO_INDEX_FOR_FILTER_MOD] = LFO::new(filter_mod_lfo);
                     parameters.filter_mod_shape = filter_mod_shape;
                 }
                 EventType::UpdatePhaserEnabled(is_enabled) => {
@@ -514,22 +514,28 @@ impl Synth {
                     }
                 }
                 EventType::UpdateAudioDevice(device) => {
+                    {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.audio_output_channel_indexes = (
+                            DEFAULT_AUDIO_OUTPUT_LEFT_FRAME_INDEX,
+                            Some(DEFAULT_AUDIO_OUTPUT_RIGHT_FRAME_INDEX),
+                        );
+                    }
                     match self.audio_device.update_audio_device(&device) {
-                        Err(error) => eprintln!("Error updating audio device: {}", error),
+                        Err(error) => eprintln!("Error updating audio device: {error}"),
                         Ok(_) => {
                             self.stream = Some(self.create_audio_engine());
                         }
                     }
                 }
                 EventType::UpdateAudioChannels(left, right) => {
-                    let mut parameters = self.get_synth_parameters_mutex_lock();
-                    let left_channel: usize =
-                        left.parse().unwrap_or(DEFAULT_AUDIO_OUTPUT_LEFT_CHANNEL);
-                    let right_channel = right.parse::<usize>().ok();
-                    let left_channel_index = left_channel - 1;
-                    let right_channel_index = right_channel.map(|channel| channel - 1);
+                    {
+                        let mut parameters = self.get_synth_parameters_mutex_lock();
+                        parameters.audio_output_channel_indexes =
+                            get_channel_frame_indexes_from_channel_names(&left, &right);
+                    }
 
-                    parameters.audio_output_channels = (left_channel_index, right_channel_index);
+                    self.stream = Some(self.create_audio_engine());
                 }
                 _ => {}
             }
@@ -644,8 +650,8 @@ impl Synth {
                     let oscillator3_level = oscillators.get_oscillator3_level();
                     let sub_oscillator_level = oscillators.get_sub_oscillator_level();
 
-                    let left_channel_index = parameters.audio_output_channels.0;
-                    let right_channel_index = parameters.audio_output_channels.1;
+                    let left_channel_index = parameters.audio_output_channel_indexes.0;
+                    let right_channel_index = parameters.audio_output_channel_indexes.1;
 
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_modulation = get_oscillator_mod_value(
@@ -863,6 +869,16 @@ impl Synth {
 
         stream
     }
+}
+
+fn get_channel_frame_indexes_from_channel_names(left: &str, right: &str) -> (usize, Option<usize>) {
+    let left_channel: usize = left
+        .parse()
+        .unwrap_or(DEFAULT_AUDIO_OUTPUT_LEFT_FRAME_INDEX);
+    let right_channel = right.parse::<usize>().ok();
+    let left_channel_index = left_channel - CHANNEL_TO_FRAME_INDEX_OFFSET;
+    let right_channel_index = right_channel.map(|channel| channel - CHANNEL_TO_FRAME_INDEX_OFFSET);
+    (left_channel_index, right_channel_index)
 }
 
 fn get_filter_mod_value(

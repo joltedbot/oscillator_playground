@@ -1,4 +1,5 @@
-import { Panel, Heading, Label, LevelSlider, LFOSlider, OscilatorControls, WaveSelector, ActivationSwitch, StartButton, ActionButton, VerticalLabeledIntSlider } from "../ui/components.slint";
+import { Panel, Heading, Label, LevelSlider, VerticalSpacer, LFOSlider, OscilatorControls, WaveSelector, ActivationSwitch, StartButton,
+ActionButton, VerticalLabeledIntSlider } from "../ui/components.slint";
 import { TabWidget } from "std-widgets.slint";
 import { Theme } from "../ui/theme.slint";
 
@@ -201,6 +202,10 @@ export component OscillatorPanel inherits HorizontalLayout {
                     }
                 }
 
+                VerticalSpacer {
+                    line-height: 100px;
+                }
+
                 VerticalLayout {
                     spacing: 10px;
 
@@ -231,6 +236,10 @@ export component OscillatorPanel inherits HorizontalLayout {
                             root.output_level_value_changed(level - 100);
                         }
                     }
+                }
+
+                VerticalSpacer {
+                    line-height: 100px;
                 }
 
                 VerticalLayout {

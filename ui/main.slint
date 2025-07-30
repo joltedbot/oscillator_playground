@@ -1,29 +1,30 @@
 import { Button, Slider, Switch, SpinBox, HorizontalBox, TabWidget } from "std-widgets.slint";
-import { Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch } from "../ui/components.slint";
+import { Header, Title, Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch
+ } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
 import { FilterPanel } from "../ui/filter-panel.slint";
 import { EnvelopePanel } from "../ui/envelope-panel.slint";
 import { EffectsPanel } from "../ui/effects-panel.slint";
-import { ButtonsPanel } from "../ui/buttons-panel.slint";
 import { ArpeggiatorPanel } from "../ui/arpeggiator-panel.slint";
 import { SettingsPanel } from "../ui/settings-panel.slint";
 
 
-export component ApplicationWindow inherits Window {
+export component AppWindow inherits Window {
     title: Theme.window-title;
     min-width: Theme.window-width;
     min-height: Theme.window-height;
     default-font-size: Theme.text-size;
     background: transparent;
 
+    in property <string> version_number;
     in-out property <bool> arp_button_active: false;
     in-out property <[string]> midi_input_ports;
     in-out property <[string]> audio_output_device_list;
     in-out property <[string]> audio_output_channels;
-    in-out property <string> audio_output_left_channel;
-    in-out property <string> audio_output_right_channel;
-    in-out property <string> audio_output_device;
+    in-out property <string> audio_output_channel_left;
+    in-out property <string> audio_output_channel_right;
+    in-out property <string> audio_output_current_device;
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
@@ -100,10 +101,8 @@ export component ApplicationWindow inherits Window {
             padding: 0px;
             spacing: 0px;
 
-            Image {
-                width: Theme.window-width;
-                height: 50px;
-                source: @image-url("../images/header.png");
+            Header {
+                version: version_number;
             }
 
             TabWidget {
@@ -367,9 +366,9 @@ export component ApplicationWindow inherits Window {
                         midi_input_ports: midi_input_ports;
                         audio_output_device_list: audio_output_device_list;
                         audio_output_channels: audio_output_channels;
-                        audio_output_device: audio_output_device;
-                        audio_output_left_channel: audio_output_left_channel;
-                        audio_output_right_channel: audio_output_right_channel;
+                        audio_output_device: audio_output_current_device;
+                        audio_output_left_channel: audio_output_channel_left;
+                        audio_output_right_channel: audio_output_channel_right;
 
                         midi_port_selected(port_index) => {
                             root.midi_port_selected(port_index);

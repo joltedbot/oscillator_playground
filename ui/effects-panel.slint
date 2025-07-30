@@ -1,7 +1,7 @@
-import { Panel, Heading, Label, LFOSlider, LevelSlider, ActivationSwitch } from "../ui/components.slint";
+import { Panel, Heading, Label, LFOSlider, LevelSlider, ActivationSwitch, VerticalSpacer, HorizontalSpacer } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
-export component EffectsPanel inherits GridLayout {
+export component EffectsPanel inherits VerticalLayout {
 
     callback phaser_activated(bool);
     callback phaser_speed_changed(float);
@@ -27,13 +27,14 @@ export component EffectsPanel inherits GridLayout {
     callback clipper_activated(bool);
     callback clipper_threshold_changed(float);
 
-    Row {
+    alignment: start;
 
-        auto_pan := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+    Panel {
+        width: Theme.effects-panel-width;
+        height: Theme.effects-panel-height;
 
-            VerticalLayout {
+        HorizontalLayout {
+            autopan := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -117,13 +118,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        phaser := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            phaser := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -206,13 +204,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        tremolo := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            tremolo := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -296,13 +291,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        bitcrusher := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            bitcrusher := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -345,13 +337,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        wave_shaper := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            waveshaper := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -397,12 +386,13 @@ export component EffectsPanel inherits GridLayout {
         }
     }
 
-    Row {
-        wavefolder := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+    Panel {
+        width: Theme.effects-panel-width;
+        height: Theme.effects-panel-height;
 
-            VerticalLayout {
+        HorizontalLayout {
+
+            wavefolder := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -458,13 +448,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        compressor := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            compressor := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -524,13 +511,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        limiter := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            limiter := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -571,13 +555,10 @@ export component EffectsPanel inherits GridLayout {
                     }
                 }
             }
-        }
 
-        clipper := Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-panel-height;
+            VerticalSpacer { }
 
-            VerticalLayout {
+            clipper := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -615,6 +596,18 @@ export component EffectsPanel inherits GridLayout {
                             }
                         }
                     }
+                }
+            }
+
+            VerticalSpacer { }
+
+            blankpanel := VerticalLayout {
+                alignment: center;
+                spacing: 20px;
+                padding: 10px;
+
+                HorizontalSpacer {
+                    width: 240px;
                 }
             }
         }

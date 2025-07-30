@@ -4,13 +4,12 @@ export global Theme {
     // Main Window
     out property <string> window-title: "Oscillator Playground";
     out property <length> window-width: 1400px;
-    out property <length> window-height: 650px;
+    out property <length> window-height: 740px;
     out property <length> window-border-width: 2px;
     out property <color> window-background: #101010;
     out property <color> border-colour: #404040;
     out property <length> border-width: 2px;
     out property <length> border-radius: 15px;
-    out property <color> header-background: #252525;
     out property <length> top-panel-row-height: 550px;
     out property <color> panel-box-background:#202020;
     out property <string> tab-oscillators-title: "Synth Engine";
@@ -22,36 +21,51 @@ export global Theme {
     out property <string> tab-osc3-title: "Oscillator 3";
     out property <string> tab-sub-title: "Sub Oscillator";
 
+    // Title Header
+    out property <color> header-background:#000015;
+    out property <length> header-height: 38px;
+    out property <color> title-text-color:#AAAAAA;
+    out property <int> title-text-weight: 900;
+    out property <length> title-text-size: 16px;
+    out property <color> version-text-color:#888888;
+    out property <int> version-text-weight: 400;
+    out property <length> version-text-size: 11px;
 
     // Panel Sizes
     out property <length> envelope-panel-width: 200px;
-    out property <length> envelope-panel-height: 630px;
+    out property <length> envelope-panel-height: 670px;
     out property <length> button-panel-height: 200px;
     out property <length> button-panel-width: 440px;
-    out property <length> filter-panel-height: 630px;
+    out property <length> filter-panel-height: 670px;
     out property <length> filter-panel-width: 200px;
-    out property <length> filter-slider-height: 230px;
-    out property <length> filter-slider-width: 60px;
+    out property <length> filter-slider-height: 210px;
+    out property <length> filter-slider-width: 80px;
     out property <length> lfo-panel-width: 173px;
-    out property <length> vertical-slider-width: 170px;
+    out property <length> vertical-slider-width: 150px;
     out property <length> vertical-slider-height: 35px;
-    out property <length> oscillators-panel-height: 120px;
+    out property <length> oscillators-panel-height: 130px;
     out property <length> oscillators-panel-width: 985px;
     out property <length> oscillators-global-panel-height: 130px;
     out property <length> oscillators-global-panel-width: 985px;
     out property <length> arp-panel-height: 625px;
     out property <length> arp-panel-width: 1395px;
     out property <length> effects-panel-height: 200px;
-    out property <length> effects-panel-width: 280px;
-    out property <length> settings-panel-height: 150px;
-    out property <length> settings-panel-width: 400px;
+    out property <length> effects-panel-width: 1395px;
+    out property <length> settings-panel-height: 200px;
+    out property <length> settings-panel-width: 1395px;
+    out property <length> settings-audio-channel-selector-width: 100px;
+    out property <length> settings-midi-channel-selector-width: 100px;
+    out property <length> settings-device-selector-width: 200px;
+
 
     // Horizontal Spacer
     out property <color> horizontal-spacer-color: #888888;
     out property <percent> horizontal-spacer-width: 90%;
     out property <length> horizontal-spacer-height: 2px;
 
-
+    out property <color> vertical-spacer-color: #888888;
+    out property <length> vertical-spacer-width: 2px;
+    out property <length> vertical-spacer-height: 150px;
 
     // Fonts
     out property <color> text-color: #AAAAAA;
@@ -344,6 +358,8 @@ export global Theme {
     out property <float> clipper-threshold-default: 0;
 
     // Settings
+    out property <int> settings-audio-default-left-index: 0;
+    out property <int> settings-audio-default-right-index: 1;
     out property <[string]> midi_channel_list: [
         "Omni",
         "1",
@@ -368,6 +384,7 @@ export global Theme {
     //
     // Label Text
     //
+    out property <string> header-title-text: "Accidental Synthesizer";
     out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
     out property <string> wave-form-label-text: "Wave Form";

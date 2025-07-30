@@ -14,7 +14,7 @@ use std::thread;
 
 slint::include_modules!();
 fn main() -> Result<(), slint::PlatformError> {
-    let application = ApplicationWindow::new()?;
+    let application = AppWindow::new()?;
 
     let events = events::Events::new();
 

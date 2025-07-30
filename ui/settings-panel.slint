@@ -1,8 +1,7 @@
-import { Panel, Heading, Label, MidiSelector, AudioDeviceSelector } from "../ui/components.slint";
+import { Panel, Heading, Label, MidiSelector, AudioDeviceSelector, VerticalSpacer } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component SettingsPanel inherits HorizontalLayout {
-    padding: 5px;
     in-out property <[string]> midi_input_ports;
     in-out property <[string]> audio_output_device_list;
     in-out property <[string]> audio_output_channels;
@@ -14,6 +13,8 @@ export component SettingsPanel inherits HorizontalLayout {
     callback midi_channel_selected(int);
     callback audio_device_selected(string);
     callback audio_channels_selected(string, string);
+
+    padding: 5px;
 
     Panel {
         panel-height: Theme.settings-panel-height;
@@ -36,6 +37,7 @@ export component SettingsPanel inherits HorizontalLayout {
                 }
 
                 MidiSelector {
+                    width: Theme.settings-device-selector-width;
                     list: midi_input_ports;
                     item_selected(port_index) => {
                         root.midi_port_selected(port_index);
@@ -47,21 +49,15 @@ export component SettingsPanel inherits HorizontalLayout {
                 }
 
                 MidiSelector {
+                    width: Theme.settings-midi-channel-selector-width;
                     list: Theme.midi_channel_list;
                     item_selected(channel) => {
                         root.midi_channel_selected(channel);
                     }
                 }
             }
-        }
-    }
 
-    Panel {
-        panel-height: Theme.settings-panel-height;
-        panel-width: Theme.settings-panel-width;
-
-        HorizontalLayout {
-            alignment: start;
+            VerticalSpacer { }
 
             VerticalLayout {
                 alignment: start;
@@ -76,8 +72,11 @@ export component SettingsPanel inherits HorizontalLayout {
                     label: Theme.settings-audio-output-device-text;
                 }
 
-                AudioDeviceSelector {
+                output_device := AudioDeviceSelector {
+
+                    width: Theme.settings-device-selector-width;
                     list: audio_output_device_list;
+                    current-item: audio_output_device;
                     item_selected(device) => {
                         root.audio_device_selected(device);
                     }
@@ -91,31 +90,45 @@ export component SettingsPanel inherits HorizontalLayout {
                     spacing: 10px;
 
                     left_channel := AudioDeviceSelector {
+
+                        changed list => {
+                            self.current-index = Theme.settings-audio-default-left-index;
+                        }
+
+                        current-item: audio_output_left_channel;
+                        width: Theme.settings-audio-channel-selector-width;
                         list: audio_output_channels;
-                        current-value: audio_output_left_channel;
                         item_selected(channel) => {
                             root.audio_channels_selected(channel, right_channel.current-value);
                         }
                     }
 
                     right_channel := AudioDeviceSelector {
+
                         states [
                             Mono when audio_output_right_channel == "": {
-                                right_channel.is_enabled: false;
+                                enabled: false;
                             }
                             MultiChannel when audio_output_right_channel != "": {
-                                right_channel.is_enabled: true;
+                                enabled: true;
                             }
                         ]
 
+                        changed list => {
+                            self.current-index = Theme.settings-audio-default-right-index;
+                        }
+
+                        current-item: audio_output_right_channel;
+                        width: Theme.settings-audio-channel-selector-width;
                         list: audio_output_channels;
-                        current-value: audio_output_right_channel;
                         item_selected(channel) => {
-                            root.audio_channels_selected(left_channel.current_value, channel);
+                            root.audio_channels_selected(left_channel.current-value, channel);
                         }
                     }
                 }
             }
+
+            VerticalSpacer { }
         }
     }
 }
