@@ -1,7 +1,7 @@
-import { Panel, Heading, Label, MidiSelector, AudioDeviceSelector, VerticalSpacer } from "../ui/components.slint";
+import { Panel, Heading, Label, MidiSelector, AudioDeviceSelector, VerticalSpacer, HorizontalSpacer } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
-export component SettingsPanel inherits HorizontalLayout {
+export component SettingsPanel inherits VerticalLayout {
     in-out property <[string]> midi_input_ports;
     in-out property <[string]> audio_output_device_list;
     in-out property <[string]> audio_output_channels;
@@ -15,13 +15,13 @@ export component SettingsPanel inherits HorizontalLayout {
     callback audio_channels_selected(string, string);
 
     padding: 5px;
+    spacing: 5px;
 
     Panel {
         panel-height: Theme.settings-panel-height;
         panel-width: Theme.settings-panel-width;
 
         HorizontalLayout {
-            alignment: start;
 
             VerticalLayout {
                 alignment: start;
@@ -129,6 +129,30 @@ export component SettingsPanel inherits HorizontalLayout {
             }
 
             VerticalSpacer { }
+
+            VerticalLayout {
+                alignment: center;
+                HorizontalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    HorizontalSpacer { }
+                }
+            }
         }
     }
+
+    Panel {
+        width: Theme.settings-panel-width;
+        height: Theme.settings-bottom-panel-height;
+
+        VerticalLayout {
+
+            alignment: center;
+
+            HorizontalSpacer { }
+
+
+        }
+    }
+
 }

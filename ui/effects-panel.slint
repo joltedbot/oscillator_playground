@@ -28,6 +28,8 @@ export component EffectsPanel inherits VerticalLayout {
     callback clipper_threshold_changed(float);
 
     alignment: start;
+    padding: 5px;
+    spacing: 5px;
 
     Panel {
         width: Theme.effects-panel-width;
@@ -612,4 +614,18 @@ export component EffectsPanel inherits VerticalLayout {
             }
         }
     }
+
+    Panel {
+            width: Theme.effects-panel-width;
+            height: Theme.effects-bottom-panel-height;
+
+            VerticalLayout {
+
+                alignment: center;
+
+                HorizontalSpacer { }
+
+
+            }
+        }
 }

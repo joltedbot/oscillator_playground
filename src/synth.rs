@@ -653,6 +653,8 @@ impl Synth {
                     let left_channel_index = parameters.audio_output_channel_indexes.0;
                     let right_channel_index = parameters.audio_output_channel_indexes.1;
 
+
+                    // Start the processing of individual frames
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_modulation = get_oscillator_mod_value(
                             &mut lfos[LFO_INDEX_FOR_SUB_OSCILLATOR_MOD],

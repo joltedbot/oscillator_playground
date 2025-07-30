@@ -69,11 +69,12 @@ export component Header inherits Rectangle {
 }
 
 export component HorizontalSpacer inherits HorizontalLayout {
+    in-out property <length> line-width: Theme.horizontal-spacer-width;
     padding: 10px;
     alignment: center;
     Rectangle {
         background: Theme.horizontal-spacer-color;
-        width: Theme.horizontal-spacer-width;
+        width: line-width;
         height: Theme.horizontal-spacer-height;
     }
 }
