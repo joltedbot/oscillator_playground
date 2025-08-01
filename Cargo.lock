@@ -3301,7 +3301,7 @@ dependencies = [
 
 [[package]]
 name = "oscillator_playground"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
  "cpal",
  "crossbeam-channel",
