@@ -75,11 +75,16 @@ pub fn get_auto_pan_value(
     mut right_sample: f32,
 ) -> (f32, f32) {
     let pan_value = lfo.get_next_value(auto_pan.frequency, auto_pan.center_value, auto_pan.width);
-
-    left_sample *= pan_value;
-    right_sample *= 2.0 - pan_value;
-
+    let (left_adjustment_value, right_adjustment_value) = get_sample_adjustment_for_pan_value(pan_value);
+    left_sample *= left_adjustment_value;
+    right_sample *= right_adjustment_value;
     (left_sample, right_sample)
+}
+
+pub fn get_sample_adjustment_for_pan_value(pan_value: f32) -> (f32, f32) {
+    let left_value = 2.0 - pan_value;
+    let right_value = pan_value;
+    (left_value, right_value)
 }
 
 pub fn get_tremolo_value(

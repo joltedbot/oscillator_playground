@@ -36,7 +36,7 @@ export component SettingsPanel inherits VerticalLayout {
                     label: Theme.settings-midi-port-text;
                 }
 
-                MidiSelector {
+                midi_device_selector := MidiSelector {
                     width: Theme.settings-device-selector-width;
                     list: midi_input_ports;
                     item_selected(port_index) => {
@@ -48,13 +48,15 @@ export component SettingsPanel inherits VerticalLayout {
                     label: Theme.settings-midi-channel-text;
                 }
 
-                MidiSelector {
+                midi_channel_selector := MidiSelector {
                     width: Theme.settings-midi-channel-selector-width;
                     list: Theme.midi_channel_list;
                     item_selected(channel) => {
                         root.midi_channel_selected(channel);
                     }
+
                 }
+
             }
 
             VerticalSpacer { }

@@ -22,9 +22,9 @@ export global Theme {
     out property <string> tab-sub-title: "Sub Oscillator";
 
     // Title Header
-    out property <color> header-background:#000015;
+    out property <brush> header-background: @linear-gradient(90deg, #000000 0%, #000020 50%, #000040 100%);
     out property <length> header-height: 38px;
-    out property <color> title-text-color:#CCCCCC;
+    out property <color> title-text-color:#DDDDDD;
     out property <int> title-text-weight: 900;
     out property <length> title-text-size: 16px;
     out property <color> version-text-color:#888888;
@@ -38,7 +38,7 @@ export global Theme {
     out property <length> button-panel-width: 440px;
     out property <length> filter-panel-height: 670px;
     out property <length> filter-panel-width: 200px;
-    out property <length> filter-slider-height: 210px;
+    out property <length> filter-slider-height: 230px;
     out property <length> filter-slider-width: 80px;
     out property <length> lfo-panel-width: 173px;
     out property <length> vertical-slider-width: 150px;
@@ -100,14 +100,14 @@ export global Theme {
     // Start Button
     out property <string> start-button-running-text: "Arp is On";
     out property <string> start-button-stopped-text: "Arp is Off";
-    out property <length> start-button-width: 150px;
-    out property <length> start-button-height: 35px;
+    out property <length> start-button-width: 130px;
+    out property <length> start-button-height: 25px;
 
     // Resync Buttons
     out property <string> resync-button-text: "Resync Oscillators";
     out property <string> resync-lfo-button-text: "Resync Modulation";
-    out property <length> resync-button-width: 150px;
-    out property <length> resync-button-height: 35px;
+    out property <length> resync-button-width: 130px;
+    out property <length> resync-button-height: 25px;
 
     // Detune Switch
     out property <length> mode-switch-width: 250px;
@@ -118,6 +118,7 @@ export global Theme {
     out property <int> output-level-minimum: -30;
     out property <int> output-level-maximum: 0;
     out property <int> output-level-step-size: 1;
+
 
     // Wave Selector
     out property <length> wave-shape-switch-width: 150px;
@@ -143,6 +144,12 @@ export global Theme {
     out property <int> osc-level-slider-maximum: 100;
     out property <int> osc-level-slider-default: 100;
     out property <int> sub-level-slider-default: 0;
+    
+    // Oscillator Detune Slider
+    out property <float> detune-slider-step: 0.1;
+    out property <float> detune-slider-minimum: 0;
+    out property <float> detune-slider-maximum: 100;
+    out property <float> detune-slider-default: 100;
     out property <int> detune-amount-slider-default: 0;
 
     // Oscillator Tuning Slider
@@ -219,6 +226,12 @@ export global Theme {
     out property <int> output-level-slider-default: 90;
     out property <length> output-level-slider-width: 150px;
     out property <length> output-level-slider-text-width: 75px;
+
+    // Output Pan Slider
+    out property <float> output-pan-slider-step: 0.1;
+    out property <float> output-pan-slider-minimum: 0.0;
+    out property <float> output-pan-slider-maximum: 2.0;
+    out property <float> output-pan-slider-default: 1.0;
 
 
     // Output Level Balanced Switch
@@ -389,6 +402,9 @@ export global Theme {
     out property <string> header-title-text: "Accidental Synthesizer";
     out property <string> output-level-heading-text: "Output Level";
     out property <string> output-level-label-suffix: " dbfs";
+    out property <string> output-pan-heading-text: "Stereo Pan";
+    out property <string> output-pan-slider-left: "L";
+    out property <string> output-pan-slider-right: "R";
     out property <string> wave-form-label-text: "Wave Form";
     out property <string> sub-oscillator-heading-text: "Sub";
     out property <string> oscillator1-heading-text: "Oscillator 1";
@@ -409,7 +425,7 @@ export global Theme {
     out property <string> oscillator-mod-speed-suffix: " Hz";
     out property <string> oscillator-mod-amount-text: "Mod Amount: ";
     out property <string> oscillator-mod-amount-suffix: "%";
-    out property <string> detune-heading-text: "Detune";
+    out property <string> detune-heading-text: "Osc Detune";
     out property <string> detune-amount-label-suffix: "%";
     out property <string> envelope-header-text: "ADSR Envelope";
     out property <string> envelope-attack-text: "Attack";

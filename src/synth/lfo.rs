@@ -9,10 +9,10 @@ impl LFO {
         Self { oscillator }
     }
 
-    pub fn get_next_value(&mut self, lfo_frequency: f32, center_value: f32, spread: f32) -> f32 {
+    pub fn get_next_value(&mut self, lfo_frequency: f32, center_value: f32, range: f32) -> f32 {
         let wave_position = self.oscillator.next_sample(lfo_frequency, None);
 
-        center_value + (wave_position * (spread / 2.0))
+        center_value + (wave_position * (range / 2.0))
     }
 
     pub fn reset(&mut self) {

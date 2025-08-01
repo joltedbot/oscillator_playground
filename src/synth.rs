@@ -75,6 +75,7 @@ struct SynthParameters {
     amp_mode: AmpMode,
     output_level: f32,
     output_level_constant: bool,
+    manual_pan_value: f32,
     auto_pan: LFOParameters,
     tremolo: LFOParameters,
     filter_mod: LFOParameters,
@@ -103,7 +104,9 @@ pub struct Synth {
 }
 
 impl Synth {
-    pub fn new(audio_device: AudioDevice) -> Self {
+    pub fn new() -> Self {
+
+        let audio_device = AudioDevice::new();
         let sample_rate = audio_device.get_sample_rate();
 
         // Set up your initial oscillators and set their WaveShape
@@ -200,6 +203,7 @@ impl Synth {
         let parameters = SynthParameters {
             amp_mode: AmpMode::Envelope,
             output_level: OUTPUT_LEVEL,
+            manual_pan_value: DEFAULT_OUTPUT_PAN_VALUE,
             auto_pan,
             tremolo,
             filter_mod,
@@ -286,6 +290,10 @@ impl Synth {
                 EventType::UpdateOutputLevelConstant(is_active) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
                     parameters.output_level_constant = is_active;
+                }
+                EventType::UpdateOutputPan(pan) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.manual_pan_value = pan as f32;
                 }
                 EventType::UpdateEnvelopeAttack(milliseconds) => {
                     let mut envelope = self.get_envelope_mutex_lock();
@@ -854,11 +862,14 @@ impl Synth {
                             );
                         }
 
-                        frame[left_channel_index] = left_sample;
+                        let (left_pan_adjustment, right_pan_adjustment) =
+                            effects::get_sample_adjustment_for_pan_value(parameters.manual_pan_value);
+
+                        frame[left_channel_index] = left_sample * left_pan_adjustment;
 
                         if number_of_channels > 1 && right_channel_index.is_some() {
                             let right_index = right_channel_index.unwrap();
-                            frame[right_index] = right_sample;
+                            frame[right_index] = right_sample * right_pan_adjustment;
                         }
                     }
                 },

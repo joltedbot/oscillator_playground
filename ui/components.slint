@@ -48,6 +48,9 @@ export component Version inherits Text {
 
 export component Header inherits Rectangle {
     in-out property <string> version;
+    in-out property <string> midi-controler;
+    in-out property <string> midi-channel;
+
     background: Theme.header-background;
     height: Theme.header-height;
     width: Theme.window-width;
@@ -268,11 +271,13 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
             label: label;
         }
 
-        Label {
+        lab := Label {
             font-weight: is_bold ? Theme.text-weight-bold : Theme.text-weight-regular;
             label: value_display;
         }
     }
+
+
 
     Slider {
         height: slider_height;
@@ -292,10 +297,11 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
             new_value_selected(self.value);
         }
     }
+
 }
 
 export component VerticalLabeledFloatSlider inherits VerticalLayout {
-
+    in-out property <float> double_click_value;
     in-out property <string> label;
     in-out property <float> slider_value;
     in-out property <string> value_display;
@@ -324,23 +330,24 @@ export component VerticalLabeledFloatSlider inherits VerticalLayout {
         }
     }
 
-    Slider {
-        width: slider_width;
-        height: slider_height;
-        orientation: slider_orientation;
-        enabled: is_enabled;
-        value: slider_value;
-        step: step;
-        minimum: minimum;
-        maximum: maximum;
+        Slider {
+            width: slider_width;
+            height: slider_height;
+            orientation: slider_orientation;
+            enabled: is_enabled;
+            value: slider_value;
+            step: step;
+            minimum: minimum;
+            maximum: maximum;
 
-        changed value => {
-            slider_value = self.value;
-            if (self.value < step) {
-                self.value == 0;
+            changed value => {
+                slider_value = self.value;
+                if (self.value < step) {
+                    self.value == 0;
+                }
+                new_value_selected(self.value);
             }
-            new_value_selected(self.value);
-        }
+
     }
 }
 

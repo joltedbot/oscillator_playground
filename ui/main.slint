@@ -38,6 +38,7 @@ export component AppWindow inherits Window {
     callback wave_detune_state_changed(bool, float);
     callback output_level_value_changed(int);
     callback output_level_constant_activated(bool);
+    callback output_pan_value_changed(float);
 
     callback arp_button_pressed(bool);
     callback resync_oscillators();
@@ -101,12 +102,12 @@ export component AppWindow inherits Window {
             padding: 0px;
             spacing: 0px;
 
-            Header {
+            header := Header {
                 version: version_number;
             }
 
             TabWidget {
-                Tab {
+                osc-tab := Tab {
                     title: Theme.tab-oscillators-title;
 
                     HorizontalLayout {
@@ -114,7 +115,7 @@ export component AppWindow inherits Window {
                         padding: 5px;
                         spacing: 5px;
 
-                        OscillatorPanel {
+                        osc-panel := OscillatorPanel {
 
                             wave_level_selected(level, oscillator) => {
                                 root.wave_level_selected(level, oscillator);
@@ -157,6 +158,10 @@ export component AppWindow inherits Window {
 
                             output_level_constant_activated(is_active) => {
                                 root.output_level_constant_activated(is_active);
+                            }
+
+                            output_pan_value_changed(pan) => {
+                                root.output_pan_value_changed(pan);
                             }
 
                             arp_button_active: arp_button_active;

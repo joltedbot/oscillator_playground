@@ -7,7 +7,6 @@ mod ui;
 use crate::device_manager::DeviceManager;
 use crate::midi::Midi;
 use crate::synth::Synth;
-use crate::synth::device::AudioDevice;
 use crate::ui::UI;
 use slint::ComponentHandle;
 use std::thread;
@@ -52,10 +51,10 @@ fn main() -> Result<(), slint::PlatformError> {
     midi.run(synth_sender.clone(), midi_receiver.clone());
 
     // Initialize the default audio output device for your system
-    let audio_device = AudioDevice::new();
+
 
     thread::spawn(|| {
-        let mut synth = Synth::new(audio_device);
+        let mut synth = Synth::new();
         synth.run(synth_receiver);
     });
 

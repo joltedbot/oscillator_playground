@@ -4,6 +4,7 @@ pub const UNBALANCED_OUTPUT_LEVEL_ADJUSTMENT: f32 = 3.0;
 pub const DEFAULT_AUDIO_OUTPUT_LEFT_FRAME_INDEX: usize = 0;
 pub const DEFAULT_AUDIO_OUTPUT_RIGHT_FRAME_INDEX: usize = 1;
 pub const CHANNEL_TO_FRAME_INDEX_OFFSET: usize = 1;
+pub const DEFAULT_OUTPUT_PAN_VALUE: f32 = 1.0;
 
 // Arpeggiator Constants
 pub const DEFAULT_SEQUENCER_NOTE: u16 = 128;

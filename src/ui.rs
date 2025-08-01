@@ -145,6 +145,7 @@ impl UI {
         self.on_wave_detune_state_changed();
         self.on_output_level_value_changed();
         self.on_output_level_constant_activated();
+        self.on_output_pan_value_changed();
         self.on_envelope_attack_updated();
         self.on_envelope_decay_updated();
         self.on_envelope_release_updated();
@@ -342,6 +343,18 @@ impl UI {
 
         ui.on_output_level_constant_activated(move |is_active| {
             if let Err(error) = synth_sender.send(EventType::UpdateOutputLevelConstant(is_active)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+
+    fn on_output_pan_value_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_output_pan_value_changed(move |pan| {
+            if let Err(error) = synth_sender.send(EventType::UpdateOutputPan(pan)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
