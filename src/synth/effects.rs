@@ -10,14 +10,10 @@ pub fn get_wave_shaped_sample(mut amount: f32, left_sample: f32, right_sample: f
         return (left_sample, right_sample);
     }
 
-    if amount >= WAVE_SHAPER_MAX_AMOUNT {
-        amount = WAVE_SHAPER_MAX_AMOUNT;
-    }
-
-    let shape = (2.0 * amount) / (1.0 - amount);
-
-    let left_shaped_sample = ((1.0 + shape) * left_sample) / (1.0 + (shape * left_sample.abs()));
-    let right_shaped_sample = ((1.0 + shape) * right_sample) / (1.0 + (shape * right_sample.abs()));
+    // Analog Modeled Drive
+    let drive = 1.0 + amount * 9.0;
+    let left_shaped_sample =  (left_sample * drive).atan() * (2.0 / std::f32::consts::PI);
+    let right_shaped_sample =  (right_sample * drive).atan() * (2.0 / std::f32::consts::PI);
 
     (left_shaped_sample, right_shaped_sample)
 }

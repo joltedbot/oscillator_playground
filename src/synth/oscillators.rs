@@ -23,7 +23,6 @@ use sub::Sub;
 use super_saw::SuperSaw;
 use triangle::Triangle;
 
-const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
 const DEFAULT_WAVE_LEVEL: f32 = 1.0;
 const DEFAULT_SUB_LEVEL: f32 = 0.0;
 const DEFAULT_WAVE_SHAPER_AMOUNT: f32 = 0.0;
@@ -285,15 +284,12 @@ impl Oscillators {
     }
 }
 
-fn get_wave_shaped_sample(sample: f32, mut amount: f32) -> f32 {
+fn get_wave_shaped_sample(sample: f32, amount: f32) -> f32 {
     if amount == 0.0 {
         return sample;
     }
 
-    if amount >= WAVE_SHAPER_MAX_AMOUNT {
-        amount = WAVE_SHAPER_MAX_AMOUNT;
-    }
-
-    let shape = (2.0 * amount) / (1.0 - amount);
-    ((1.0 + shape) * sample) / (1.0 + (shape * sample.abs()))
+    // Tube like asymmetric drive
+    let factor = amount * 2.0;
+    sample.signum() * (1.0 - (-sample.abs() * factor).exp())
 }

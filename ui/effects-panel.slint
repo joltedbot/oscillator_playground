@@ -369,14 +369,14 @@ export component EffectsPanel inherits VerticalLayout {
                         }
 
                         Label {
-                            label: Theme.wave_shaper-amount-text + round(wave_shaper_amount.value * 100.0);
+                            label: Theme.wave-shaper-amount-text + round(wave_shaper_amount.value * 100.0);
                         }
 
                         wave_shaper_amount := LFOSlider {
-                            slider_value: Theme.wave_shaper-amount-slider-default;
-                            step: Theme.wave_shaper-amount-slider-step;
-                            minimum: Theme.wave_shaper-amount-slider-minimum;
-                            maximum: Theme.wave_shaper-amount-slider-maximum;
+                            slider_value: Theme.wave-shaper-amount-slider-default;
+                            step: Theme.wave-shaper-amount-slider-step;
+                            minimum: Theme.wave-shaper-amount-slider-minimum;
+                            maximum: Theme.wave-shaper-amount-slider-maximum;
                             enabled: false;
                             level_selected(amount) => {
                                 wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
