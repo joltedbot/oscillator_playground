@@ -3,20 +3,6 @@ use crate::synth::lfo::LFO;
 use std::sync::MutexGuard;
 
 const PHASER_MAX_WIDTH_VALUE: usize = 126;
-const WAVE_SHAPER_MAX_AMOUNT: f32 = 0.9;
-
-pub fn get_wave_shaped_sample(mut amount: f32, left_sample: f32, right_sample: f32) -> (f32, f32) {
-    if amount == 0.0 {
-        return (left_sample, right_sample);
-    }
-
-    // Analog Modeled Drive
-    let drive = 1.0 + amount * 9.0;
-    let left_shaped_sample =  (left_sample * drive).atan() * (2.0 / std::f32::consts::PI);
-    let right_shaped_sample =  (right_sample * drive).atan() * (2.0 / std::f32::consts::PI);
-
-    (left_shaped_sample, right_shaped_sample)
-}
 
 pub fn get_phased_sample(
     lfo: &mut LFO,
@@ -71,7 +57,8 @@ pub fn get_auto_pan_value(
     mut right_sample: f32,
 ) -> (f32, f32) {
     let pan_value = lfo.get_next_value(auto_pan.frequency, auto_pan.center_value, auto_pan.width);
-    let (left_adjustment_value, right_adjustment_value) = get_sample_adjustment_for_pan_value(pan_value);
+    let (left_adjustment_value, right_adjustment_value) =
+        get_sample_adjustment_for_pan_value(pan_value);
     left_sample *= left_adjustment_value;
     right_sample *= right_adjustment_value;
     (left_sample, right_sample)

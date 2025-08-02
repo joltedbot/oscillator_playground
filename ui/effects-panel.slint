@@ -1,4 +1,4 @@
-import { Panel, Heading, Label, LFOSlider, LevelSlider, ActivationSwitch, VerticalSpacer, HorizontalSpacer } from "../ui/components.slint";
+import { Panel, Heading, Label, LFOSlider,SaturationSelector, LevelSlider, VerticalLabeledIntSlider, ActivationSwitch, VerticalSpacer, HorizontalSpacer } from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 
 export component EffectsPanel inherits VerticalLayout {
@@ -8,8 +8,10 @@ export component EffectsPanel inherits VerticalLayout {
     callback phaser_amount_changed(float);
     callback bitcrusher_activated(bool);
     callback bitcrusher_amount_changed(int);
-    callback wave_shaper_activated(bool);
-    callback wave_shaper_amount_changed(float);
+    callback saturation_mode_selected(string);
+    callback saturation_activated(bool);
+    callback saturation_amount_changed(float);
+    callback makeup_gain_changed(int);
     callback auto_pan_activated(bool);
     callback tremolo_activated(bool);
     callback auto_pan_speed_changed(float);
@@ -19,9 +21,9 @@ export component EffectsPanel inherits VerticalLayout {
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
     callback compressor_ratio_changed(float);
-    callback wavefolder_activated(bool);
-    callback wavefolder_threshold_changed(float);
-    callback wavefolder_ratio_changed(float);
+    callback wave_folder_activated(bool);
+    callback wave_folder_threshold_changed(float);
+    callback wave_folder_ratio_changed(float);
     callback limiter_activated(bool);
     callback limiter_threshold_changed(float);
     callback clipper_activated(bool);
@@ -342,7 +344,7 @@ export component EffectsPanel inherits VerticalLayout {
 
             VerticalSpacer { }
 
-            waveshaper := VerticalLayout {
+            saturation := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -356,32 +358,61 @@ export component EffectsPanel inherits VerticalLayout {
 
                         Heading {
                             horizontal-alignment: center;
-                            heading: Theme.wave_shaper-heading-text;
+                            heading: Theme.saturation-heading-text;
                         }
 
                         ActivationSwitch {
                             activated-text: Theme.activation-switch-active-text;
                             not-activated-text: Theme.activation-switch-not-active-text;
                             activation_toggled => {
-                                wave_shaper_amount.enabled = self.activated;
-                                wave_shaper_activated(self.checked);
+                                saturation_amount.enabled = self.activated;
+                                saturation_mode.enabled = self.activated;
+                                makeup_gain.is_enabled = self.activated;
+                                saturation_activated(self.checked);
                             }
                         }
+
+                       saturation_mode := SaturationSelector {
+                            height: Theme.saturation-selector-height;
+                            width: Theme.saturation-selector-width;
+                            enabled: false;
+
+                            saturation_mode_selected(mode) => {
+                                saturation_mode_selected(mode);
+                            }
+                        }
+
 
                         Label {
-                            label: Theme.wave-shaper-amount-text + round(wave_shaper_amount.value * 100.0);
+                            label: Theme.saturation-amount-text + (round(saturation_amount.value*10));
                         }
 
-                        wave_shaper_amount := LFOSlider {
-                            slider_value: Theme.wave-shaper-amount-slider-default;
-                            step: Theme.wave-shaper-amount-slider-step;
-                            minimum: Theme.wave-shaper-amount-slider-minimum;
-                            maximum: Theme.wave-shaper-amount-slider-maximum;
+                        saturation_amount := LFOSlider {
+                            slider_value: Theme.saturation-amount-slider-default;
+                            step: Theme.saturation-amount-slider-step;
+                            minimum: Theme.saturation-amount-slider-minimum;
+                            maximum: Theme.saturation-amount-slider-maximum;
                             enabled: false;
                             level_selected(amount) => {
-                                wave_shaper_amount_changed(round(amount * 10.0) / 10.0);
+                                saturation_amount_changed(round(amount * 10.0) / 10.0);
                             }
                         }
+                        
+                        
+                        makeup_gain := VerticalLabeledIntSlider {
+                            label: Theme.makeup-gain-label-text + makeup_gain.slider_value + Theme.output-level-label-suffix;
+                            slider_value: Theme.makeup-gain-slider-default;
+                            is_bold: true;
+                            is_enabled: false;
+                            step: Theme.makeup-gain-slider-step;
+                            minimum: Theme.makeup-gain-slider-minimum;
+                            maximum: Theme.makeup-gain-slider-maximum;
+    
+                            new_value_selected(level) => {
+                                root.makeup_gain_changed(level);
+                            }
+                        }
+
                     }
                 }
             }
@@ -394,7 +425,7 @@ export component EffectsPanel inherits VerticalLayout {
 
         HorizontalLayout {
 
-            wavefolder := VerticalLayout {
+            wave_folder := VerticalLayout {
                 alignment: start;
                 spacing: 20px;
                 padding: 10px;
@@ -405,46 +436,46 @@ export component EffectsPanel inherits VerticalLayout {
                         spacing: 10px;
                         Heading {
                             horizontal-alignment: center;
-                            heading: Theme.wavefolder-heading-text;
+                            heading: Theme.wave_folder-heading-text;
                         }
 
                         ActivationSwitch {
                             activated-text: Theme.activation-switch-active-text;
                             not-activated-text: Theme.activation-switch-not-active-text;
                             activation_toggled => {
-                                wavefolder_threshold.enabled = self.activated;
-                                wavefolder_ratio.enabled = self.activated;
-                                wavefolder_activated(self.checked);
+                                wave_folder_threshold.enabled = self.activated;
+                                wave_folder_ratio.enabled = self.activated;
+                                wave_folder_activated(self.checked);
                             }
                         }
 
                         Label {
-                            label: Theme.wavefolder-threshold-text + round(wavefolder_threshold.slider_value);
+                            label: Theme.wave_folder-threshold-text + round(wave_folder_threshold.slider_value);
                         }
 
-                        wavefolder_threshold := LFOSlider {
-                            slider_value: Theme.wavefolder-threshold-default;
-                            step: Theme.wavefolder-threshold-step;
-                            minimum: Theme.wavefolder-threshold-minimum;
-                            maximum: Theme.wavefolder-threshold-maximum;
+                        wave_folder_threshold := LFOSlider {
+                            slider_value: Theme.wave_folder-threshold-default;
+                            step: Theme.wave_folder-threshold-step;
+                            minimum: Theme.wave_folder-threshold-minimum;
+                            maximum: Theme.wave_folder-threshold-maximum;
                             enabled: false;
                             level_selected(level) => {
-                                wavefolder_threshold_changed(round(level));
+                                wave_folder_threshold_changed(round(level));
                             }
                         }
 
                         Label {
-                            label: Theme.wavefolder-ratio-text + round(wavefolder_ratio.value) + Theme.wavefolder-ratio-suffix;
+                            label: Theme.wave_folder-ratio-text + round(wave_folder_ratio.value) + Theme.wave_folder-ratio-suffix;
                         }
 
-                        wavefolder_ratio := LevelSlider {
-                            value: Theme.wavefolder-ratio-default;
-                            step: Theme.wavefolder-ratio-step;
-                            minimum: Theme.wavefolder-ratio-minimum;
-                            maximum: Theme.wavefolder-ratio-maximum;
+                        wave_folder_ratio := LevelSlider {
+                            value: Theme.wave_folder-ratio-default;
+                            step: Theme.wave_folder-ratio-step;
+                            minimum: Theme.wave_folder-ratio-minimum;
+                            maximum: Theme.wave_folder-ratio-maximum;
                             enabled: false;
                             level_selected(level) => {
-                                wavefolder_ratio_changed(1 / round(level));
+                                wave_folder_ratio_changed(1 / round(level));
                             }
                         }
                     }
@@ -616,16 +647,14 @@ export component EffectsPanel inherits VerticalLayout {
     }
 
     Panel {
-            width: Theme.effects-panel-width;
-            height: Theme.effects-bottom-panel-height;
+        width: Theme.effects-panel-width;
+        height: Theme.effects-bottom-panel-height;
 
-            VerticalLayout {
+        VerticalLayout {
 
-                alignment: center;
+            alignment: center;
 
-                HorizontalSpacer { }
-
-
-            }
+            HorizontalSpacer { }
         }
+    }
 }

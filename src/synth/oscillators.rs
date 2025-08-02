@@ -55,7 +55,7 @@ struct Parameters {
     wave: Box<dyn GenerateSamples + Send + Sync>,
     shape: WaveShape,
     level: f32,
-    shaper_amount: f32,
+    drive_amount: f32,
     interval: i32,
 }
 
@@ -72,7 +72,7 @@ impl Oscillators {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_SUB_LEVEL,
-            shaper_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
+            drive_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
@@ -80,7 +80,7 @@ impl Oscillators {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
-            shaper_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
+            drive_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
@@ -88,7 +88,7 @@ impl Oscillators {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
-            shaper_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
+            drive_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
@@ -96,7 +96,7 @@ impl Oscillators {
             wave: Box::new(Sine::new(sample_rate)),
             shape: WaveShape::Sine,
             level: DEFAULT_WAVE_LEVEL,
-            shaper_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
+            drive_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             interval: DEFAULT_WAVE_INTERVAL,
         };
 
@@ -135,8 +135,8 @@ impl Oscillators {
             .set_shape_specific_parameters(parameters);
     }
 
-    pub fn set_oscillator_shaper_amount(&mut self, amount: f32, oscillator: i32) {
-        self.oscillators[oscillator as usize].shaper_amount = amount;
+    pub fn set_oscillator_drive_amount(&mut self, amount: f32, oscillator: i32) {
+        self.oscillators[oscillator as usize].drive_amount = amount;
     }
 
     pub fn get_oscillator_interval(&mut self, oscillator: i32) -> i32 {
@@ -182,7 +182,7 @@ impl Oscillators {
         };
 
         let sample = self.oscillators[1].wave.next_sample(frequency, modulation) * relative_level;
-        get_wave_shaped_sample(sample, self.oscillators[1].shaper_amount)
+        get_wave_shaped_sample(sample, self.oscillators[1].drive_amount)
     }
 
     pub fn get_oscillator2_next_sample(
@@ -199,7 +199,7 @@ impl Oscillators {
             .wave
             .next_sample(note_frequency, modulation)
             * relative_level;
-        get_wave_shaped_sample(sample, self.oscillators[2].shaper_amount)
+        get_wave_shaped_sample(sample, self.oscillators[2].drive_amount)
     }
 
     pub fn get_oscillator3_next_sample(
@@ -219,7 +219,7 @@ impl Oscillators {
         };
 
         let sample = self.oscillators[3].wave.next_sample(frequency, modulation) * relative_level;
-        get_wave_shaped_sample(sample, self.oscillators[3].shaper_amount)
+        get_wave_shaped_sample(sample, self.oscillators[3].drive_amount)
     }
 
     pub fn get_sub_oscillator_next_sample(
@@ -236,7 +236,7 @@ impl Oscillators {
             .wave
             .next_sample(note_frequency, modulation)
             * relative_level;
-        get_wave_shaped_sample(sample, self.oscillators[0].shaper_amount)
+        get_wave_shaped_sample(sample, self.oscillators[0].drive_amount)
     }
 
     pub fn enable_unison(&mut self, unison_spread_percentage_of_note: f32) {

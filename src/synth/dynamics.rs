@@ -18,10 +18,7 @@ impl Dynamics {
         let compressed_delta = delta * ratio;
         let new_dbfs = threshold + compressed_delta;
         let mut compressed_sample = get_f32_sample_from_dbfs(new_dbfs);
-
-        if sample.is_sign_negative() {
-            compressed_sample *= -1.0;
-        }
+        compressed_sample *= compressed_sample.signum();
 
         compressed_sample * self.get_makeup_gain(threshold * (1.0 - ratio), output_level)
     }
@@ -38,15 +35,12 @@ impl Dynamics {
         }
 
         let mut clipped_sample = get_f32_sample_from_dbfs(threshold);
-
-        if sample.is_sign_negative() {
-            clipped_sample *= -1.0;
-        }
+        clipped_sample *= clipped_sample.signum();
 
         clipped_sample * self.get_makeup_gain(threshold, output_level)
     }
 
-    pub fn wavefold(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
+    pub fn wave_fold(&self, output_level: f32, threshold: f32, ratio: f32, sample: f32) -> f32 {
         let sample_dbfs = get_dbfs_from_f32_sample(sample);
 
         if sample_dbfs <= threshold || output_level <= threshold {
@@ -57,10 +51,7 @@ impl Dynamics {
         let compressed_delta = delta * ratio;
         let new_dbfs = threshold - compressed_delta;
         let mut compressed_sample = get_f32_sample_from_dbfs(new_dbfs);
-
-        if sample.is_sign_negative() {
-            compressed_sample *= -1.0;
-        }
+        compressed_sample *= compressed_sample.signum();
 
         compressed_sample * self.get_makeup_gain(threshold, output_level)
     }
@@ -73,7 +64,7 @@ impl Dynamics {
     }
 }
 
-fn get_dbfs_from_f32_sample(sample: f32) -> f32 {
+pub fn get_dbfs_from_f32_sample(sample: f32) -> f32 {
     let sample_absolute_value = sample.abs();
 
     if sample_absolute_value <= f32::EPSILON {
@@ -83,6 +74,6 @@ fn get_dbfs_from_f32_sample(sample: f32) -> f32 {
     20.0 * sample_absolute_value.log10()
 }
 
-fn get_f32_sample_from_dbfs(dbfs: f32) -> f32 {
+pub fn get_f32_sample_from_dbfs(dbfs: f32) -> f32 {
     10.0_f32.powf(dbfs / 20.0)
 }
