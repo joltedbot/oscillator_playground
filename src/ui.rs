@@ -138,7 +138,7 @@ impl UI {
         self.on_wave_level_selected();
         self.on_wave_specific_parameters_selected();
         self.on_wave_tuning_changed();
-        self.on_wave_shaper_amount_changed();
+        self.on_wave_drive_amount_changed();
         self.on_wave_mod_speed_changed();
         self.on_wave_mod_amount_changed();
         self.on_wave_detune_value_changed();
@@ -174,14 +174,16 @@ impl UI {
         self.on_phaser_depth_changed();
         self.on_bitcrusher_activated();
         self.on_bitcrusher_amount_changed();
-        self.on_global_wave_shaper_activated();
-        self.on_global_wave_shaper_amount_changed();
+        self.on_saturation_activated();
+        self.on_saturation_mode_selected();
+        self.on_saturation_amount_changed();
+        self.on_makeup_gain_changed();
         self.on_compressor_activated();
         self.on_compressor_threshold_changed();
         self.on_compressor_ratio_changed();
-        self.on_wavefolder_activated();
-        self.on_wavefolder_threshold_changed();
-        self.on_wavefolder_ratio_changed();
+        self.on_wave_folder_activated();
+        self.on_wave_folder_threshold_changed();
+        self.on_wave_folder_ratio_changed();
         self.on_limiter_activated();
         self.on_limiter_threshold_changed();
         self.on_clipper_activated();
@@ -249,13 +251,13 @@ impl UI {
         });
     }
 
-    fn on_wave_shaper_amount_changed(&mut self) {
+    fn on_wave_drive_amount_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wave_shaper_amount_changed(move |level, oscillator| {
+        ui.on_wave_drive_amount_changed(move |level, oscillator| {
             if let Err(error) =
-                synth_sender.send(EventType::UpdateOscillatorShaperAmount(level, oscillator))
+                synth_sender.send(EventType::UpdateOscillatorDriveAmount(level, oscillator))
             {
                 eprintln!("Error sending event: {error}",);
             }
@@ -347,7 +349,6 @@ impl UI {
             }
         });
     }
-
 
     fn on_output_pan_value_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
@@ -672,27 +673,51 @@ impl UI {
         });
     }
 
-    fn on_global_wave_shaper_activated(&mut self) {
+    fn on_saturation_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_global_wave_shaper_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperEnabled(is_active)) {
+        ui.on_saturation_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSaturationEnabled(is_active)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_global_wave_shaper_amount_changed(&mut self) {
+    fn on_saturation_mode_selected(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_global_wave_shaper_amount_changed(move |amount| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWaveShaperAmount(amount)) {
+        ui.on_saturation_mode_selected(move |mode| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSaturationMode(mode)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
+
+    fn on_saturation_amount_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_saturation_amount_changed(move |amount| {
+            if let Err(error) = synth_sender.send(EventType::UpdateSaturationAmount(amount)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+    fn on_makeup_gain_changed(&mut self) {
+        let ui = self.get_ui_reference_from_ui_weak();
+        let synth_sender = self.synth_sender.clone();
+
+        ui.on_makeup_gain_changed(move |gain| {
+            if let Err(error) = synth_sender.send(EventType::UpdateMakeupGain(gain)) {
+                eprintln!("Error sending event: {error}",);
+            }
+        });
+    }
+
+
 
     fn on_compressor_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
@@ -727,34 +752,34 @@ impl UI {
         });
     }
 
-    fn on_wavefolder_activated(&mut self) {
+    fn on_wave_folder_activated(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wavefolder_activated(move |is_active| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWavefolderActive(is_active)) {
+        ui.on_wave_folder_activated(move |is_active| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveFolderActive(is_active)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wavefolder_threshold_changed(&mut self) {
+    fn on_wave_folder_threshold_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wavefolder_threshold_changed(move |threshold| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWavefolderThreshold(threshold)) {
+        ui.on_wave_folder_threshold_changed(move |threshold| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveFolderThreshold(threshold)) {
                 eprintln!("Error sending event: {error}",);
             }
         });
     }
 
-    fn on_wavefolder_ratio_changed(&mut self) {
+    fn on_wave_folder_ratio_changed(&mut self) {
         let ui = self.get_ui_reference_from_ui_weak();
         let synth_sender = self.synth_sender.clone();
 
-        ui.on_wavefolder_ratio_changed(move |ratio| {
-            if let Err(error) = synth_sender.send(EventType::UpdateWavefolderRatio(ratio)) {
+        ui.on_wave_folder_ratio_changed(move |ratio| {
+            if let Err(error) = synth_sender.send(EventType::UpdateWaveFolderRatio(ratio)) {
                 eprintln!("Error sending event: {error}",);
             }
         });

@@ -322,11 +322,26 @@ export global Theme {
     out property <int> bitcrush-amount-slider-maximum: 8;
     out property <int> bitcrush-amount-slider-default: 8;
 
-    // Wave Shaper  Sliders
-    out property <float> wave-shaper-amount-slider-step: 0.1;
-    out property <float> wave-shaper-amount-slider-minimum: 0.0;
-    out property <float> wave-shaper-amount-slider-maximum: 10.0;
-    out property <float> wave-shaper-amount-slider-default: 0.0;
+    // Saturation  Sliders
+    out property <float> saturation-amount-slider-step: 0.1;
+    out property <float> saturation-amount-slider-minimum: 0.1;
+    out property <float> saturation-amount-slider-maximum: 1.0;
+    out property <float> saturation-amount-slider-default: 0.1;
+    out property <string> saturation-mode-default: "Analog Modeled";
+    out property <length> saturation-selector-height: 25px;
+    out property <length> saturation-selector-width: 175px;
+    out property <[string]> saturation-mode-list: [
+          "Analog Modeled",
+          "Tube Like",
+          "Soft Clipping",
+          "Wave Shaping",
+          "Sine Shaper",
+          "Polynomial",
+    ];
+    out property <int> makeup-gain-slider-step: 1;
+    out property <int> makeup-gain-slider-minimum: -10;
+    out property <int> makeup-gain-slider-maximum: 10;
+    out property <int> makeup-gain-slider-default: 0;
 
     // Gate Duty Cycle Slider
     out property <int> envelope-gate-duty-cycle-step: 1;
@@ -353,14 +368,14 @@ export global Theme {
     out property <float> compressor-ratio-default: 2;
 
     // Wave Folder Sliders
-    out property <float> wavefolder-threshold-step: 1;
-    out property <float> wavefolder-threshold-minimum: -30;
-    out property <float> wavefolder-threshold-maximum: 0;
-    out property <float> wavefolder-threshold-default: 0;
-    out property <float> wavefolder-ratio-step: 1;
-    out property <float> wavefolder-ratio-minimum: 1;
-    out property <float> wavefolder-ratio-maximum: 10;
-    out property <float> wavefolder-ratio-default: 2;
+    out property <float> wave_folder-threshold-step: 1;
+    out property <float> wave_folder-threshold-minimum: -30;
+    out property <float> wave_folder-threshold-maximum: 0;
+    out property <float> wave_folder-threshold-default: 0;
+    out property <float> wave_folder-ratio-step: 1;
+    out property <float> wave_folder-ratio-minimum: 1;
+    out property <float> wave_folder-ratio-maximum: 10;
+    out property <float> wave_folder-ratio-default: 2;
 
     out property <float> limiter-threshold-step: 1;
     out property <float> limiter-threshold-minimum: -30;
@@ -466,19 +481,20 @@ export global Theme {
     out property <string> phaser-heading-text: "Phaser";
     out property <string> bitcrush-amount-text: "Samples: ";
     out property <string> bitcrush-heading-text: "BitShift";
-    out property <string> wave-shaper-speed-text: "Speed: ";
-    out property <string> wave-shaper-amount-text: "Amount: ";
-    out property <string> wave-shaper-heading-text: "Saturation";
+    out property <string> saturation-speed-text: "Speed: ";
+    out property <string> saturation-amount-text: "Amount: ";
+    out property <string> saturation-heading-text: "Saturation";
+    out property <string> makeup-gain-label-text: "Makeup Gain:  ";
     out property <string> tremolo-heading-text: "Tremolo";
     out property <string> filter-modulation-heading-text: "Filter Mod";
     out property <string> compressor-heading-text: "Compressor";
     out property <string> compressor-threshold-text: "Threshold: ";
     out property <string> compressor-ratio-text: "Ratio: ";
     out property <string> compressor-ratio-suffix: ":1";
-    out property <string> wavefolder-heading-text: "Wave Folder";
-    out property <string> wavefolder-threshold-text: "Threshold: ";
-    out property <string> wavefolder-ratio-text: "Ratio: ";
-    out property <string> wavefolder-ratio-suffix: ":1";
+    out property <string> wave_folder-heading-text: "Wave Folder";
+    out property <string> wave_folder-threshold-text: "Threshold: ";
+    out property <string> wave_folder-ratio-text: "Ratio: ";
+    out property <string> wave_folder-ratio-suffix: ":1";
     out property <string> limiter-heading-text: "Limiter";
     out property <string> limiter-threshold-text: "Threshold: ";
     out property <string> clipper-heading-text: "Clipper";

@@ -1,6 +1,5 @@
 import { Button, Slider, Switch, SpinBox, HorizontalBox, TabWidget } from "std-widgets.slint";
-import { Header, Title, Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch
- } from "../ui/components.slint";
+import { Header, Title, Panel, Heading, Label, StartButton, WaveSelector, LevelSlider, OutputLevelSlider, ADSRSlider, FilterSlider, ActivationSwitch} from "../ui/components.slint";
 import { Theme } from "../ui/theme.slint";
 import { OscillatorPanel } from "../ui/oscillator-panel.slint";
 import { FilterPanel } from "../ui/filter-panel.slint";
@@ -29,7 +28,7 @@ export component AppWindow inherits Window {
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
     callback wave_specific_parameters_selected(float, float, int);
-    callback wave_shaper_amount_changed(float, int);
+    callback wave_drive_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_mod_amount_changed(float, int);
     callback wave_tuning_changed(int, int);
@@ -70,14 +69,16 @@ export component AppWindow inherits Window {
     callback phaser_amount_changed(float);
     callback bitcrusher_activated(bool);
     callback bitcrusher_amount_changed(int);
-    callback global_wave_shaper_activated(bool);
-    callback global_wave_shaper_amount_changed(float);
+    callback saturation_activated(bool);
+    callback saturation_mode_selected(string);
+    callback saturation_amount_changed(float);
+    callback makeup_gain_changed(int);
     callback compressor_activated(bool);
     callback compressor_threshold_changed(float);
     callback compressor_ratio_changed(float);
-    callback wavefolder_activated(bool);
-    callback wavefolder_threshold_changed(float);
-    callback wavefolder_ratio_changed(float);
+    callback wave_folder_activated(bool);
+    callback wave_folder_threshold_changed(float);
+    callback wave_folder_ratio_changed(float);
     callback limiter_activated(bool);
     callback limiter_threshold_changed(float);
     callback clipper_activated(bool);
@@ -133,8 +134,8 @@ export component AppWindow inherits Window {
                                 root.wave_tuning_changed(interval, oscillator);
                             }
 
-                            wave_shaper_amount_changed(amount, oscillator) => {
-                                root.wave_shaper_amount_changed(amount, oscillator);
+                            wave_drive_amount_changed(amount, oscillator) => {
+                                root.wave_drive_amount_changed(amount, oscillator);
                             }
 
                             wave_mod_amount_changed(amount, oscillator) => {
@@ -266,12 +267,20 @@ export component AppWindow inherits Window {
                                 root.bitcrusher_amount_changed(amount);
                             }
 
-                            wave_shaper_activated(is_activated) => {
-                                root.global_wave_shaper_activated(is_activated);
+                            saturation_activated(is_activated) => {
+                                root.saturation_activated(is_activated);
                             }
 
-                            wave_shaper_amount_changed(amount) => {
-                                root.global_wave_shaper_amount_changed(amount);
+                            saturation_amount_changed(amount) => {
+                                root.saturation_amount_changed(amount);
+                            }
+
+                            saturation_mode_selected(mode) => {
+                                root.saturation_mode_selected(mode);
+                            }
+
+                            makeup_gain_changed(gain) => {
+                                makeup_gain_changed(gain);
                             }
 
                             auto_pan_activated(is_actived) => {
@@ -310,16 +319,16 @@ export component AppWindow inherits Window {
                                 root.compressor_ratio_changed(ratio);
                             }
 
-                            wavefolder_activated(is_actived) => {
-                                root.wavefolder_activated(is_actived);
+                            wave_folder_activated(is_actived) => {
+                                root.wave_folder_activated(is_actived);
                             }
 
-                            wavefolder_threshold_changed(threshold) => {
-                                root.wavefolder_threshold_changed(threshold);
+                            wave_folder_threshold_changed(threshold) => {
+                                root.wave_folder_threshold_changed(threshold);
                             }
 
-                            wavefolder_ratio_changed(ratio) => {
-                                root.wavefolder_ratio_changed(ratio);
+                            wave_folder_ratio_changed(ratio) => {
+                                root.wave_folder_ratio_changed(ratio);
                             }
 
                             limiter_activated(is_actived) => {

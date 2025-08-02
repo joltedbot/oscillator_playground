@@ -145,6 +145,16 @@ export component WaveSelector inherits ComboBox {
     }
 }
 
+export component SaturationSelector inherits ComboBox {
+    in-out property <string> mode: Theme.saturation-mode-default;
+    callback saturation_mode_selected(string);
+    model: Theme.saturation-mode-list;
+    current-value: mode;
+    selected(shape) => {
+        saturation_mode_selected(shape);
+    }
+}
+
 export component DeviceSelector inherits ComboBox {
     in-out property <string> current-device;
     in property <[string]> device-list;
@@ -277,8 +287,6 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
         }
     }
 
-
-
     Slider {
         height: slider_height;
         width: slider_width;
@@ -297,7 +305,6 @@ export component VerticalLabeledIntSlider inherits VerticalLayout {
             new_value_selected(self.value);
         }
     }
-
 }
 
 export component VerticalLabeledFloatSlider inherits VerticalLayout {
@@ -330,24 +337,23 @@ export component VerticalLabeledFloatSlider inherits VerticalLayout {
         }
     }
 
-        Slider {
-            width: slider_width;
-            height: slider_height;
-            orientation: slider_orientation;
-            enabled: is_enabled;
-            value: slider_value;
-            step: step;
-            minimum: minimum;
-            maximum: maximum;
+    Slider {
+        width: slider_width;
+        height: slider_height;
+        orientation: slider_orientation;
+        enabled: is_enabled;
+        value: slider_value;
+        step: step;
+        minimum: minimum;
+        maximum: maximum;
 
-            changed value => {
-                slider_value = self.value;
-                if (self.value < step) {
-                    self.value == 0;
-                }
-                new_value_selected(self.value);
+        changed value => {
+            slider_value = self.value;
+            if (self.value < step) {
+                self.value == 0;
             }
-
+            new_value_selected(self.value);
+        }
     }
 }
 
@@ -719,7 +725,7 @@ export component OscilatorControls inherits HorizontalLayout {
 
     callback wave_shape_selected(string, int);
     callback wave_level_selected(float, int);
-    callback wave_shaper_amount_changed(float, int);
+    callback wave_drive_amount_changed(float, int);
     callback wave_mod_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_tuning_changed(int, int);
@@ -814,13 +820,13 @@ export component OscilatorControls inherits HorizontalLayout {
 
         osc_shape := VerticalLabeledFloatSlider {
             label: Theme.oscillator-shape-text;
-            slider_value: Theme.wave_shaper-amount-slider-default;
-            step: Theme.wave_shaper-amount-slider-step;
-            minimum: Theme.wave_shaper-amount-slider-minimum;
-            maximum: Theme.wave_shaper-amount-slider-maximum;
+            slider_value: Theme.saturation-amount-slider-default;
+            step: Theme.saturation-amount-slider-step;
+            minimum: Theme.saturation-amount-slider-minimum;
+            maximum: Theme.saturation-amount-slider-maximum;
 
             new_value_selected(amount) => {
-                wave_shaper_amount_changed(round(amount * 10.0) / 10.0, oscillator_number);
+                wave_drive_amount_changed(round(amount * 10.0) / 10.0, oscillator_number);
             }
         }
     }

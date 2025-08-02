@@ -1,8 +1,9 @@
 use crate::events::EventType;
-use crate::synth::dynamics::Dynamics;
+use crate::synth::dynamics::{Dynamics, get_f32_sample_from_dbfs};
 use crate::synth::envelope::{ADSRState, Envelope, GateState};
 use crate::synth::lfo::LFO;
 use crate::synth::oscillators::sine::Sine;
+use crate::synth::saturation::SaturationMode;
 use arpeggiator::{Arpeggiator, ArpeggiatorType, FIRST_REST_NOTE};
 use constants::*;
 use cpal::Stream;
@@ -22,6 +23,7 @@ pub mod envelope;
 pub mod filter;
 pub mod lfo;
 pub mod oscillators;
+pub mod saturation;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 enum AmpMode {
@@ -52,9 +54,9 @@ struct DynamicsParameters {
     compressor_enabled: bool,
     compressor_threshold: f32,
     compressor_ratio: f32,
-    wavefolder_enabled: bool,
-    wavefolder_threshold: f32,
-    wavefolder_ratio: f32,
+    wave_folder_enabled: bool,
+    wave_folder_threshold: f32,
+    wave_folder_ratio: f32,
     limiter_enabled: bool,
     limiter_threshold: f32,
     clipper_enabled: bool,
@@ -66,8 +68,10 @@ struct EffectsParameters {
     phaser: LFOParameters,
     bitcrusher_is_enabled: bool,
     bitcrusher_depth: u32,
-    wave_shaper_is_enabled: bool,
-    wave_shaper: f32,
+    saturation_is_enabled: bool,
+    saturation_amount: f32,
+    saturation_mode: SaturationMode,
+    saturation_makeup_gain: f32,
 }
 
 #[derive(Default, Clone, Debug, PartialEq)]
@@ -105,7 +109,6 @@ pub struct Synth {
 
 impl Synth {
     pub fn new() -> Self {
-
         let audio_device = AudioDevice::new();
         let sample_rate = audio_device.get_sample_rate();
 
@@ -193,7 +196,7 @@ impl Synth {
         let effects = EffectsParameters {
             phaser,
             bitcrusher_depth: DEFAULT_BIT_CRUSHER_DEPTH,
-            wave_shaper: DEFAULT_WAVE_SHAPER_AMOUNT,
+            saturation_amount: DEFAULT_WAVE_SHAPER_AMOUNT,
             ..Default::default()
         };
 
@@ -258,9 +261,9 @@ impl Synth {
                     let mut oscillators = self.get_oscillators_mutex_lock();
                     oscillators.set_shape_specific_parameters(parameters, oscillator);
                 }
-                EventType::UpdateOscillatorShaperAmount(amount, oscillator) => {
+                EventType::UpdateOscillatorDriveAmount(amount, oscillator) => {
                     let mut oscillators = self.get_oscillators_mutex_lock();
-                    oscillators.set_oscillator_shaper_amount(amount, oscillator);
+                    oscillators.set_oscillator_drive_amount(amount, oscillator);
                 }
                 EventType::UpdateOscillatorModFreq(speed, oscillator) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -293,7 +296,7 @@ impl Synth {
                 }
                 EventType::UpdateOutputPan(pan) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.manual_pan_value = pan as f32;
+                    parameters.manual_pan_value = pan;
                 }
                 EventType::UpdateEnvelopeAttack(milliseconds) => {
                     let mut envelope = self.get_envelope_mutex_lock();
@@ -438,13 +441,22 @@ impl Synth {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
                     parameters.effects.bitcrusher_depth = depth as u32;
                 }
-                EventType::UpdateWaveShaperEnabled(is_enabled) => {
+                EventType::UpdateSaturationEnabled(is_enabled) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.effects.wave_shaper_is_enabled = is_enabled;
+                    parameters.effects.saturation_is_enabled = is_enabled;
                 }
-                EventType::UpdateWaveShaperAmount(amount) => {
+                EventType::UpdateSaturationMode(mode_name) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.effects.wave_shaper = amount;
+                    let saturation_mode = saturation::get_saturation_mode_from_mode_name(&mode_name.to_string());
+                    parameters.effects.saturation_mode = saturation_mode;
+                }
+                EventType::UpdateMakeupGain(gain) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.saturation_makeup_gain = get_f32_sample_from_dbfs(gain as f32);
+                }
+                EventType::UpdateSaturationAmount(amount) => {
+                    let mut parameters = self.get_synth_parameters_mutex_lock();
+                    parameters.effects.saturation_amount = amount;
                 }
                 EventType::UpdateCompressorActive(is_active) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -458,17 +470,17 @@ impl Synth {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
                     parameters.dynamics.compressor_ratio = ratio;
                 }
-                EventType::UpdateWavefolderActive(is_active) => {
+                EventType::UpdateWaveFolderActive(is_active) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.dynamics.wavefolder_enabled = is_active;
+                    parameters.dynamics.wave_folder_enabled = is_active;
                 }
-                EventType::UpdateWavefolderThreshold(threshold) => {
+                EventType::UpdateWaveFolderThreshold(threshold) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.dynamics.wavefolder_threshold = threshold;
+                    parameters.dynamics.wave_folder_threshold = threshold;
                 }
-                EventType::UpdateWavefolderRatio(ratio) => {
+                EventType::UpdateWaveFolderRatio(ratio) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
-                    parameters.dynamics.wavefolder_ratio = ratio;
+                    parameters.dynamics.wave_folder_ratio = ratio;
                 }
                 EventType::UpdateLimiterActive(is_active) => {
                     let mut parameters = self.get_synth_parameters_mutex_lock();
@@ -661,7 +673,6 @@ impl Synth {
                     let left_channel_index = parameters.audio_output_channel_indexes.0;
                     let right_channel_index = parameters.audio_output_channel_indexes.1;
 
-
                     // Start the processing of individual frames
                     for frame in buffer.chunks_mut(number_of_channels) {
                         let sub_oscillator_modulation = get_oscillator_mod_value(
@@ -770,12 +781,15 @@ impl Synth {
                             );
                         }
 
-                        if parameters.effects.wave_shaper_is_enabled {
-                            (left_sample, right_sample) = effects::get_wave_shaped_sample(
-                                parameters.effects.wave_shaper,
+                        if parameters.effects.saturation_is_enabled {
+                            (left_sample, right_sample) = saturation::get_saturated_samples(
+                                parameters.effects.saturation_mode,
+                                parameters.effects.saturation_amount,
                                 left_sample,
                                 right_sample,
                             );
+                            left_sample = left_sample * parameters.effects.saturation_makeup_gain;
+                            right_sample = right_sample * parameters.effects.saturation_makeup_gain;
                         }
                         let arp_is_active = parameters.arpeggiator_is_active;
 
@@ -826,7 +840,7 @@ impl Synth {
                             }
                         }
 
-                        if parameters.dynamics.wavefolder_enabled {
+                        if parameters.dynamics.wave_folder_enabled {
                             (left_sample, right_sample) = get_wavefolded_samples(
                                 &mut parameters,
                                 &dynamics,
@@ -863,7 +877,9 @@ impl Synth {
                         }
 
                         let (left_pan_adjustment, right_pan_adjustment) =
-                            effects::get_sample_adjustment_for_pan_value(parameters.manual_pan_value);
+                            effects::get_sample_adjustment_for_pan_value(
+                                parameters.manual_pan_value,
+                            );
 
                         frame[left_channel_index] = left_sample * left_pan_adjustment;
 
@@ -960,16 +976,16 @@ fn get_wavefolded_samples(
     left_sample: f32,
     right_sample: f32,
 ) -> (f32, f32) {
-    let left_sample = dynamics.wavefold(
+    let left_sample = dynamics.wave_fold(
         parameters.output_level,
-        parameters.dynamics.wavefolder_threshold,
-        parameters.dynamics.wavefolder_ratio,
+        parameters.dynamics.wave_folder_threshold,
+        parameters.dynamics.wave_folder_ratio,
         left_sample,
     );
-    let right_sample = dynamics.wavefold(
+    let right_sample = dynamics.wave_fold(
         parameters.output_level,
-        parameters.dynamics.wavefolder_threshold,
-        parameters.dynamics.wavefolder_ratio,
+        parameters.dynamics.wave_folder_threshold,
+        parameters.dynamics.wave_folder_ratio,
         right_sample,
     );
 

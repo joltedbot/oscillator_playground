@@ -12,8 +12,8 @@ export component OscillatorPanel inherits HorizontalLayout {
     callback wave_specific_parameters_selected(float, float, int);
     callback wave_am_amount_selected(int, int);
     callback wave_shape_selected(string, int);
+    callback wave_drive_amount_changed(float, int);
     callback wave_tuning_changed(int, int);
-    callback wave_shaper_amount_changed(float, int);
     callback wave_mod_speed_changed(float, int);
     callback wave_mod_amount_changed(float, int);
     callback wave_detune_value_changed(float);
@@ -50,8 +50,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                 wave_tuning_changed(interval, oscillator) => {
                     root.wave_tuning_changed(interval, oscillator);
                 }
-                wave_shaper_amount_changed(amount, oscillator) => {
-                    root.wave_shaper_amount_changed(amount, oscillator);
+                wave_drive_amount_changed(amount, oscillator) => {
+                    root.wave_drive_amount_changed(amount, oscillator);
                 }
                 wave_mod_amount_changed(amount, oscillator) => {
                     root.wave_mod_amount_changed(amount, oscillator);
@@ -82,8 +82,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                 wave_tuning_changed(interval, oscillator) => {
                     root.wave_tuning_changed(interval, oscillator);
                 }
-                wave_shaper_amount_changed(amount, oscillator) => {
-                    root.wave_shaper_amount_changed(amount, oscillator);
+                wave_drive_amount_changed(amount, oscillator) => {
+                    root.wave_drive_amount_changed(amount, oscillator);
                 }
                 wave_mod_amount_changed(amount, oscillator) => {
                     root.wave_mod_amount_changed(amount, oscillator);
@@ -114,8 +114,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                 wave_tuning_changed(interval, oscillator) => {
                     root.wave_tuning_changed(interval, oscillator);
                 }
-                wave_shaper_amount_changed(amount, oscillator) => {
-                    root.wave_shaper_amount_changed(amount, oscillator);
+                wave_drive_amount_changed(amount, oscillator) => {
+                    root.wave_drive_amount_changed(amount, oscillator);
                 }
                 wave_mod_amount_changed(amount, oscillator) => {
                     root.wave_mod_amount_changed(amount, oscillator);
@@ -147,8 +147,8 @@ export component OscillatorPanel inherits HorizontalLayout {
                 wave_tuning_changed(interval, oscillator) => {
                     root.wave_tuning_changed(interval, oscillator);
                 }
-                wave_shaper_amount_changed(amount, oscillator) => {
-                    root.wave_shaper_amount_changed(amount, oscillator);
+                wave_drive_amount_changed(amount, oscillator) => {
+                    root.wave_drive_amount_changed(amount, oscillator);
                 }
                 wave_mod_amount_changed(amount, oscillator) => {
                     root.wave_mod_amount_changed(amount, oscillator);
@@ -169,7 +169,7 @@ export component OscillatorPanel inherits HorizontalLayout {
                 spacing: 10px;
                 padding: 10px;
 
-                VerticalLayout{}
+                VerticalLayout { }
 
                 VerticalLayout {
                     spacing: 10px;
@@ -192,7 +192,7 @@ export component OscillatorPanel inherits HorizontalLayout {
                     detune_amount := VerticalLabeledFloatSlider {
                         is_enabled: false;
                         slider_height: Theme.vertical-slider-height;
-                        label: round(detune_amount.slider_value*10)/10 + Theme.detune-amount-label-suffix;
+                        label: round(detune_amount.slider_value * 10) / 10 + Theme.detune-amount-label-suffix;
                         slider_value: Theme.detune-amount-slider-default;
                         is_bold: true;
                         step: Theme.detune-slider-step;
@@ -269,7 +269,7 @@ export component OscillatorPanel inherits HorizontalLayout {
                             maximum: Theme.output-pan-slider-maximum;
 
                             new_value_selected(pan) => {
-                                root.output_pan_value_changed(round(pan * 100)/100);
+                                root.output_pan_value_changed(round(pan * 100) / 100);
                             }
                         }
 
@@ -278,7 +278,6 @@ export component OscillatorPanel inherits HorizontalLayout {
                         }
                     }
                 }
-
 
                 VerticalSpacer {
                     line-height: 100px;
@@ -302,37 +301,38 @@ export component OscillatorPanel inherits HorizontalLayout {
                         indeterminate: true;
                     }
                 }
+
                 VerticalSpacer {
                     line-height: 100px;
                 }
+
                 VerticalLayout {
-                        spacing: 10px;
-                        padding: 10px;
-                        alignment: center;
+                    spacing: 10px;
+                    padding: 10px;
+                    alignment: center;
 
-                        reset_button := ActionButton {
-                            text: Theme.resync-button-text;
-                            width: Theme.resync-button-width;
-                            height: Theme.resync-button-height;
+                    reset_button := ActionButton {
+                        text: Theme.resync-button-text;
+                        width: Theme.resync-button-width;
+                        height: Theme.resync-button-height;
 
-                            take_action() => {
-                                root.resync_oscillators();
-                            }
-                        }
-
-                        lfo_reset_button := ActionButton {
-                            text: Theme.resync-lfo-button-text;
-                            width: Theme.resync-button-width;
-                            height: Theme.resync-button-height;
-
-                            take_action() => {
-                                root.resync_oscillator_lfos();
-                            }
+                        take_action() => {
+                            root.resync_oscillators();
                         }
                     }
 
-                VerticalLayout {}
+                    lfo_reset_button := ActionButton {
+                        text: Theme.resync-lfo-button-text;
+                        width: Theme.resync-button-width;
+                        height: Theme.resync-button-height;
 
+                        take_action() => {
+                            root.resync_oscillator_lfos();
+                        }
+                    }
+                }
+
+                VerticalLayout { }
             }
         }
     }
